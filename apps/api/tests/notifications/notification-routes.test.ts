@@ -1,7 +1,12 @@
-import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
+import { describe, expect, it } from 'vitest';
+
 import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
-import { describe, expect, it } from 'vitest';
+import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
+import {
+  administratorHeaders,
+  administratorIdentityOverrides,
+} from '../support/identity.js';
 
 const config: ApiRuntimeConfig = {
   environment: 'test',
@@ -38,7 +43,10 @@ const submission = {
 
 describe('notification administrator routes', () => {
   it('shows failed delivery separately while preserving the public lead response', async () => {
-    const app = await buildApp(config, createApplicationDependencies(config));
+    const app = await buildApp(
+      config,
+      createApplicationDependencies(config, administratorIdentityOverrides()),
+    );
 
     const lead = await app.inject({
       method: 'POST',
@@ -50,6 +58,7 @@ describe('notification administrator routes', () => {
     const listed = await app.inject({
       method: 'GET',
       url: '/api/admin/notifications?status=failed',
+      headers: administratorHeaders,
     });
     expect(listed.statusCode).toBe(200);
     expect(listed.json()).toHaveLength(1);
@@ -58,6 +67,7 @@ describe('notification administrator routes', () => {
     const details = await app.inject({
       method: 'GET',
       url: `/api/admin/notifications/${notificationId}`,
+      headers: administratorHeaders,
     });
     expect(details.statusCode).toBe(200);
     expect(details.json().notification.status).toBe('failed');
@@ -66,6 +76,7 @@ describe('notification administrator routes', () => {
     const retry = await app.inject({
       method: 'POST',
       url: `/api/admin/notifications/${notificationId}/retry`,
+      headers: administratorHeaders,
     });
     expect(retry.statusCode).toBe(200);
     expect(retry.json().status).toBe('failed');
@@ -73,17 +84,22 @@ describe('notification administrator routes', () => {
     const afterRetry = await app.inject({
       method: 'GET',
       url: `/api/admin/notifications/${notificationId}`,
+      headers: administratorHeaders,
     });
     expect(afterRetry.json().attempts).toHaveLength(2);
     await app.close();
   });
 
   it('returns stable errors for unknown notification filters and identifiers', async () => {
-    const app = await buildApp(config, createApplicationDependencies(config));
+    const app = await buildApp(
+      config,
+      createApplicationDependencies(config, administratorIdentityOverrides()),
+    );
 
     const invalidFilter = await app.inject({
       method: 'GET',
       url: '/api/admin/notifications?status=unknown',
+      headers: administratorHeaders,
     });
     expect(invalidFilter.statusCode).toBe(400);
     expect(invalidFilter.json().code).toBe('INVALID_NOTIFICATION_FILTER');
@@ -91,6 +107,7 @@ describe('notification administrator routes', () => {
     const missing = await app.inject({
       method: 'GET',
       url: '/api/admin/notifications/00000000-0000-4000-8000-000000000000',
+      headers: administratorHeaders,
     });
     expect(missing.statusCode).toBe(404);
     expect(missing.json().code).toBe('NOTIFICATION_NOT_FOUND');

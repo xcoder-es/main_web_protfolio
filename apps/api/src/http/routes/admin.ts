@@ -27,7 +27,7 @@ export async function registerAdminRoutes(
 
   app.patch('/leads/:leadId/status', async (request) => {
     const { leadId } = request.params as { leadId: string };
-    const { status } = request.body as { status?: unknown };
+    const { status } = (request.body ?? {}) as { status?: unknown };
     if (typeof status !== 'string' || !isLeadStatus(status)) {
       throw new ApplicationError('VALIDATION_ERROR', 'The request contains invalid fields.', 400, {
         status: ['Unknown lead status.'],
@@ -38,7 +38,7 @@ export async function registerAdminRoutes(
 
   app.post('/leads/:leadId/notes', async (request, reply) => {
     const { leadId } = request.params as { leadId: string };
-    const { body } = request.body as { body?: unknown };
+    const { body } = (request.body ?? {}) as { body?: unknown };
     if (typeof body !== 'string') {
       throw new ApplicationError('VALIDATION_ERROR', 'The request contains invalid fields.', 400, {
         body: ['A note body is required.'],

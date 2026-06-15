@@ -1,6 +1,8 @@
 import { apiErrorSchema, type ApiError } from '@carlos-pinto/contracts';
 import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
+import { IdentityAccessError } from '../identity/application/authorization.js';
+import { IdentityVerificationError } from '../identity/application/ports.js';
 import { LeadApplicationError } from '../leads/application/errors.js';
 import { NotificationApplicationError } from '../notifications/application/notification-errors.js';
 
@@ -45,7 +47,13 @@ export function registerErrorHandlers(app: FastifyInstance): void {
 
   app.setErrorHandler(
     (
-      error: FastifyError | ApplicationError | LeadApplicationError | NotificationApplicationError,
+      error:
+        | FastifyError
+        | ApplicationError
+        | IdentityAccessError
+        | IdentityVerificationError
+        | LeadApplicationError
+        | NotificationApplicationError,
       request,
       reply: FastifyReply,
     ) => {
@@ -57,6 +65,11 @@ export function registerErrorHandlers(app: FastifyInstance): void {
         void reply
           .code(error.statusCode)
           .send(response(request, error.code, error.message, error.fieldErrors));
+        return;
+      }
+
+      if (error instanceof IdentityAccessError || error instanceof IdentityVerificationError) {
+        void reply.code(error.statusCode).send(response(request, error.code, error.message));
         return;
       }
 

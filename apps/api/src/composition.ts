@@ -3,6 +3,11 @@ import { randomUUID } from 'node:crypto';
 import type { Clock, IdGenerator } from '@carlos-pinto/contracts';
 
 import type { ServiceProbe } from './application/readiness.js';
+import { createAdministratorAuthentication } from './http/admin-authentication.js';
+import { ClerkIdentityVerifier, createClerkIdentityVerifier } from './identity/adapters/clerk-identity-verifier.js';
+import { DisabledIdentityVerifier } from './identity/adapters/disabled-identity-verifier.js';
+import { AdministratorAuthorizer } from './identity/application/authorization.js';
+import type { IdentityVerifier } from './identity/application/ports.js';
 import type { ApiRuntimeConfig } from './infrastructure/config.js';
 import { LeadsService } from './leads/application/service.js';
 import { DisabledNotificationSender } from './notifications/adapters/disabled-notification-sender.js';
@@ -32,6 +37,7 @@ export type ApplicationDependencies = {
   leads: LeadsService;
   notifications: NotificationsService;
   submissions: SubmissionNotificationCoordinator;
+  administratorAuthentication: ReturnType<typeof createAdministratorAuthentication>;
 };
 
 export type PersistenceBundle = Readonly<{
@@ -44,6 +50,9 @@ export type ApplicationOverrides = Readonly<{
   clock?: Clock;
   ids?: IdGenerator;
   notificationSender?: NotificationSender;
+  identityVerifier?: IdentityVerifier;
+  administratorUserIds?: readonly string[];
+  administratorEmails?: readonly string[];
 }>;
 
 export function createApplicationDependencies(
@@ -57,6 +66,33 @@ export function createApplicationDependencies(
   };
   const clock: Clock = overrides.clock ?? { now: () => new Date() };
   const ids: IdGenerator = overrides.ids ?? { generate: () => randomUUID() };
+
+  const administratorUserIds =
+    overrides.administratorUserIds ?? config.identity?.administratorUserIds ?? [];
+  const administratorEmails =
+    overrides.administratorEmails ?? config.identity?.administratorEmails ?? [];
+  const authorizer = new AdministratorAuthorizer(administratorUserIds, administratorEmails);
+  const clerkConfigured = Boolean(
+    config.identity?.clerkSecretKey &&
+      config.identity.clerkPublishableKey &&
+      config.identity.authorizedParties.length > 0 &&
+      authorizer.configured,
+  );
+  const identityVerifier: IdentityVerifier =
+    overrides.identityVerifier ??
+    (clerkConfigured && config.identity?.clerkSecretKey && config.identity.clerkPublishableKey
+      ? createClerkIdentityVerifier({
+          secretKey: config.identity.clerkSecretKey,
+          publishableKey: config.identity.clerkPublishableKey,
+          ...(config.identity.clerkJwtKey ? { jwtKey: config.identity.clerkJwtKey } : {}),
+          authorizedParties: config.identity.authorizedParties,
+          resolvePrimaryEmail: administratorEmails.length > 0,
+        })
+      : new DisabledIdentityVerifier());
+  const identityConfigured = Boolean(
+    authorizer.configured && (overrides.identityVerifier || identityVerifier instanceof ClerkIdentityVerifier),
+  );
+
   const notificationConfigured = Boolean(
     overrides.notificationSender ||
       (config.notification?.resendApiKey &&
@@ -95,7 +131,7 @@ export function createApplicationDependencies(
   return {
     probes: [
       capabilityProbe('persistence', config.features.persistence),
-      capabilityProbe('identity', config.features.identity),
+      capabilityProbe('identity', config.features.identity, identityConfigured),
       capabilityProbe('notifications', config.features.notifications, notificationConfigured),
       capabilityProbe('payments', config.features.payments),
       capabilityProbe('spam-verification', config.features.spamVerification),
@@ -103,5 +139,6 @@ export function createApplicationDependencies(
     leads,
     notifications,
     submissions: new SubmissionNotificationCoordinator(leads, notifications),
+    administratorAuthentication: createAdministratorAuthentication(identityVerifier, authorizer),
   };
 }

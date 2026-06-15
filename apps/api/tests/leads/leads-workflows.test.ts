@@ -8,6 +8,10 @@ import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
 import { LeadApplicationError } from '../../src/leads/application/errors.js';
 import { LeadsService } from '../../src/leads/application/service.js';
 import { InMemoryPersistence } from '../../src/persistence/adapters/in-memory/in-memory-persistence.js';
+import {
+  administratorHeaders,
+  administratorIdentityOverrides,
+} from '../support/identity.js';
 
 const now = new Date('2026-06-15T12:00:00.000Z');
 const clock: Clock = { now: () => new Date(now) };
@@ -152,8 +156,12 @@ describe('lead HTTP acceptance', () => {
     await Promise.all(apps.splice(0).map((app) => app.close()));
   });
 
-  it('accepts public requests without authentication and exposes admin workflows separately', async () => {
-    const dependencies = createApplicationDependencies(config, { clock, ids: sequentialIds() });
+  it('accepts public requests without authentication and exposes protected admin workflows', async () => {
+    const dependencies = createApplicationDependencies(config, {
+      clock,
+      ids: sequentialIds(),
+      ...administratorIdentityOverrides(),
+    });
     const app = await buildApp(config, dependencies);
     apps.push(app);
 
@@ -165,14 +173,18 @@ describe('lead HTTP acceptance', () => {
     expect(duplicate.statusCode).toBe(200);
     expect(duplicate.json().created).toBe(false);
 
-    const listed = await app.inject({ method: 'GET', url: '/api/admin/leads' });
+    const listed = await app.inject({
+      method: 'GET',
+      url: '/api/admin/leads',
+      headers: administratorHeaders,
+    });
     expect(listed.statusCode).toBe(200);
     expect(listed.json()).toHaveLength(1);
 
     const note = await app.inject({
       method: 'POST',
       url: `/api/admin/leads/${leadId}/notes`,
-      headers: { 'x-admin-principal-id': 'admin-acceptance' },
+      headers: administratorHeaders,
       payload: { body: 'Follow up tomorrow.' },
     });
     expect(note.statusCode).toBe(201);

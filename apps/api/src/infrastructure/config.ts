@@ -17,6 +17,14 @@ export type ApiRuntimeConfig = {
     payments: boolean;
     spamVerification: boolean;
   };
+  identity?: {
+    clerkSecretKey?: string;
+    clerkPublishableKey?: string;
+    clerkJwtKey?: string;
+    authorizedParties: readonly string[];
+    administratorUserIds: readonly string[];
+    administratorEmails: readonly string[];
+  };
   notification?: {
     recipientAddress: string;
     fromAddress: string;
@@ -39,11 +47,15 @@ function positiveInteger(value: string | undefined, fallback: number, name: stri
   return parsed;
 }
 
-function origins(value: string | undefined, environment: ApiRuntimeConfig['environment']): string[] {
-  const configured = (value ?? 'http://localhost:4321')
+function csvValues(value: string | undefined): string[] {
+  return (value ?? '')
     .split(',')
     .map((item) => item.trim())
     .filter(Boolean);
+}
+
+function origins(value: string | undefined, environment: ApiRuntimeConfig['environment']): string[] {
+  const configured = csvValues(value ?? 'http://localhost:4321');
 
   for (const origin of configured) {
     if (origin === '*') throw new Error('CORS_ORIGINS cannot contain a wildcard');
@@ -55,6 +67,40 @@ function origins(value: string | undefined, environment: ApiRuntimeConfig['envir
   }
 
   return configured;
+}
+
+function optionalIdentityConfig(env: Record<string, string | undefined>) {
+  const clerkSecretKey = env.CLERK_SECRET_KEY?.trim();
+  const clerkPublishableKey = env.CLERK_PUBLISHABLE_KEY?.trim();
+  const clerkJwtKey = env.CLERK_JWT_KEY?.trim();
+  const authorizedParties = csvValues(env.CLERK_AUTHORIZED_PARTIES);
+  const administratorUserIds = csvValues(env.CLERK_ADMIN_USER_IDS);
+  const administratorEmails = csvValues(env.CLERK_ADMIN_EMAILS).map((email) => email.toLowerCase());
+
+  for (const party of authorizedParties) {
+    if (party === '*') throw new Error('CLERK_AUTHORIZED_PARTIES cannot contain a wildcard');
+    new URL(party);
+  }
+
+  if (
+    !clerkSecretKey &&
+    !clerkPublishableKey &&
+    !clerkJwtKey &&
+    authorizedParties.length === 0 &&
+    administratorUserIds.length === 0 &&
+    administratorEmails.length === 0
+  ) {
+    return undefined;
+  }
+
+  return {
+    ...(clerkSecretKey ? { clerkSecretKey } : {}),
+    ...(clerkPublishableKey ? { clerkPublishableKey } : {}),
+    ...(clerkJwtKey ? { clerkJwtKey } : {}),
+    authorizedParties,
+    administratorUserIds,
+    administratorEmails,
+  };
 }
 
 function optionalNotificationConfig(env: Record<string, string | undefined>) {
@@ -96,6 +142,7 @@ export function loadApiRuntimeConfig(
     throw new Error(`Invalid LOG_LEVEL: ${logLevel}`);
   }
 
+  const identity = optionalIdentityConfig(env);
   const notification = optionalNotificationConfig(env);
   return {
     ...base,
@@ -105,6 +152,7 @@ export function loadApiRuntimeConfig(
     bodyLimit: positiveInteger(env.BODY_LIMIT_BYTES, 64 * 1024, 'BODY_LIMIT_BYTES'),
     rateLimitMax: positiveInteger(env.RATE_LIMIT_MAX, 100, 'RATE_LIMIT_MAX'),
     rateLimitWindowMs: positiveInteger(env.RATE_LIMIT_WINDOW_MS, 60_000, 'RATE_LIMIT_WINDOW_MS'),
+    ...(identity ? { identity } : {}),
     ...(notification ? { notification } : {}),
   };
 }

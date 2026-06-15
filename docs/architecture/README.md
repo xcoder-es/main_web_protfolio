@@ -16,3 +16,8 @@ Automated boundary checks begin in `scripts/check-boundaries.mjs` and become str
 ## Supporting documents
 
 - [Shared contracts and configuration](shared-contracts-and-configuration.md)
+- [Persistence architecture](persistence.md)
+- [Fastify API foundation](api-foundation.md)
+- [Leads, notes and audit workflows](leads.md)
+- [Durable notifications](notifications.md)
+- [Administrator identity and Clerk boundary](identity.md)

@@ -3,12 +3,17 @@ import type { FastifyInstance, FastifyRequest } from 'fastify';
 import type { LeadsService } from '../../leads/application/service.js';
 import { isLeadStatus } from '../../leads/domain/model.js';
 import { ApplicationError } from '../errors.js';
+import { requireAuthenticatedPrincipal } from '../identity-context.js';
 
 export async function registerAdminRoutes(
   app: FastifyInstance,
   leads: LeadsService,
 ): Promise<void> {
-  app.get('/status', async () => ({ available: true, authentication: 'not-configured' }));
+  app.get('/status', async (request) => ({
+    available: true,
+    authentication: 'verified',
+    userId: requireAuthenticatedPrincipal(request).userId,
+  }));
 
   app.get('/leads/export.csv', async (request, reply) => {
     const csv = protectSpreadsheetCells(await leads.exportCsv(queryFilter(request)));
@@ -69,11 +74,10 @@ function queryFilter(request: FastifyRequest) {
 }
 
 function administrator(request: FastifyRequest) {
-  const supplied = request.headers['x-admin-principal-id'];
-  const id = Array.isArray(supplied) ? supplied[0] : supplied;
+  const principal = requireAuthenticatedPrincipal(request);
   return {
     type: 'administrator' as const,
-    id: id?.trim() || 'local-administrator',
+    id: principal.userId,
     correlationId: request.id,
   };
 }

@@ -46,7 +46,7 @@ export async function buildApp(config: ApiRuntimeConfig, dependencies: Applicati
   await app.register(cors, {
     credentials: false,
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['content-type', 'authorization', 'x-correlation-id', 'idempotency-key', 'x-admin-principal-id'],
+    allowedHeaders: ['content-type', 'authorization', 'x-correlation-id', 'idempotency-key'],
     exposedHeaders: ['x-correlation-id', 'retry-after'],
     origin(origin, callback) {
       if (!origin || config.allowedOrigins.includes(origin)) return callback(null, true);
@@ -59,8 +59,14 @@ export async function buildApp(config: ApiRuntimeConfig, dependencies: Applicati
   registerErrorHandlers(app);
   await registerSystemRoutes(app, dependencies.probes);
   await app.register(async (scope) => registerPublicRoutes(scope, dependencies.submissions), { prefix: '/api/public' });
-  await app.register(async (scope) => registerAdminRoutes(scope, dependencies.leads), { prefix: '/api/admin' });
-  await app.register(async (scope) => registerNotificationAdminRoutes(scope, dependencies.notifications), { prefix: '/api/admin' });
+  await app.register(
+    async (scope) => {
+      scope.addHook('onRequest', dependencies.administratorAuthentication);
+      await registerAdminRoutes(scope, dependencies.leads);
+      await registerNotificationAdminRoutes(scope, dependencies.notifications);
+    },
+    { prefix: '/api/admin' },
+  );
   await app.register(registerWebhookRoutes, { prefix: '/api/webhooks' });
   return app;
 }

@@ -1,9 +1,16 @@
-import { afterEach, describe, expect, it } from 'vitest';
 import type { FastifyInstance } from 'fastify';
+import { afterEach, describe, expect, it } from 'vitest';
 
 import { buildApp } from '../src/app.js';
-import { createApplicationDependencies } from '../src/composition.js';
+import {
+  createApplicationDependencies,
+  type ApplicationOverrides,
+} from '../src/composition.js';
 import type { ApiRuntimeConfig } from '../src/infrastructure/config.js';
+import {
+  administratorHeaders,
+  administratorIdentityOverrides,
+} from './support/identity.js';
 
 const apps: FastifyInstance[] = [];
 
@@ -29,8 +36,11 @@ function config(overrides: Partial<ApiRuntimeConfig> = {}): ApiRuntimeConfig {
   };
 }
 
-async function createApp(runtime = config()): Promise<FastifyInstance> {
-  const app = await buildApp(runtime, createApplicationDependencies(runtime));
+async function createApp(
+  runtime = config(),
+  overrides: ApplicationOverrides = {},
+): Promise<FastifyInstance> {
+  const app = await buildApp(runtime, createApplicationDependencies(runtime, overrides));
   apps.push(app);
   return app;
 }
@@ -122,7 +132,10 @@ describe('Fastify API foundation', () => {
   });
 
   it('enforces payload and request-rate limits', async () => {
-    const app = await createApp(config({ rateLimitMax: 1 }));
+    const app = await createApp(
+      config({ rateLimitMax: 1 }),
+      administratorIdentityOverrides(),
+    );
     app.post('/test-body', async () => ({ accepted: true }));
 
     const oversized = await app.inject({
@@ -134,8 +147,16 @@ describe('Fastify API foundation', () => {
     expect(oversized.statusCode).toBe(413);
     expect(oversized.json().code).toBe('PAYLOAD_TOO_LARGE');
 
-    const first = await app.inject({ method: 'GET', url: '/api/admin/status' });
-    const second = await app.inject({ method: 'GET', url: '/api/admin/status' });
+    const first = await app.inject({
+      method: 'GET',
+      url: '/api/admin/status',
+      headers: administratorHeaders,
+    });
+    const second = await app.inject({
+      method: 'GET',
+      url: '/api/admin/status',
+      headers: administratorHeaders,
+    });
     expect(first.statusCode).toBe(200);
     expect(second.statusCode).toBe(429);
     expect(second.json().code).toBe('RATE_LIMIT_EXCEEDED');

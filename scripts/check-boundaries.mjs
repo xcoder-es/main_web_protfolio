@@ -43,3 +43,4 @@ if (violations.length > 0) {
 }
 
 console.log('Architecture boundaries are valid.');
+await import('./check-provider-docs.mjs');

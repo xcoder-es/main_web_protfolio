@@ -1,0 +1,1 @@
+Review Issue 3 primarily through the shared contract schemas, runtime configuration, deterministic test utilities, boundary checks and their tests. Small supporting documents explain the intended contracts and Render promotion model.

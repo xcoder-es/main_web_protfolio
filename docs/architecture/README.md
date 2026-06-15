@@ -12,3 +12,7 @@ The platform is a modular TypeScript monorepo. Backend business capabilities fol
 6. No global mutable service locator is permitted.
 
 Automated boundary checks begin in `scripts/check-boundaries.mjs` and become stricter as modules are introduced.
+
+## Supporting documents
+
+- [Shared contracts and configuration](shared-contracts-and-configuration.md)

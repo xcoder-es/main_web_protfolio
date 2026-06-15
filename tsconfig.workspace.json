@@ -6,6 +6,7 @@
     "apps/api/tests/**/*.ts",
     "apps/web/src/**/*.ts",
     "apps/web/tests/**/*.ts",
-    "packages/*/src/**/*.ts"
+    "packages/*/src/**/*.ts",
+    "packages/*/tests/**/*.ts"
   ]
 }

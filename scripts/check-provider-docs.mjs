@@ -14,9 +14,7 @@ const decisions = [
 const failures = [];
 
 function requireText(content, expected, file) {
-  if (!content.includes(expected)) {
-    failures.push(`${file} must include: ${expected}`);
-  }
+  if (!content.includes(expected)) failures.push(`${file} must include: ${expected}`);
 }
 
 for (const [file, officialDomain] of decisions) {
@@ -55,3 +53,4 @@ if (failures.length > 0) {
 }
 
 console.log('Provider decision documentation is complete and internally consistent.');
+await import('./check-browser-boundaries.mjs');

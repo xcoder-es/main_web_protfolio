@@ -10,7 +10,9 @@ Visitors must submit enquiries without creating accounts. Only Carlos and explic
 Official references:
 
 - https://clerk.com/pricing
-- https://clerk.com/docs/reference/backend/verify-token
+- https://clerk.com/docs/reference/backend/authenticate-request
+- https://clerk.com/docs/guides/sessions/session-tokens
+- https://clerk.com/docs/reference/backend/user/get-user
 
 ## Decision
 
@@ -20,10 +22,11 @@ Authorisation is separate from authentication. A configured allowlist of adminis
 
 ## Verification rules
 
+- Use `authenticateRequest()` for HTTP request authentication.
 - Validate the token signature and expiry on the API.
 - Configure `authorizedParties` for the expected frontend origins.
-- Validate audience when a dedicated audience is configured.
 - Use the JWT public key for networkless verification when operationally preferable.
+- Resolve the Clerk user only when email-based authorisation is configured.
 - Never pass Clerk SDK objects, raw claims or tokens into domain code.
 
 ## Consequences
@@ -31,13 +34,14 @@ Authorisation is separate from authentication. A configured allowlist of adminis
 Benefits:
 
 - No custom password or session implementation.
-- The Hobby allowance is far above the expected administrator count.
 - Public visitors remain frictionless.
+- User-ID allowlists avoid an additional user lookup on every request.
 
 Costs:
 
 - Clerk branding remains on Hobby prebuilt interfaces.
 - Authentication availability depends on Clerk and token-verification configuration.
+- Email allowlists require a backend user lookup unless email is added to a trusted custom claim.
 - Provider claims require an explicit translation layer.
 
 ## Replacement seam
@@ -46,4 +50,4 @@ Costs:
 
 ## Disabled and failure behaviour
 
-Authentication cannot be silently disabled in production. If Clerk is not configured, public routes remain available but administrator routes return a clear service-configuration error. Invalid or unauthorised principals receive stable 401 or 403 responses without provider details.
+Authentication cannot be silently disabled. If Clerk is not configured, public routes remain available but administrator routes return a clear service-configuration error. Invalid or unauthorised principals receive stable 401 or 403 responses without provider details.

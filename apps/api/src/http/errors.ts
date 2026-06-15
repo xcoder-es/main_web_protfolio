@@ -5,6 +5,8 @@ import { IdentityAccessError } from '../identity/application/authorization.js';
 import { IdentityVerificationError } from '../identity/application/ports.js';
 import { LeadApplicationError } from '../leads/application/errors.js';
 import { NotificationApplicationError } from '../notifications/application/notification-errors.js';
+import { PaymentApplicationError } from '../payments/application/errors.js';
+import { PaymentGatewayError } from '../payments/application/ports.js';
 
 export class ApplicationError extends Error {
   public constructor(
@@ -53,14 +55,17 @@ export function registerErrorHandlers(app: FastifyInstance): void {
         | IdentityAccessError
         | IdentityVerificationError
         | LeadApplicationError
-        | NotificationApplicationError,
+        | NotificationApplicationError
+        | PaymentApplicationError
+        | PaymentGatewayError,
       request,
       reply: FastifyReply,
     ) => {
       if (
         error instanceof ApplicationError ||
         error instanceof LeadApplicationError ||
-        error instanceof NotificationApplicationError
+        error instanceof NotificationApplicationError ||
+        error instanceof PaymentApplicationError
       ) {
         void reply
           .code(error.statusCode)
@@ -70,6 +75,12 @@ export function registerErrorHandlers(app: FastifyInstance): void {
 
       if (error instanceof IdentityAccessError || error instanceof IdentityVerificationError) {
         void reply.code(error.statusCode).send(response(request, error.code, error.message));
+        return;
+      }
+
+      if (error instanceof PaymentGatewayError) {
+        const statusCode = error.retryable ? 503 : 502;
+        void reply.code(statusCode).send(response(request, error.code, error.message));
         return;
       }
 

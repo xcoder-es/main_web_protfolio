@@ -11,6 +11,7 @@ describe('API runtime configuration', () => {
     expect(config.allowedOrigins).toEqual(['http://localhost:4321']);
     expect(Object.values(config.features)).toEqual([false, false, false, false, false]);
     expect(config.identity).toBeUndefined();
+    expect(config.payment).toBeUndefined();
   });
 
   it('rejects wildcard origins and malformed numeric settings', () => {
@@ -64,6 +65,39 @@ describe('API runtime configuration', () => {
       ],
       administratorUserIds: ['user_123', 'user_456'],
       administratorEmails: ['admin@example.com', 'owner@example.com'],
+    });
+  });
+
+  it('selects sandbox and live PayPal API origins explicitly', () => {
+    const sandbox = loadApiRuntimeConfig({
+      NODE_ENV: 'test',
+      PAYPAL_MODE: 'sandbox',
+      PAYPAL_CLIENT_ID: 'sandbox-client',
+      PAYPAL_CLIENT_SECRET: 'sandbox-secret',
+      PAYPAL_WEBHOOK_ID: 'sandbox-webhook',
+    });
+    const live = loadApiRuntimeConfig({
+      NODE_ENV: 'production',
+      CORS_ORIGINS: 'https://portfolio.example.com',
+      PAYPAL_MODE: 'live',
+      PAYPAL_CLIENT_ID: 'live-client',
+      PAYPAL_CLIENT_SECRET: 'live-secret',
+      PAYPAL_WEBHOOK_ID: 'live-webhook',
+    });
+
+    expect(sandbox.payment).toEqual({
+      mode: 'sandbox',
+      clientId: 'sandbox-client',
+      clientSecret: 'sandbox-secret',
+      webhookId: 'sandbox-webhook',
+      baseUrl: 'https://api-m.sandbox.paypal.com',
+    });
+    expect(live.payment).toEqual({
+      mode: 'live',
+      clientId: 'live-client',
+      clientSecret: 'live-secret',
+      webhookId: 'live-webhook',
+      baseUrl: 'https://api-m.paypal.com',
     });
   });
 });

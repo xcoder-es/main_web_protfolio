@@ -15,6 +15,11 @@ import { ResendNotificationSender } from './notifications/adapters/resend-notifi
 import type { NotificationSender } from './notifications/application/ports.js';
 import { NotificationsService } from './notifications/application/service.js';
 import { SubmissionNotificationCoordinator } from './notifications/application/submission-coordinator.js';
+import { PayPalGateway } from './payments/adapters/paypal-gateway.js';
+import { UnavailablePaymentGateway } from './payments/adapters/unavailable-payment-gateway.js';
+import type { PaymentGateway } from './payments/application/ports.js';
+import { PaymentsService } from './payments/application/service.js';
+import { PayPalWebhookService } from './payments/application/webhook-service.js';
 import { InMemoryPersistence } from './persistence/adapters/in-memory/in-memory-persistence.js';
 import type { PersistenceRepositories, UnitOfWork } from './persistence/application/ports.js';
 
@@ -37,6 +42,8 @@ export type ApplicationDependencies = {
   leads: LeadsService;
   notifications: NotificationsService;
   submissions: SubmissionNotificationCoordinator;
+  payments: PaymentsService;
+  paypalWebhooks: PayPalWebhookService;
   administratorAuthentication: ReturnType<typeof createAdministratorAuthentication>;
 };
 
@@ -51,6 +58,7 @@ export type ApplicationOverrides = Readonly<{
   ids?: IdGenerator;
   notificationSender?: NotificationSender;
   identityVerifier?: IdentityVerifier;
+  paymentGateway?: PaymentGateway;
   administratorUserIds?: readonly string[];
   administratorEmails?: readonly string[];
 }>;
@@ -108,6 +116,24 @@ export function createApplicationDependencies(
         })
       : new DisabledNotificationSender());
 
+  const paymentConfigured = Boolean(
+    overrides.paymentGateway ||
+      (config.payment?.clientId && config.payment.clientSecret && config.payment.webhookId),
+  );
+  const paymentGateway =
+    overrides.paymentGateway ??
+    (paymentConfigured &&
+    config.payment?.clientId &&
+    config.payment.clientSecret &&
+    config.payment.webhookId
+      ? new PayPalGateway({
+          clientId: config.payment.clientId,
+          clientSecret: config.payment.clientSecret,
+          webhookId: config.payment.webhookId,
+          baseUrl: config.payment.baseUrl,
+        })
+      : new UnavailablePaymentGateway());
+
   const notifications = new NotificationsService({
     notifications: persistence.repositories.notifications,
     attempts: persistence.repositories.notificationAttempts,
@@ -127,18 +153,34 @@ export function createApplicationDependencies(
     clock,
     ids,
   });
+  const paymentDependencies = {
+    paymentRequests: persistence.repositories.paymentRequests,
+    paymentEvents: persistence.repositories.paymentEvents,
+    audit: persistence.repositories.auditEvents,
+    unitOfWork: persistence.unitOfWork,
+    gateway: paymentGateway,
+    clock,
+    ids,
+  };
+  const payments = new PaymentsService(paymentDependencies);
+  const paypalWebhooks = new PayPalWebhookService({
+    ...paymentDependencies,
+    webhookEvents: persistence.repositories.paypalWebhookEvents,
+  });
 
   return {
     probes: [
       capabilityProbe('persistence', config.features.persistence),
       capabilityProbe('identity', config.features.identity, identityConfigured),
       capabilityProbe('notifications', config.features.notifications, notificationConfigured),
-      capabilityProbe('payments', config.features.payments),
+      capabilityProbe('payments', config.features.payments, paymentConfigured),
       capabilityProbe('spam-verification', config.features.spamVerification),
     ],
     leads,
     notifications,
     submissions: new SubmissionNotificationCoordinator(leads, notifications),
+    payments,
+    paypalWebhooks,
     administratorAuthentication: createAdministratorAuthentication(identityVerifier, authorizer),
   };
 }

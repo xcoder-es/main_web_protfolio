@@ -1,0 +1,21 @@
+---
+import type { GetStaticPaths } from 'astro';
+import PublicPage from '../components/PublicPage.astro';
+import { pageKeys, routes, type PageKey } from '../content/site';
+
+export const getStaticPaths = (() =>
+  pageKeys
+    .filter((key) => key !== 'home')
+    .map((pageKey) => ({
+      params: { slug: routes.en[pageKey].slice(1) },
+      props: { pageKey },
+    }))) satisfies GetStaticPaths;
+
+interface Props {
+  pageKey: PageKey;
+}
+
+const { pageKey } = Astro.props;
+---
+
+<PublicPage locale="en" pageKey={pageKey} />

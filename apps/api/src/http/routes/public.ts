@@ -4,12 +4,12 @@ import {
 } from '@carlos-pinto/contracts';
 import type { FastifyInstance } from 'fastify';
 
-import type { LeadsService } from '../../leads/application/service.js';
+import type { SubmissionNotificationCoordinator } from '../../notifications/application/submission-coordinator.js';
 import { ApplicationError } from '../errors.js';
 
 export async function registerPublicRoutes(
   app: FastifyInstance,
-  leads: LeadsService,
+  submissions: SubmissionNotificationCoordinator,
 ): Promise<void> {
   app.get('/status', async () => ({ available: true }));
 
@@ -17,7 +17,7 @@ export async function registerPublicRoutes(
     const parsed = contactSubmissionSchema.safeParse(request.body);
     if (!parsed.success) throw validationError(parsed.error.issues);
 
-    const result = await leads.submitContact(parsed.data, {
+    const result = await submissions.submitContact(parsed.data, {
       type: 'visitor',
       correlationId: request.id,
     });
@@ -32,7 +32,7 @@ export async function registerPublicRoutes(
     const parsed = projectRequestSubmissionSchema.safeParse(request.body);
     if (!parsed.success) throw validationError(parsed.error.issues);
 
-    const result = await leads.submitProject(parsed.data, {
+    const result = await submissions.submitProject(parsed.data, {
       type: 'visitor',
       correlationId: request.id,
     });

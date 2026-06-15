@@ -9,6 +9,9 @@ import type { ApiRuntimeConfig } from './infrastructure/config.js';
 import { registerErrorHandlers } from './http/errors.js';
 import { registerAdminRoutes } from './http/routes/admin.js';
 import { registerNotificationAdminRoutes } from './http/routes/notifications.js';
+import { registerPayPalWebhookRoute } from './http/routes/paypal-webhook.js';
+import { registerPaymentAdminRoutes } from './http/routes/payments-admin.js';
+import { registerPaymentPublicRoutes } from './http/routes/payments-public.js';
 import { registerPublicRoutes } from './http/routes/public.js';
 import { registerSystemRoutes } from './http/routes/system.js';
 import { registerWebhookRoutes } from './http/routes/webhooks.js';
@@ -58,15 +61,28 @@ export async function buildApp(config: ApiRuntimeConfig, dependencies: Applicati
 
   registerErrorHandlers(app);
   await registerSystemRoutes(app, dependencies.probes);
-  await app.register(async (scope) => registerPublicRoutes(scope, dependencies.submissions), { prefix: '/api/public' });
+  await app.register(
+    async (scope) => {
+      await registerPublicRoutes(scope, dependencies.submissions);
+      await registerPaymentPublicRoutes(scope, dependencies.payments);
+    },
+    { prefix: '/api/public' },
+  );
   await app.register(
     async (scope) => {
       scope.addHook('onRequest', dependencies.administratorAuthentication);
       await registerAdminRoutes(scope, dependencies.leads);
       await registerNotificationAdminRoutes(scope, dependencies.notifications);
+      await registerPaymentAdminRoutes(scope, dependencies.payments);
     },
     { prefix: '/api/admin' },
   );
-  await app.register(registerWebhookRoutes, { prefix: '/api/webhooks' });
+  await app.register(
+    async (scope) => {
+      await registerWebhookRoutes(scope);
+      await registerPayPalWebhookRoute(scope, dependencies.paypalWebhooks);
+    },
+    { prefix: '/api/webhooks' },
+  );
   return app;
 }

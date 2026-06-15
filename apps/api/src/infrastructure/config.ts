@@ -17,6 +17,12 @@ export type ApiRuntimeConfig = {
     payments: boolean;
     spamVerification: boolean;
   };
+  notification?: {
+    recipientAddress: string;
+    fromAddress: string;
+    resendApiKey?: string;
+    resendBaseUrl: string;
+  };
 };
 
 function booleanValue(value: string | undefined, fallback: boolean): boolean {
@@ -51,6 +57,22 @@ function origins(value: string | undefined, environment: ApiRuntimeConfig['envir
   return configured;
 }
 
+function optionalNotificationConfig(env: Record<string, string | undefined>) {
+  const recipientAddress = env.NOTIFICATION_RECIPIENT_EMAIL?.trim() ?? '';
+  const fromAddress = env.RESEND_FROM_EMAIL?.trim() ?? '';
+  const resendApiKey = env.RESEND_API_KEY?.trim();
+  const resendBaseUrl = env.RESEND_BASE_URL?.trim() || 'https://api.resend.com';
+  new URL(resendBaseUrl);
+
+  if (!recipientAddress && !fromAddress && !resendApiKey) return undefined;
+  return {
+    recipientAddress,
+    fromAddress,
+    ...(resendApiKey ? { resendApiKey } : {}),
+    resendBaseUrl,
+  };
+}
+
 export function loadApiRuntimeConfig(
   env: Record<string, string | undefined> = process.env,
 ): ApiRuntimeConfig {
@@ -74,6 +96,7 @@ export function loadApiRuntimeConfig(
     throw new Error(`Invalid LOG_LEVEL: ${logLevel}`);
   }
 
+  const notification = optionalNotificationConfig(env);
   return {
     ...base,
     logLevel: logLevel as ApiRuntimeConfig['logLevel'],
@@ -82,5 +105,6 @@ export function loadApiRuntimeConfig(
     bodyLimit: positiveInteger(env.BODY_LIMIT_BYTES, 64 * 1024, 'BODY_LIMIT_BYTES'),
     rateLimitMax: positiveInteger(env.RATE_LIMIT_MAX, 100, 'RATE_LIMIT_MAX'),
     rateLimitWindowMs: positiveInteger(env.RATE_LIMIT_WINDOW_MS, 60_000, 'RATE_LIMIT_WINDOW_MS'),
+    ...(notification ? { notification } : {}),
   };
 }

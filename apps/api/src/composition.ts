@@ -6,6 +6,7 @@ import type { ServiceProbe } from './application/readiness.js';
 import type { ApiRuntimeConfig } from './infrastructure/config.js';
 import { LeadsService } from './leads/application/service.js';
 import { InMemoryPersistence } from './persistence/adapters/in-memory/in-memory-persistence.js';
+import type { PersistenceRepositories, UnitOfWork } from './persistence/application/ports.js';
 
 function capabilityProbe(name: string, enabled: boolean): ServiceProbe {
   return {
@@ -24,8 +25,13 @@ export type ApplicationDependencies = {
   leads: LeadsService;
 };
 
+export type PersistenceBundle = Readonly<{
+  repositories: PersistenceRepositories;
+  unitOfWork: UnitOfWork;
+}>;
+
 export type ApplicationOverrides = Readonly<{
-  persistence?: InMemoryPersistence;
+  persistence?: PersistenceBundle;
   clock?: Clock;
   ids?: IdGenerator;
 }>;
@@ -34,7 +40,11 @@ export function createApplicationDependencies(
   config: ApiRuntimeConfig,
   overrides: ApplicationOverrides = {},
 ): ApplicationDependencies {
-  const persistence = overrides.persistence ?? new InMemoryPersistence();
+  const memory = new InMemoryPersistence();
+  const persistence = overrides.persistence ?? {
+    repositories: memory.repositories,
+    unitOfWork: memory,
+  };
   const clock: Clock = overrides.clock ?? { now: () => new Date() };
   const ids: IdGenerator = overrides.ids ?? { generate: () => randomUUID() };
 
@@ -47,10 +57,10 @@ export function createApplicationDependencies(
       capabilityProbe('spam-verification', config.features.spamVerification),
     ],
     leads: new LeadsService({
-      leads: persistence.leads,
-      notes: persistence.leadNotes,
-      audit: persistence.auditEvents,
-      unitOfWork: persistence,
+      leads: persistence.repositories.leads,
+      notes: persistence.repositories.leadNotes,
+      audit: persistence.repositories.auditEvents,
+      unitOfWork: persistence.unitOfWork,
       clock,
       ids,
     }),

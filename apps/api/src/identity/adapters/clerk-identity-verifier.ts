@@ -7,7 +7,7 @@ import {
   type IdentityVerifier,
 } from '../application/ports.js';
 
-type ClerkAuthState = Readonly<{
+export type ClerkAuthState = Readonly<{
   isAuthenticated: boolean;
   toAuth(): Readonly<{
     userId?: string | null;
@@ -15,7 +15,7 @@ type ClerkAuthState = Readonly<{
   }>;
 }>;
 
-type ClerkUser = Readonly<{
+export type ClerkUser = Readonly<{
   primaryEmailAddressId?: string | null;
   emailAddresses: readonly Readonly<{
     id: string;
@@ -23,7 +23,7 @@ type ClerkUser = Readonly<{
   }>[];
 }>;
 
-type ClerkClientLike = Readonly<{
+export type ClerkClientGateway = Readonly<{
   authenticateRequest(
     request: Request,
     options: Readonly<{ authorizedParties?: readonly string[] }>,
@@ -43,7 +43,7 @@ export type ClerkIdentityConfig = Readonly<{
 
 export class ClerkIdentityVerifier implements IdentityVerifier {
   public constructor(
-    private readonly client: ClerkClientLike,
+    private readonly client: ClerkClientGateway,
     private readonly authorizedParties: readonly string[],
     private readonly resolvePrimaryEmail: boolean,
   ) {}
@@ -107,7 +107,7 @@ export function createClerkIdentityVerifier(config: ClerkIdentityConfig): ClerkI
     secretKey: config.secretKey,
     publishableKey: config.publishableKey,
     ...(config.jwtKey ? { jwtKey: config.jwtKey } : {}),
-  }) as unknown as ClerkClientLike;
+  }) as unknown as ClerkClientGateway;
 
   return new ClerkIdentityVerifier(
     client,

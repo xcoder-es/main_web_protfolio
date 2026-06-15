@@ -1,7 +1,4 @@
-export class FixedClock {
-  public constructor(private readonly current: Date) {}
-
-  public now(): Date {
-    return new Date(this.current.getTime());
-  }
-}
+export { MutableClock } from './clock.js';
+export { SequenceIdGenerator } from './id-generator.js';
+export { MemoryLogger } from './logger.js';
+export type { MemoryLogEntry } from './logger.js';

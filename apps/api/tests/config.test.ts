@@ -10,11 +10,18 @@ describe('API runtime configuration', () => {
     expect(config.port).toBe(3000);
     expect(config.allowedOrigins).toEqual(['http://localhost:4321']);
     expect(Object.values(config.features)).toEqual([false, false, false, false, false]);
+    expect(config.identity).toBeUndefined();
   });
 
-  it('rejects wildcard CORS and malformed numeric settings', () => {
+  it('rejects wildcard origins and malformed numeric settings', () => {
     expect(() =>
       loadApiRuntimeConfig({ NODE_ENV: 'production', CORS_ORIGINS: '*' }),
+    ).toThrow('wildcard');
+    expect(() =>
+      loadApiRuntimeConfig({
+        NODE_ENV: 'test',
+        CLERK_AUTHORIZED_PARTIES: '*',
+      }),
     ).toThrow('wildcard');
     expect(() => loadApiRuntimeConfig({ NODE_ENV: 'test', PORT: 'not-a-port' })).toThrow();
     expect(() => loadApiRuntimeConfig({ NODE_ENV: 'test', RATE_LIMIT_MAX: '0' })).toThrow(
@@ -33,5 +40,30 @@ describe('API runtime configuration', () => {
     expect(config.features.persistence).toBe(true);
     expect(config.trustProxy).toBe(true);
     expect(config.allowedOrigins).toHaveLength(2);
+  });
+
+  it('parses Clerk credentials, authorized parties and administrator allowlists', () => {
+    const config = loadApiRuntimeConfig({
+      NODE_ENV: 'test',
+      CLERK_SECRET_KEY: 'sk_test_example',
+      CLERK_PUBLISHABLE_KEY: 'pk_test_example',
+      CLERK_JWT_KEY: '-----BEGIN PUBLIC KEY-----example',
+      CLERK_AUTHORIZED_PARTIES:
+        'https://portfolio.example.com, https://staging.example.com',
+      CLERK_ADMIN_USER_IDS: 'user_123,user_456',
+      CLERK_ADMIN_EMAILS: 'ADMIN@EXAMPLE.COM,owner@example.com',
+    });
+
+    expect(config.identity).toEqual({
+      clerkSecretKey: 'sk_test_example',
+      clerkPublishableKey: 'pk_test_example',
+      clerkJwtKey: '-----BEGIN PUBLIC KEY-----example',
+      authorizedParties: [
+        'https://portfolio.example.com',
+        'https://staging.example.com',
+      ],
+      administratorUserIds: ['user_123', 'user_456'],
+      administratorEmails: ['admin@example.com', 'owner@example.com'],
+    });
   });
 });

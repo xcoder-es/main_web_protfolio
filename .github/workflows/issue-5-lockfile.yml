@@ -1,9 +1,9 @@
 name: Issue 5 lockfile
 
 on:
-  push:
+  pull_request:
     branches:
-      - feature/issue-5-api
+      - main
 
 permissions:
   contents: read

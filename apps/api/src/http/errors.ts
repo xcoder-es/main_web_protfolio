@@ -1,4 +1,4 @@
-import { createApiError, type ApiError } from '@carlos-pinto/contracts';
+import { apiErrorSchema, type ApiError } from '@carlos-pinto/contracts';
 import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 export class ApplicationError extends Error {
@@ -19,17 +19,25 @@ function response(
   message: string,
   fieldErrors?: Readonly<Record<string, readonly string[]>>,
 ): ApiError {
-  return createApiError({
+  return apiErrorSchema.parse({
     code,
     message,
     correlationId: request.id,
-    ...(fieldErrors ? { fieldErrors: Object.fromEntries(Object.entries(fieldErrors).map(([key, values]) => [key, [...values]])) } : {}),
+    ...(fieldErrors
+      ? {
+          fieldErrors: Object.fromEntries(
+            Object.entries(fieldErrors).map(([key, values]) => [key, [...values]]),
+          ),
+        }
+      : {}),
   });
 }
 
 export function registerErrorHandlers(app: FastifyInstance): void {
   app.setNotFoundHandler((request, reply) => {
-    void reply.code(404).send(response(request, 'ROUTE_NOT_FOUND', 'The requested route does not exist.'));
+    void reply
+      .code(404)
+      .send(response(request, 'ROUTE_NOT_FOUND', 'The requested route does not exist.'));
   });
 
   app.setErrorHandler((error: FastifyError | ApplicationError, request, reply: FastifyReply) => {
@@ -48,21 +56,34 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       }
       void reply
         .code(400)
-        .send(response(request, 'VALIDATION_ERROR', 'The request contains invalid fields.', fieldErrors));
+        .send(
+          response(
+            request,
+            'VALIDATION_ERROR',
+            'The request contains invalid fields.',
+            fieldErrors,
+          ),
+        );
       return;
     }
 
     if (error.code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
-      void reply.code(413).send(response(request, 'PAYLOAD_TOO_LARGE', 'The request payload is too large.'));
+      void reply
+        .code(413)
+        .send(response(request, 'PAYLOAD_TOO_LARGE', 'The request payload is too large.'));
       return;
     }
 
     if (error.statusCode === 429) {
-      void reply.code(429).send(response(request, 'RATE_LIMIT_EXCEEDED', 'Too many requests. Try again later.'));
+      void reply
+        .code(429)
+        .send(response(request, 'RATE_LIMIT_EXCEEDED', 'Too many requests. Try again later.'));
       return;
     }
 
     request.log.error({ err: error, correlationId: request.id }, 'Unhandled request error');
-    void reply.code(500).send(response(request, 'INTERNAL_ERROR', 'An unexpected error occurred.'));
+    void reply
+      .code(500)
+      .send(response(request, 'INTERNAL_ERROR', 'An unexpected error occurred.'));
   });
 }

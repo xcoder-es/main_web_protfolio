@@ -1,0 +1,73 @@
+---
+import Footer from '../components/Footer.astro';
+import Header from '../components/Header.astro';
+import { alternatePath, routes, site, type Locale, type PageKey } from '../content/site';
+import '../styles/global.css';
+
+interface Props {
+  locale: Locale;
+  pageKey: PageKey;
+  title: string;
+  description: string;
+}
+
+const { locale, pageKey, title, description } = Astro.props;
+const origin = Astro.site ?? new URL('http://localhost:4321');
+const canonicalPath = routes[locale][pageKey];
+const alternateLocale: Locale = locale === 'en' ? 'es' : 'en';
+const canonicalUrl = new URL(canonicalPath, origin);
+const alternateUrl = new URL(alternatePath(locale, pageKey), origin);
+const imageUrl = new URL('/og-card.svg', origin);
+const documentTitle = pageKey === 'home' ? `${site.name} · ${site.descriptor}` : `${title} · ${site.name}`;
+const structuredData = {
+  '@context': 'https://schema.org',
+  '@type': 'ProfessionalService',
+  name: 'Carlos Pinto Digital Consulting',
+  founder: { '@type': 'Person', name: site.name },
+  url: canonicalUrl.href,
+  email: site.email,
+  telephone: '+34625038287',
+  areaServed: 'International',
+  address: {
+    '@type': 'PostalAddress',
+    addressLocality: 'Madrid',
+    addressCountry: 'ES',
+  },
+  sameAs: [site.linkedinHref, site.githubHref],
+};
+---
+
+<!doctype html>
+<html lang={locale}>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0d1715" />
+    <meta name="color-scheme" content="light" />
+    <link rel="canonical" href={canonicalUrl} />
+    <link rel="alternate" hreflang={alternateLocale} href={alternateUrl} />
+    <link rel="alternate" hreflang="x-default" href={new URL(routes.en[pageKey], origin)} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Carlos Pinto Digital Consulting" />
+    <meta property="og:locale" content={locale === 'en' ? 'en_GB' : 'es_ES'} />
+    <meta property="og:title" content={documentTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={documentTitle} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <title>{documentTitle}</title>
+  </head>
+  <body>
+    <Header locale={locale} pageKey={pageKey} />
+    <main id="content" tabindex="-1">
+      <slot />
+    </main>
+    <Footer locale={locale} />
+  </body>
+</html>

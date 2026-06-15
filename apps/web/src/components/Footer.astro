@@ -1,0 +1,39 @@
+---
+import { chrome, routes, site, type Locale } from '../content/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const copy = chrome[locale];
+const year = new Date().getUTCFullYear();
+---
+
+<footer class="site-footer">
+  <div class="shell footer-grid">
+    <div class="footer-statement">
+      <p class="eyebrow">{site.descriptor}</p>
+      <h2>{copy.footerTitle}</h2>
+      <p>{copy.footerBody}</p>
+    </div>
+
+    <div class="footer-links" aria-label="Contact and social links">
+      <a href={`mailto:${site.email}`}>{site.email}</a>
+      <a href={site.phoneHref}>{site.phoneDisplay}</a>
+      <a href={site.whatsappHref}>WhatsApp</a>
+      <a href={site.linkedinHref} rel="me">LinkedIn</a>
+      <a href={site.githubHref} rel="me">GitHub</a>
+    </div>
+
+    <div class="footer-meta">
+      <p>{site.location}</p>
+      <nav aria-label="Legal">
+        <a href={routes[locale].privacy}>{locale === 'en' ? 'Privacy' : 'Privacidad'}</a>
+        <a href={routes[locale].terms}>{locale === 'en' ? 'Terms' : 'Términos'}</a>
+        <a href={routes[locale].payment}>{locale === 'en' ? 'Payment' : 'Pago'}</a>
+      </nav>
+      <p>© {year} {site.name}. {copy.legal}</p>
+    </div>
+  </div>
+</footer>

@@ -15,16 +15,18 @@ const { locale, pageKey, title, description } = Astro.props;
 const origin = Astro.site ?? new URL('http://localhost:4321');
 const canonicalPath = routes[locale][pageKey];
 const alternateLocale: Locale = locale === 'en' ? 'es' : 'en';
-const canonicalUrl = new URL(canonicalPath, origin);
-const alternateUrl = new URL(alternatePath(locale, pageKey), origin);
-const imageUrl = new URL('/og-card.svg', origin);
-const documentTitle = pageKey === 'home' ? `${site.name} · ${site.descriptor}` : `${title} · ${site.name}`;
+const canonicalUrl = new URL(canonicalPath, origin).href;
+const alternateUrl = new URL(alternatePath(locale, pageKey), origin).href;
+const defaultUrl = new URL(routes.en[pageKey], origin).href;
+const imageUrl = new URL('/og-card.svg', origin).href;
+const documentTitle =
+  pageKey === 'home' ? `${site.name} · ${site.descriptor}` : `${title} · ${site.name}`;
 const structuredData = {
   '@context': 'https://schema.org',
   '@type': 'ProfessionalService',
   name: 'Carlos Pinto Digital Consulting',
   founder: { '@type': 'Person', name: site.name },
-  url: canonicalUrl.href,
+  url: canonicalUrl,
   email: site.email,
   telephone: '+34625038287',
   areaServed: 'International',
@@ -47,7 +49,7 @@ const structuredData = {
     <meta name="color-scheme" content="light" />
     <link rel="canonical" href={canonicalUrl} />
     <link rel="alternate" hreflang={alternateLocale} href={alternateUrl} />
-    <link rel="alternate" hreflang="x-default" href={new URL(routes.en[pageKey], origin)} />
+    <link rel="alternate" hreflang="x-default" href={defaultUrl} />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Carlos Pinto Digital Consulting" />
@@ -60,7 +62,7 @@ const structuredData = {
     <meta name="twitter:title" content={documentTitle} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={imageUrl} />
-    <script type="application/ld+json" set:html={JSON.stringify(structuredData)} />
+    <script type="application/ld+json" set:html={JSON.stringify(structuredData)}></script>
     <title>{documentTitle}</title>
   </head>
   <body>

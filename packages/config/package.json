@@ -3,5 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "exports": "./src/index.ts"
+  "exports": {
+    ".": "./src/index.ts",
+    "./private-runtime": "./src/private-runtime.ts",
+    "./runtime": "./src/runtime.ts",
+    "./validation-error": "./src/validation-error.ts"
+  }
 }

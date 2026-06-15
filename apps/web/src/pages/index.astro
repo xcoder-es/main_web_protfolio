@@ -1,20 +1,5 @@
 ---
-import { siteContent } from '../content/site';
+import PublicPage from '../components/PublicPage.astro';
 ---
 
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width" />
-    <meta name="description" content={siteContent.description} />
-    <title>{siteContent.title}</title>
-  </head>
-  <body>
-    <main>
-      <p>{siteContent.eyebrow}</p>
-      <h1>{siteContent.title}</h1>
-      <p>{siteContent.description}</p>
-    </main>
-  </body>
-</html>
+<PublicPage locale="en" pageKey="home" />

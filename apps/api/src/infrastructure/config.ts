@@ -127,7 +127,11 @@ function optionalNotificationConfig(env: Record<string, string | undefined>) {
 }
 
 function optionalPaymentConfig(env: Record<string, string | undefined>) {
-  const mode = env.PAYPAL_MODE?.trim() === 'live' ? 'live' : 'sandbox';
+  const configuredMode = env.PAYPAL_MODE?.trim();
+  if (configuredMode && configuredMode !== 'sandbox' && configuredMode !== 'live') {
+    throw new Error('PAYPAL_MODE must be sandbox or live');
+  }
+  const mode: 'sandbox' | 'live' = configuredMode === 'live' ? 'live' : 'sandbox';
   const clientId = env.PAYPAL_CLIENT_ID?.trim();
   const clientSecret = env.PAYPAL_CLIENT_SECRET?.trim();
   const webhookId = env.PAYPAL_WEBHOOK_ID?.trim();

@@ -6,7 +6,9 @@ The initial topology uses a Render Static Site for Astro and a Render Free Web S
 
 - [Verified provider baseline](../providers/verified-provider-baseline-2026-06-15.md)
 - [Architecture decisions](../adr/README.md)
-- [Phone-only setup](../operations/provider-setup-from-phone.md)
+- [Mobile administration and provider setup](../operations/mobile-admin-provider-setup.md)
+
+The mobile administration requirement exists because Carlos currently operates without a laptop. It does not constrain website compatibility. Public and administrator experiences must support mobile, tablet, laptop and desktop browsers.
 
 ## Confirmed Render constraints
 

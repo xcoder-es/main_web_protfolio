@@ -1,0 +1,89 @@
+import { apiErrorSchema, type ApiError } from '@carlos-pinto/contracts';
+import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+
+export class ApplicationError extends Error {
+  public constructor(
+    public readonly code: string,
+    message: string,
+    public readonly statusCode: number,
+    public readonly fieldErrors?: Readonly<Record<string, readonly string[]>>,
+  ) {
+    super(message);
+    this.name = 'ApplicationError';
+  }
+}
+
+function response(
+  request: FastifyRequest,
+  code: string,
+  message: string,
+  fieldErrors?: Readonly<Record<string, readonly string[]>>,
+): ApiError {
+  return apiErrorSchema.parse({
+    code,
+    message,
+    correlationId: request.id,
+    ...(fieldErrors
+      ? {
+          fieldErrors: Object.fromEntries(
+            Object.entries(fieldErrors).map(([key, values]) => [key, [...values]]),
+          ),
+        }
+      : {}),
+  });
+}
+
+export function registerErrorHandlers(app: FastifyInstance): void {
+  app.setNotFoundHandler((request, reply) => {
+    void reply
+      .code(404)
+      .send(response(request, 'ROUTE_NOT_FOUND', 'The requested route does not exist.'));
+  });
+
+  app.setErrorHandler((error: FastifyError | ApplicationError, request, reply: FastifyReply) => {
+    if (error instanceof ApplicationError) {
+      void reply
+        .code(error.statusCode)
+        .send(response(request, error.code, error.message, error.fieldErrors));
+      return;
+    }
+
+    if (error.validation) {
+      const fieldErrors: Record<string, string[]> = {};
+      for (const issue of error.validation) {
+        const key = issue.instancePath || issue.params.missingProperty?.toString() || 'request';
+        fieldErrors[key] = [...(fieldErrors[key] ?? []), issue.message ?? 'Invalid value'];
+      }
+      void reply
+        .code(400)
+        .send(
+          response(
+            request,
+            'VALIDATION_ERROR',
+            'The request contains invalid fields.',
+            fieldErrors,
+          ),
+        );
+      return;
+    }
+
+    if (error.code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
+      void reply
+        .code(413)
+        .send(response(request, 'PAYLOAD_TOO_LARGE', 'The request payload is too large.'));
+      return;
+    }
+
+    if (error.statusCode === 429) {
+      void reply
+        .code(429)
+        .send(response(request, 'RATE_LIMIT_EXCEEDED', 'Too many requests. Try again later.'));
+      return;
+    }
+
+    request.log.error({ err: error, correlationId: request.id }, 'Unhandled request error');
+    void reply
+      .code(500)
+      .send(response(request, 'INTERNAL_ERROR', 'An unexpected error occurred.'));
+  });
+}

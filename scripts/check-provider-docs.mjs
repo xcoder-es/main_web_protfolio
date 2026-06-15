@@ -35,8 +35,9 @@ for (const provider of ['Render', 'Supabase', 'Clerk', 'Resend', 'PayPal', 'Clou
   requireText(baseline, `## ${provider}`, baselineFile);
 }
 
-const runbookFile = 'docs/operations/provider-setup-from-phone.md';
+const runbookFile = 'docs/operations/mobile-admin-provider-setup.md';
 const runbook = await readFile(runbookFile, 'utf8');
+requireText(runbook, 'mobile phones, tablets, laptops and desktop browsers', runbookFile);
 for (const provider of [
   'Supabase',
   'Clerk',

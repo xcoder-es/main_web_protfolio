@@ -54,3 +54,4 @@ if (failures.length > 0) {
 
 console.log('Provider decision documentation is complete and internally consistent.');
 await import('./check-browser-boundaries.mjs');
+await import('./check-database-schema.mjs');

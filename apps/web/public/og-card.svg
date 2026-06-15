@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Carlos Pinto Digital Consulting</title>
+  <desc id="desc">Architecture, AI and product engineering.</desc>
+  <rect width="1200" height="630" fill="#f4f1e8"/>
+  <path d="M0 0h1200v16H0z" fill="#b5f239"/>
+  <g stroke="#c6c9be" stroke-width="2">
+    <path d="M80 0v630M320 0v630M560 0v630M800 0v630M1040 0v630"/>
+  </g>
+  <rect x="80" y="72" width="92" height="92" fill="#0d1715"/>
+  <text x="126" y="130" fill="#b5f239" font-family="Arial, sans-serif" font-size="28" font-weight="700" text-anchor="middle">CP</text>
+  <text x="80" y="250" fill="#0d1715" font-family="Arial, sans-serif" font-size="72" font-weight="700">Carlos Pinto</text>
+  <text x="80" y="340" fill="#0d1715" font-family="Arial, sans-serif" font-size="64" font-weight="700">Digital Consulting</text>
+  <text x="80" y="430" fill="#34413d" font-family="Arial, sans-serif" font-size="30">Architecture · AI · Product Engineering</text>
+  <text x="80" y="550" fill="#34413d" font-family="Arial, sans-serif" font-size="22">Madrid · Working internationally</text>
+</svg>

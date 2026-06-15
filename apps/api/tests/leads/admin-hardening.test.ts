@@ -1,7 +1,12 @@
-import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
+import { describe, expect, it } from 'vitest';
+
 import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
-import { describe, expect, it } from 'vitest';
+import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
+import {
+  administratorHeaders,
+  administratorIdentityOverrides,
+} from '../support/identity.js';
 
 const config: ApiRuntimeConfig = {
   environment: 'test',
@@ -23,7 +28,10 @@ const config: ApiRuntimeConfig = {
 };
 
 async function createLead() {
-  const app = await buildApp(config, createApplicationDependencies(config));
+  const app = await buildApp(
+    config,
+    createApplicationDependencies(config, administratorIdentityOverrides()),
+  );
   const response = await app.inject({
     method: 'POST',
     url: '/api/public/contact',
@@ -51,10 +59,12 @@ describe('administrator lead hardening', () => {
     const status = await app.inject({
       method: 'PATCH',
       url: `/api/admin/leads/${leadId}/status`,
+      headers: administratorHeaders,
     });
     const note = await app.inject({
       method: 'POST',
       url: `/api/admin/leads/${leadId}/notes`,
+      headers: administratorHeaders,
     });
 
     expect(status.statusCode).toBe(400);
@@ -66,7 +76,11 @@ describe('administrator lead hardening', () => {
 
   it('neutralizes spreadsheet formulas in downloadable CSV data', async () => {
     const { app } = await createLead();
-    const response = await app.inject({ method: 'GET', url: '/api/admin/leads/export.csv' });
+    const response = await app.inject({
+      method: 'GET',
+      url: '/api/admin/leads/export.csv',
+      headers: administratorHeaders,
+    });
 
     expect(response.statusCode).toBe(200);
     expect(response.body).toContain('"\'=2+2"');

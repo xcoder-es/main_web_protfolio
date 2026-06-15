@@ -1,0 +1,25 @@
+{
+  "name": "carlos-pinto-digital-consulting-platform",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.5.2",
+  "engines": { "node": ">=24 <25", "pnpm": ">=11.5.2 <12" },
+  "scripts": {
+    "build": "pnpm --filter @carlos-pinto/api build && pnpm --filter @carlos-pinto/web build",
+    "lint": "eslint . && prettier --check . && node scripts/check-boundaries.mjs",
+    "typecheck": "tsc --noEmit -p tsconfig.workspace.json",
+    "test": "vitest run",
+    "format": "prettier --write .",
+    "ci": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.0.0",
+    "eslint": "^9.0.0",
+    "prettier": "^3.0.0",
+    "prettier-plugin-astro": "^0.14.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8.0.0",
+    "vitest": "^4.1.8"
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "@carlos-pinto/web",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "astro build",
+    "dev": "astro dev",
+    "preview": "astro preview"
+  },
+  "devDependencies": { "astro": "^6.1.8" }
+}

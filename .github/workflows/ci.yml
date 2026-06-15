@@ -34,7 +34,7 @@ jobs:
           node-version: 24
 
       - name: Install dependencies
-        run: pnpm install --no-frozen-lockfile
+        run: bash scripts/install-ci.sh
 
       - name: Validate repository
         run: pnpm ci

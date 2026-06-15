@@ -8,6 +8,7 @@ import type { ApplicationDependencies } from './composition.js';
 import type { ApiRuntimeConfig } from './infrastructure/config.js';
 import { registerErrorHandlers } from './http/errors.js';
 import { registerAdminRoutes } from './http/routes/admin.js';
+import { registerNotificationAdminRoutes } from './http/routes/notifications.js';
 import { registerPublicRoutes } from './http/routes/public.js';
 import { registerSystemRoutes } from './http/routes/system.js';
 import { registerWebhookRoutes } from './http/routes/webhooks.js';
@@ -57,8 +58,9 @@ export async function buildApp(config: ApiRuntimeConfig, dependencies: Applicati
 
   registerErrorHandlers(app);
   await registerSystemRoutes(app, dependencies.probes);
-  await app.register(async (scope) => registerPublicRoutes(scope, dependencies.leads), { prefix: '/api/public' });
+  await app.register(async (scope) => registerPublicRoutes(scope, dependencies.submissions), { prefix: '/api/public' });
   await app.register(async (scope) => registerAdminRoutes(scope, dependencies.leads), { prefix: '/api/admin' });
+  await app.register(async (scope) => registerNotificationAdminRoutes(scope, dependencies.notifications), { prefix: '/api/admin' });
   await app.register(registerWebhookRoutes, { prefix: '/api/webhooks' });
   return app;
 }

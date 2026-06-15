@@ -25,7 +25,7 @@ for (const [file, officialDomain] of decisions) {
   requireText(content, `- Date: ${verificationDate}`, file);
   requireText(content, officialDomain, file);
   requireText(content, '## Replacement seam', file);
-  requireText(content, 'failure behaviour', file.toLowerCase());
+  requireText(content.toLowerCase(), 'failure behaviour', file);
 }
 
 const baselineFile = 'docs/providers/verified-provider-baseline-2026-06-15.md';
@@ -37,7 +37,14 @@ for (const provider of ['Render', 'Supabase', 'Clerk', 'Resend', 'PayPal', 'Clou
 
 const runbookFile = 'docs/operations/provider-setup-from-phone.md';
 const runbook = await readFile(runbookFile, 'utf8');
-for (const provider of ['Supabase', 'Clerk', 'Resend', 'Cloudflare Turnstile', 'PayPal sandbox', 'Render Blueprint']) {
+for (const provider of [
+  'Supabase',
+  'Clerk',
+  'Resend',
+  'Cloudflare Turnstile',
+  'PayPal sandbox',
+  'Render Blueprint',
+]) {
   requireText(runbook, `## ${provider}`, runbookFile);
 }
 

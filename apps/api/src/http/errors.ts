@@ -48,6 +48,13 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       return;
     }
 
+    if (error.message === 'Origin is not allowed') {
+      void reply
+        .code(403)
+        .send(response(request, 'CORS_ORIGIN_DENIED', 'The request origin is not allowed.'));
+      return;
+    }
+
     if (error.validation) {
       const fieldErrors: Record<string, string[]> = {};
       for (const issue of error.validation) {

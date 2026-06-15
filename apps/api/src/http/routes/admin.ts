@@ -11,7 +11,7 @@ export async function registerAdminRoutes(
   app.get('/status', async () => ({ available: true, authentication: 'not-configured' }));
 
   app.get('/leads/export.csv', async (request, reply) => {
-    const csv = await leads.exportCsv(queryFilter(request));
+    const csv = protectSpreadsheetCells(await leads.exportCsv(queryFilter(request)));
     return reply
       .header('content-type', 'text/csv; charset=utf-8')
       .header('content-disposition', 'attachment; filename="leads.csv"')
@@ -76,4 +76,8 @@ function administrator(request: FastifyRequest) {
     id: id?.trim() || 'local-administrator',
     correlationId: request.id,
   };
+}
+
+function protectSpreadsheetCells(csv: string): string {
+  return csv.replace(/(^|,)"([=+@-])/gm, '$1"\'$2');
 }

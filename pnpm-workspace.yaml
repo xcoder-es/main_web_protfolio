@@ -5,3 +5,11 @@ packages:
 allowBuilds:
   esbuild: true
   sharp: true
+
+packageExtensions:
+  '@carlos-pinto/contracts@*':
+    dependencies:
+      zod: 4.4.3
+  '@carlos-pinto/config@*':
+    dependencies:
+      zod: 4.4.3

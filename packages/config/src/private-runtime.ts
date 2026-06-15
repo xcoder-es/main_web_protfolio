@@ -1,6 +1,7 @@
 import { z } from 'zod';
 
 import { featureFlagsSchema } from './runtime.js';
+import { ConfigurationError } from './validation-error.js';
 
 export const privateRuntimeConfigSchema = z.object({
   environment: z.enum(['development', 'test', 'production']),
@@ -12,5 +13,7 @@ export const privateRuntimeConfigSchema = z.object({
 export type PrivateRuntimeConfig = z.infer<typeof privateRuntimeConfigSchema>;
 
 export function parsePrivateRuntimeConfig(input: unknown): PrivateRuntimeConfig {
-  return privateRuntimeConfigSchema.parse(input);
+  const parsed = privateRuntimeConfigSchema.safeParse(input);
+  if (parsed.success) return parsed.data;
+  throw new ConfigurationError(parsed.error);
 }

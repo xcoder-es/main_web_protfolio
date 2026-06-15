@@ -1,0 +1,23 @@
+---
+import { getPageContent } from '../content';
+import type { Locale, PageKey } from '../content/site';
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PageRenderer from './PageRenderer.astro';
+
+interface Props {
+  locale: Locale;
+  pageKey: PageKey;
+}
+
+const { locale, pageKey } = Astro.props;
+const page = getPageContent(locale, pageKey);
+---
+
+<BaseLayout
+  locale={locale}
+  pageKey={pageKey}
+  title={page.title}
+  description={page.description}
+>
+  <PageRenderer locale={locale} pageKey={pageKey} page={page} />
+</BaseLayout>

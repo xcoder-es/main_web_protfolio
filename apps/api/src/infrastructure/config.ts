@@ -31,6 +31,13 @@ export type ApiRuntimeConfig = {
     resendApiKey?: string;
     resendBaseUrl: string;
   };
+  payment?: {
+    mode: 'sandbox' | 'live';
+    clientId?: string;
+    clientSecret?: string;
+    webhookId?: string;
+    baseUrl: string;
+  };
 };
 
 function booleanValue(value: string | undefined, fallback: boolean): boolean {
@@ -119,6 +126,28 @@ function optionalNotificationConfig(env: Record<string, string | undefined>) {
   };
 }
 
+function optionalPaymentConfig(env: Record<string, string | undefined>) {
+  const mode = env.PAYPAL_MODE?.trim() === 'live' ? 'live' : 'sandbox';
+  const clientId = env.PAYPAL_CLIENT_ID?.trim();
+  const clientSecret = env.PAYPAL_CLIENT_SECRET?.trim();
+  const webhookId = env.PAYPAL_WEBHOOK_ID?.trim();
+  const defaultBaseUrl =
+    mode === 'live' ? 'https://api-m.paypal.com' : 'https://api-m.sandbox.paypal.com';
+  const baseUrl = env.PAYPAL_BASE_URL?.trim() || defaultBaseUrl;
+  new URL(baseUrl);
+
+  if (!clientId && !clientSecret && !webhookId && !env.PAYPAL_MODE && !env.PAYPAL_BASE_URL) {
+    return undefined;
+  }
+  return {
+    mode,
+    ...(clientId ? { clientId } : {}),
+    ...(clientSecret ? { clientSecret } : {}),
+    ...(webhookId ? { webhookId } : {}),
+    baseUrl,
+  };
+}
+
 export function loadApiRuntimeConfig(
   env: Record<string, string | undefined> = process.env,
 ): ApiRuntimeConfig {
@@ -144,6 +173,7 @@ export function loadApiRuntimeConfig(
 
   const identity = optionalIdentityConfig(env);
   const notification = optionalNotificationConfig(env);
+  const payment = optionalPaymentConfig(env);
   return {
     ...base,
     logLevel: logLevel as ApiRuntimeConfig['logLevel'],
@@ -154,5 +184,6 @@ export function loadApiRuntimeConfig(
     rateLimitWindowMs: positiveInteger(env.RATE_LIMIT_WINDOW_MS, 60_000, 'RATE_LIMIT_WINDOW_MS'),
     ...(identity ? { identity } : {}),
     ...(notification ? { notification } : {}),
+    ...(payment ? { payment } : {}),
   };
 }

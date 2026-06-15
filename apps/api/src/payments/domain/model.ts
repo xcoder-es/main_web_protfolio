@@ -21,7 +21,7 @@ const transitions: Readonly<Record<PaymentStatus, readonly PaymentStatus[]>> = {
   paid: ['refunded'],
   cancelled: [],
   expired: [],
-  failed: ['active', 'cancelled'],
+  failed: ['active', 'paid', 'cancelled'],
   refunded: [],
 };
 

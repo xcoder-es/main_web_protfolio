@@ -2,6 +2,7 @@ import { apiErrorSchema, type ApiError } from '@carlos-pinto/contracts';
 import type { FastifyError, FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
 
 import { LeadApplicationError } from '../leads/application/errors.js';
+import { NotificationApplicationError } from '../notifications/application/notification-errors.js';
 
 export class ApplicationError extends Error {
   public constructor(
@@ -43,8 +44,16 @@ export function registerErrorHandlers(app: FastifyInstance): void {
   });
 
   app.setErrorHandler(
-    (error: FastifyError | ApplicationError | LeadApplicationError, request, reply: FastifyReply) => {
-      if (error instanceof ApplicationError || error instanceof LeadApplicationError) {
+    (
+      error: FastifyError | ApplicationError | LeadApplicationError | NotificationApplicationError,
+      request,
+      reply: FastifyReply,
+    ) => {
+      if (
+        error instanceof ApplicationError ||
+        error instanceof LeadApplicationError ||
+        error instanceof NotificationApplicationError
+      ) {
         void reply
           .code(error.statusCode)
           .send(response(request, error.code, error.message, error.fieldErrors));

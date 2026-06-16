@@ -1,0 +1,56 @@
+---
+import { alternatePath, chrome, routes, site, type Locale, type PageKey } from '../content/site';
+
+interface Props {
+  locale: Locale;
+  pageKey: PageKey;
+}
+
+const { locale, pageKey } = Astro.props;
+const copy = chrome[locale];
+const otherLocale: Locale = locale === 'en' ? 'es' : 'en';
+const navItems: readonly [PageKey, string][] = [
+  ['services', copy.nav.services],
+  ['work', copy.nav.work],
+  ['caseStudies', copy.nav.caseStudies],
+  ['about', copy.nav.about],
+  ['contact', copy.nav.contact],
+];
+---
+
+<a class="skip-link" href="#content">{copy.skip}</a>
+<header class="site-header">
+  <div class="shell header-row">
+    <a class="brand" href={routes[locale].home} aria-label={`${site.name} home`}>
+      <span class="brand-mark" aria-hidden="true">CP</span>
+      <span>
+        <strong>{site.name}</strong>
+        <small>{site.descriptor}</small>
+      </span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Primary">
+      {navItems.map(([key, label]) => (
+        <a href={routes[locale][key]} aria-current={pageKey === key ? 'page' : undefined}>{label}</a>
+      ))}
+    </nav>
+
+    <div class="header-actions">
+      <a class="language-link" href={alternatePath(locale, pageKey)} hreflang={otherLocale} lang={otherLocale}>
+        {copy.language}
+      </a>
+      <a class="button button-small" href={routes[locale].requestProject}>{copy.requestProject}</a>
+    </div>
+
+    <details class="mobile-nav">
+      <summary>{copy.menu}</summary>
+      <div class="mobile-nav-panel">
+        {navItems.map(([key, label]) => (
+          <a href={routes[locale][key]} aria-current={pageKey === key ? 'page' : undefined}>{label}</a>
+        ))}
+        <a href={routes[locale].requestProject}>{copy.requestProject}</a>
+        <a href={alternatePath(locale, pageKey)} hreflang={otherLocale} lang={otherLocale}>{copy.language}</a>
+      </div>
+    </details>
+  </div>
+</header>

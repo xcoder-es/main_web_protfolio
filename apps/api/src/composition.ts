@@ -4,7 +4,10 @@ import type { Clock, IdGenerator } from '@carlos-pinto/contracts';
 
 import type { ServiceProbe } from './application/readiness.js';
 import { createAdministratorAuthentication } from './http/admin-authentication.js';
-import { ClerkIdentityVerifier, createClerkIdentityVerifier } from './identity/adapters/clerk-identity-verifier.js';
+import {
+  ClerkIdentityVerifier,
+  createClerkIdentityVerifier,
+} from './identity/adapters/clerk-identity-verifier.js';
 import { DisabledIdentityVerifier } from './identity/adapters/disabled-identity-verifier.js';
 import { AdministratorAuthorizer } from './identity/application/authorization.js';
 import type { IdentityVerifier } from './identity/application/ports.js';
@@ -22,6 +25,11 @@ import { PaymentsService } from './payments/application/service.js';
 import { PayPalWebhookService } from './payments/application/webhook-service.js';
 import { InMemoryPersistence } from './persistence/adapters/in-memory/in-memory-persistence.js';
 import type { PersistenceRepositories, UnitOfWork } from './persistence/application/ports.js';
+import { DisabledSpamVerifier } from './spam/adapters/disabled-spam-verifier.js';
+import { TurnstileSpamVerifier } from './spam/adapters/turnstile-spam-verifier.js';
+import type { SpamVerifier } from './spam/application/ports.js';
+import { SubmissionGuard } from './spam/application/submission-guard.js';
+import { PublicSubmissionService } from './submissions/application/service.js';
 
 function capabilityProbe(name: string, enabled: boolean, configured = false): ServiceProbe {
   return {
@@ -41,7 +49,7 @@ export type ApplicationDependencies = {
   probes: readonly ServiceProbe[];
   leads: LeadsService;
   notifications: NotificationsService;
-  submissions: SubmissionNotificationCoordinator;
+  submissions: PublicSubmissionService;
   payments: PaymentsService;
   paypalWebhooks: PayPalWebhookService;
   administratorAuthentication: ReturnType<typeof createAdministratorAuthentication>;
@@ -59,6 +67,7 @@ export type ApplicationOverrides = Readonly<{
   notificationSender?: NotificationSender;
   identityVerifier?: IdentityVerifier;
   paymentGateway?: PaymentGateway;
+  spamVerifier?: SpamVerifier;
   administratorUserIds?: readonly string[];
   administratorEmails?: readonly string[];
 }>;
@@ -98,7 +107,8 @@ export function createApplicationDependencies(
         })
       : new DisabledIdentityVerifier());
   const identityConfigured = Boolean(
-    authorizer.configured && (overrides.identityVerifier || identityVerifier instanceof ClerkIdentityVerifier),
+    authorizer.configured &&
+      (overrides.identityVerifier || identityVerifier instanceof ClerkIdentityVerifier),
   );
 
   const notificationConfigured = Boolean(
@@ -134,6 +144,17 @@ export function createApplicationDependencies(
         })
       : new UnavailablePaymentGateway());
 
+  const spamConfigured = Boolean(overrides.spamVerifier || config.spam?.turnstileSecretKey);
+  const spamVerifier =
+    overrides.spamVerifier ??
+    (config.spam?.turnstileSecretKey
+      ? new TurnstileSpamVerifier({
+          secretKey: config.spam.turnstileSecretKey,
+          allowedHostnames: config.spam.allowedHostnames,
+          siteverifyUrl: config.spam.siteverifyUrl,
+        })
+      : new DisabledSpamVerifier());
+
   const notifications = new NotificationsService({
     notifications: persistence.repositories.notifications,
     attempts: persistence.repositories.notificationAttempts,
@@ -152,6 +173,17 @@ export function createApplicationDependencies(
     unitOfWork: persistence.unitOfWork,
     clock,
     ids,
+  });
+  const durableSubmissions = new SubmissionNotificationCoordinator(leads, notifications);
+  const submissions = new PublicSubmissionService({
+    leads: persistence.repositories.leads,
+    submissions: durableSubmissions,
+    guard: new SubmissionGuard({
+      verifier: spamVerifier,
+      clock,
+      minimumCompletionMs: config.spam?.minimumCompletionMs ?? 1_200,
+      maximumCompletionMs: config.spam?.maximumCompletionMs ?? 7_200_000,
+    }),
   });
   const paymentDependencies = {
     paymentRequests: persistence.repositories.paymentRequests,
@@ -174,11 +206,11 @@ export function createApplicationDependencies(
       capabilityProbe('identity', config.features.identity, identityConfigured),
       capabilityProbe('notifications', config.features.notifications, notificationConfigured),
       capabilityProbe('payments', config.features.payments, paymentConfigured),
-      capabilityProbe('spam-verification', config.features.spamVerification),
+      capabilityProbe('spam-verification', config.features.spamVerification, spamConfigured),
     ],
     leads,
     notifications,
-    submissions: new SubmissionNotificationCoordinator(leads, notifications),
+    submissions,
     payments,
     paypalWebhooks,
     administratorAuthentication: createAdministratorAuthentication(identityVerifier, authorizer),

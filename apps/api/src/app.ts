@@ -1,12 +1,13 @@
 import { randomUUID } from 'node:crypto';
+
 import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
 import Fastify, { type FastifyInstance } from 'fastify';
+
 import type { ApplicationDependencies } from './composition.js';
-import type { ApiRuntimeConfig } from './infrastructure/config.js';
-import { registerErrorHandlers } from './http/errors.js';
+import { ApplicationError, registerErrorHandlers } from './http/errors.js';
 import { registerAdministratorOverviewRoutes } from './http/routes/admin-overview.js';
 import { registerAdminRoutes } from './http/routes/admin.js';
 import { registerNotificationAdminRoutes } from './http/routes/notifications.js';
@@ -16,6 +17,9 @@ import { registerPaymentPublicRoutes } from './http/routes/payments-public.js';
 import { registerPublicRoutes } from './http/routes/public.js';
 import { registerSystemRoutes } from './http/routes/system.js';
 import { registerWebhookRoutes } from './http/routes/webhooks.js';
+import type { ApiRuntimeConfig } from './infrastructure/config.js';
+import { apiResponseHeaders, createHelmetOptions } from './security/headers.js';
+import { createLoggerOptions, logRequestCompleted } from './security/logging.js';
 import { serviceMetadata } from './server.js';
 
 const correlationIdPattern = /^[A-Za-z0-9._:-]{8,128}$/;
@@ -27,17 +31,8 @@ export async function buildApp(
   const app = Fastify({
     bodyLimit: config.bodyLimit,
     trustProxy: config.trustProxy,
-    logger: {
-      level: config.logLevel,
-      redact: [
-        'req.headers.authorization',
-        'req.headers.cookie',
-        'res.headers.set-cookie',
-        '*.password',
-        '*.secret',
-        '*.token',
-      ],
-    },
+    disableRequestLogging: true,
+    logger: createLoggerOptions(config.environment, config.logLevel),
     genReqId(request) {
       const supplied = request.headers['x-correlation-id'];
       const candidate = Array.isArray(supplied) ? supplied[0] : supplied;
@@ -59,10 +54,7 @@ export async function buildApp(
       ],
     },
   });
-  await app.register(helmet, {
-    contentSecurityPolicy: false,
-    crossOriginResourcePolicy: { policy: 'same-site' },
-  });
+  await app.register(helmet, createHelmetOptions(config.environment));
   await app.register(cors, {
     credentials: false,
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
@@ -75,7 +67,14 @@ export async function buildApp(
     exposedHeaders: ['x-correlation-id', 'retry-after'],
     origin(origin, callback) {
       if (!origin || config.allowedOrigins.includes(origin)) return callback(null, true);
-      return callback(new Error('Origin is not allowed'), false);
+      return callback(
+        new ApplicationError(
+          'ORIGIN_NOT_ALLOWED',
+          'The request origin is not allowed.',
+          403,
+        ),
+        false,
+      );
     },
   });
   await app.register(rateLimit, {
@@ -85,10 +84,19 @@ export async function buildApp(
   });
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-correlation-id', request.id);
+    for (const [name, value] of Object.entries(apiResponseHeaders)) {
+      reply.header(name, value);
+    }
+  });
+  app.addHook('onResponse', async (request, reply) => {
+    logRequestCompleted(request, reply);
   });
 
   registerErrorHandlers(app);
-  await registerSystemRoutes(app, dependencies.probes);
+  await registerSystemRoutes(app, dependencies.probes, {
+    openApiEnabled:
+      config.operational?.openApiEnabled ?? config.environment !== 'production',
+  });
   await app.register(
     async (scope) => {
       await registerPublicRoutes(scope, dependencies.submissions);

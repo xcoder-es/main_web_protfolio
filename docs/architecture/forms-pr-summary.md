@@ -1,0 +1,1 @@
+Self-hosted bilingual forms submit directly to the Fastify API with shared contracts, browser idempotency, layered local controls, optional Turnstile verification, durable lead persistence and notification failure isolation.

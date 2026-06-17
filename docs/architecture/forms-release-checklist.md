@@ -1,0 +1,7 @@
+- shared browser and API schemas
+- stable browser idempotency keys
+- honeypot and completion timing
+- route payload and rate limits
+- optional Turnstile verification
+- accessible bilingual controls
+- durable lead persistence before notification

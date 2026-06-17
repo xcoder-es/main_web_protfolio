@@ -2,6 +2,8 @@
 import { getPageContent } from '../content';
 import type { Locale, PageKey } from '../content/site';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ClosingBand from './ClosingBand.astro';
+import LeadForm from './LeadForm.astro';
 import PageRenderer from './PageRenderer.astro';
 
 interface Props {
@@ -11,6 +13,8 @@ interface Props {
 
 const { locale, pageKey } = Astro.props;
 const page = getPageContent(locale, pageKey);
+const formKind =
+  pageKey === 'contact' ? 'contact' : pageKey === 'requestProject' ? 'project' : undefined;
 ---
 
 <BaseLayout
@@ -19,5 +23,7 @@ const page = getPageContent(locale, pageKey);
   title={page.title}
   description={page.description}
 >
-  <PageRenderer locale={locale} pageKey={pageKey} page={page} />
+  <PageRenderer locale={locale} pageKey={pageKey} page={page} showClosing={!formKind} />
+  {formKind && <LeadForm locale={locale} kind={formKind} />}
+  {formKind && <ClosingBand locale={locale} />}
 </BaseLayout>

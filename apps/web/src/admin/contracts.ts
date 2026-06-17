@@ -125,12 +125,46 @@ export type DiagnosticCheck = Readonly<{
   name: string;
   state: 'ready' | 'disabled' | 'unavailable';
   required: boolean;
+  latencyMs: number;
+  checkedAt: string;
+}>;
+
+export type RetentionRule = Readonly<{
+  domain:
+    | 'leads'
+    | 'spamLeads'
+    | 'leadNotes'
+    | 'notifications'
+    | 'paymentRecords'
+    | 'webhookSummaries'
+    | 'auditEvents'
+    | 'operationalLogs';
+  days: number;
+  trigger: string;
+  minimumData: string;
+  enforcement: 'manual-review';
 }>;
 
 export type Diagnostics = Readonly<{
   ready: boolean;
   generatedAt: string;
+  durationMs: number;
   checks: readonly DiagnosticCheck[];
+  release: Readonly<{
+    service: string;
+    version: string;
+    environment: 'development' | 'test' | 'production';
+    commitSha?: string;
+    deploymentId?: string;
+  }>;
+  controls: Readonly<{
+    requestLogging: 'metadata-only';
+    publicErrors: 'sanitized';
+    openApi: 'enabled' | 'disabled';
+    webhookStorage: 'summary-only';
+    credentials: 'runtime-only';
+  }>;
+  retention: readonly RetentionRule[];
 }>;
 
 export type ApiErrorPayload = Readonly<{

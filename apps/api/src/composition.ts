@@ -19,6 +19,7 @@ import { ResendNotificationSender } from './notifications/adapters/resend-notifi
 import type { NotificationSender } from './notifications/application/ports.js';
 import { NotificationsService } from './notifications/application/service.js';
 import { SubmissionNotificationCoordinator } from './notifications/application/submission-coordinator.js';
+import { MinimizingWebhookEventRepository } from './payments/adapters/minimizing-webhook-event-repository.js';
 import { PayPalGateway } from './payments/adapters/paypal-gateway.js';
 import { UnavailablePaymentGateway } from './payments/adapters/unavailable-payment-gateway.js';
 import type { PaymentGateway } from './payments/application/ports.js';
@@ -26,6 +27,8 @@ import { PaymentsService } from './payments/application/service.js';
 import { PayPalWebhookService } from './payments/application/webhook-service.js';
 import { InMemoryPersistence } from './persistence/adapters/in-memory/in-memory-persistence.js';
 import type { PersistenceRepositories, UnitOfWork } from './persistence/application/ports.js';
+import { createRetentionPolicy } from './security/retention-policy.js';
+import { serviceMetadata } from './server.js';
 import { DisabledSpamVerifier } from './spam/adapters/disabled-spam-verifier.js';
 import { TurnstileSpamVerifier } from './spam/adapters/turnstile-spam-verifier.js';
 import type { SpamVerifier } from './spam/application/ports.js';
@@ -34,6 +37,8 @@ import { PublicSubmissionService } from './submissions/application/service.js';
 
 function capabilityProbe(name: string, enabled: boolean, configured = false): ServiceProbe {
   return {
+    name,
+    required: enabled,
     async run() {
       if (!enabled) {
         return { name, ok: true, required: false, state: 'disabled' as const };
@@ -199,7 +204,9 @@ export function createApplicationDependencies(
   const payments = new PaymentsService(paymentDependencies);
   const paypalWebhooks = new PayPalWebhookService({
     ...paymentDependencies,
-    webhookEvents: persistence.repositories.paypalWebhookEvents,
+    webhookEvents: new MinimizingWebhookEventRepository(
+      persistence.repositories.paypalWebhookEvents,
+    ),
   });
   const probes: readonly ServiceProbe[] = [
     capabilityProbe('persistence', config.features.persistence),
@@ -208,10 +215,20 @@ export function createApplicationDependencies(
     capabilityProbe('payments', config.features.payments, paymentConfigured),
     capabilityProbe('spam-verification', config.features.spamVerification, spamConfigured),
   ];
+  const operational = config.operational;
   const adminOverview = new AdministratorOverviewService({
     probes,
     audit: persistence.repositories.auditEvents,
     now: () => clock.now(),
+    profile: {
+      service: operational?.serviceName ?? serviceMetadata.name,
+      version: serviceMetadata.version,
+      environment: config.environment,
+      openApiEnabled: operational?.openApiEnabled ?? config.environment !== 'production',
+      ...(operational?.commitSha ? { commitSha: operational.commitSha } : {}),
+      ...(operational?.deploymentId ? { deploymentId: operational.deploymentId } : {}),
+      retention: operational?.retention ?? createRetentionPolicy(),
+    },
   });
 
   return {

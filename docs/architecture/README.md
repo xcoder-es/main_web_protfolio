@@ -23,3 +23,8 @@ Automated boundary checks begin in `scripts/check-boundaries.mjs` and become str
 - [Administrator identity and Clerk boundary](identity.md)
 - [Public forms and verification controls](forms-and-spam-protection.md)
 - [Mobile-first administrator dashboard](admin-dashboard.md)
+- [Security, privacy and operational observability](security-privacy-observability.md)
+
+## Operations
+
+- [Security incident response and credential rotation](../operations/security-incident-response.md)

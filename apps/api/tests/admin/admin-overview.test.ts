@@ -26,6 +26,21 @@ const config: ApiRuntimeConfig = {
     payments: false,
     spamVerification: false,
   },
+  operational: {
+    openApiEnabled: false,
+    serviceName: 'portfolio-api-staging',
+    commitSha: '0123456789abcdef',
+    deploymentId: 'srv-staging-1',
+    retention: [
+      {
+        domain: 'leads',
+        days: 730,
+        trigger: 'last activity or closure',
+        minimumData: 'contact details and enquiry context only',
+        enforcement: 'manual-review',
+      },
+    ],
+  },
 };
 
 function harness() {
@@ -52,7 +67,7 @@ describe('administrator overview routes', () => {
     await app.close();
   });
 
-  it('returns secret-free capability diagnostics to an authorised administrator', async () => {
+  it('returns measured credential-free diagnostics to an authorised administrator', async () => {
     const { dependencies } = harness();
     const app = await buildApp(config, dependencies);
 
@@ -61,21 +76,45 @@ describe('administrator overview routes', () => {
       url: '/api/admin/diagnostics',
       headers: administratorHeaders,
     });
+    const payload = response.json();
 
     expect(response.statusCode).toBe(200);
-    expect(response.json()).toEqual({
-      ready: true,
-      generatedAt: '2026-06-17T14:00:00.000Z',
-      checks: [
-        { name: 'persistence', state: 'ready', required: true },
-        { name: 'identity', state: 'ready', required: true },
-        { name: 'notifications', state: 'disabled', required: false },
-        { name: 'payments', state: 'disabled', required: false },
-        { name: 'spam-verification', state: 'disabled', required: false },
-      ],
+    expect(payload.ready).toBe(true);
+    expect(payload.generatedAt).toBe('2026-06-17T14:00:00.000Z');
+    expect(payload.durationMs).toBeTypeOf('number');
+    expect(payload.checks).toHaveLength(5);
+    expect(payload.checks.map((check: { name: string; state: string; required: boolean }) => ({
+      name: check.name,
+      state: check.state,
+      required: check.required,
+    }))).toEqual([
+      { name: 'persistence', state: 'ready', required: true },
+      { name: 'identity', state: 'ready', required: true },
+      { name: 'notifications', state: 'disabled', required: false },
+      { name: 'payments', state: 'disabled', required: false },
+      { name: 'spam-verification', state: 'disabled', required: false },
+    ]);
+    expect(payload.checks.every((check: { latencyMs: number }) => check.latencyMs >= 0)).toBe(true);
+    expect(payload.release).toEqual({
+      service: 'portfolio-api-staging',
+      version: '0.1.0',
+      environment: 'test',
+      commitSha: '0123456789ab',
+      deploymentId: 'srv-staging-1',
     });
-    expect(JSON.stringify(response.json())).not.toContain('secret');
-    expect(JSON.stringify(response.json())).not.toContain('token');
+    expect(payload.controls).toEqual({
+      requestLogging: 'metadata-only',
+      publicErrors: 'sanitized',
+      openApi: 'disabled',
+      webhookStorage: 'summary-only',
+      credentials: 'runtime-only',
+    });
+    expect(payload.retention).toEqual(config.operational?.retention);
+    const serialized = JSON.stringify(payload).toLowerCase();
+    expect(serialized).not.toContain('clientsecret');
+    expect(serialized).not.toContain('apikey');
+    expect(serialized).not.toContain('bearer');
+    expect(serialized).not.toContain('token');
     await app.close();
   });
 

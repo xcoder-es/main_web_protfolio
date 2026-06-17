@@ -1,6 +1,7 @@
 import type { Clock, IdGenerator } from '@carlos-pinto/contracts';
 import { describe, expect, it } from 'vitest';
 
+import { MinimizingWebhookEventRepository } from '../../src/payments/adapters/minimizing-webhook-event-repository.js';
 import { PayPalWebhookService } from '../../src/payments/application/webhook-service.js';
 import { InMemoryPersistence } from '../../src/persistence/adapters/in-memory/in-memory-persistence.js';
 import { paymentRequestFixture } from '../persistence/payment-fixtures.js';
@@ -29,11 +30,18 @@ function completedEvent(
   return {
     id: eventId,
     event_type: 'PAYMENT.CAPTURE.COMPLETED',
+    payer: {
+      email_address: 'private-payer@example.com',
+      name: { given_name: 'Private', surname: 'Payer' },
+    },
+    links: [{ href: 'https://api.paypal.com/private/resource', rel: 'self' }],
     resource: {
       id: 'CAPTURE-123',
       status: 'COMPLETED',
+      custom_id: 'internal-payment-reference',
       amount: { value, currency_code: 'EUR' },
       supplementary_data: { related_ids: { order_id: 'ORDER-123' } },
+      payer: { email_address: 'nested-private@example.com' },
     },
   };
 }
@@ -44,7 +52,7 @@ function harness() {
   const service = new PayPalWebhookService({
     paymentRequests: persistence.paymentRequests,
     paymentEvents: persistence.paymentEvents,
-    webhookEvents: persistence.paypalWebhookEvents,
+    webhookEvents: new MinimizingWebhookEventRepository(persistence.paypalWebhookEvents),
     audit: persistence.auditEvents,
     unitOfWork: persistence,
     gateway,
@@ -74,6 +82,20 @@ describe('PayPal webhook processing', () => {
     expect(duplicate).toMatchObject({ accepted: true, duplicate: true });
     expect(stored?.status).toBe('paid');
     expect(webhook?.verificationStatus).toBe('verified');
+    expect(webhook?.payload).toEqual({
+      providerEventId: 'WH-EVENT-1',
+      eventType: 'PAYMENT.CAPTURE.COMPLETED',
+      resourceId: 'CAPTURE-123',
+      resourceStatus: 'COMPLETED',
+      orderId: 'ORDER-123',
+      customId: 'internal-payment-reference',
+      amountValue: '125.00',
+      currency: 'EUR',
+    });
+    const serializedWebhook = JSON.stringify(webhook);
+    expect(serializedWebhook).not.toContain('private-payer@example.com');
+    expect(serializedWebhook).not.toContain('nested-private@example.com');
+    expect(serializedWebhook).not.toContain('api.paypal.com/private');
     expect(await persistence.paymentEvents.listByPaymentRequestId(payment.id)).toHaveLength(1);
     expect(await persistence.auditEvents.listByEntity('payment_request', payment.id)).toHaveLength(1);
     expect(gateway.verificationCalls).toHaveLength(1);
@@ -100,6 +122,7 @@ describe('PayPal webhook processing', () => {
     });
     expect((await persistence.paymentRequests.getById(payment.id))?.status).toBe('processing');
     expect(webhook?.processingError).toBe('PAYMENT_AMOUNT_MISMATCH');
+    expect(webhook?.payload).not.toHaveProperty('payer');
   });
 
   it('rejects invalid signatures and safely ignores duplicate rejected events', async () => {
@@ -117,6 +140,7 @@ describe('PayPal webhook processing', () => {
     });
     expect(duplicate).toMatchObject({ accepted: false, duplicate: true });
     expect(webhook?.verificationStatus).toBe('rejected');
+    expect(webhook?.payload).not.toHaveProperty('payer');
     expect(gateway.verificationCalls).toHaveLength(1);
   });
 });

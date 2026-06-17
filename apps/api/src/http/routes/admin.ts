@@ -16,7 +16,9 @@ export async function registerAdminRoutes(
   }));
 
   app.get('/leads/export.csv', async (request, reply) => {
-    const csv = protectSpreadsheetCells(await leads.exportCsv(queryFilter(request)));
+    const csv = protectSpreadsheetCells(
+      await leads.exportCsv(queryFilter(request), administrator(request)),
+    );
     return reply
       .header('content-type', 'text/csv; charset=utf-8')
       .header('content-disposition', 'attachment; filename="leads.csv"')

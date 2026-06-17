@@ -31,7 +31,7 @@ export class SubmissionGuard {
     if (!Number.isFinite(elapsed) || elapsed < this.dependencies.minimumCompletionMs) {
       throw rejected();
     }
-    if (elapsed > this.dependencies.maximumCompletionMs) {
+    if (input.turnstileToken && elapsed > this.dependencies.maximumCompletionMs) {
       throw new PublicSubmissionError(
         'SUBMISSION_EXPIRED',
         'This form session expired. Refresh the page and try again.',

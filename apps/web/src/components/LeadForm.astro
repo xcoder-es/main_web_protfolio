@@ -1,0 +1,185 @@
+---
+import { routes, site, type Locale } from '../content/site';
+
+interface Props {
+  locale: Locale;
+  kind: 'contact' | 'project';
+}
+
+const { locale, kind } = Astro.props;
+const apiBase = import.meta.env.PUBLIC_API_URL ?? 'http://localhost:3000';
+const turnstileSiteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY?.trim();
+const isProject = kind === 'project';
+const copy = locale === 'en'
+  ? {
+      eyebrow: isProject ? 'Project intake' : 'Direct enquiry',
+      title: isProject ? 'Give the problem enough shape to evaluate.' : 'Send a clear, direct message.',
+      intro: isProject
+        ? 'The details below make the first conversation useful. Nothing is committed until scope and commercial terms are agreed.'
+        : 'Share enough context to understand the decision, system or delivery problem. You will receive a direct response.',
+      name: 'Name', email: 'Email', phone: 'Phone', company: 'Company', subject: 'Subject',
+      message: 'Message', summary: 'Project context and desired outcome', projectType: 'Type of work',
+      budget: 'Indicative budget', timeline: 'Timing', optional: 'Optional', submit: isProject ? 'Send project request' : 'Send enquiry',
+      consent: 'I agree that these details may be used to respond to my enquiry.',
+      privacy: 'Read the privacy notice', required: 'Required fields are marked with an asterisk.',
+      successTitle: 'Request received.', successBody: 'Your information was stored securely. Carlos will respond directly.',
+      noscript: `JavaScript is required for secure form submission. Email ${site.email} instead.`,
+    }
+  : {
+      eyebrow: isProject ? 'Inicio de proyecto' : 'Consulta directa',
+      title: isProject ? 'Dale al problema suficiente forma para evaluarlo.' : 'Envía un mensaje claro y directo.',
+      intro: isProject
+        ? 'Los datos siguientes hacen útil la primera conversación. Nada queda comprometido hasta acordar alcance y condiciones comerciales.'
+        : 'Comparte suficiente contexto para entender la decisión, el sistema o el problema de entrega. Recibirás una respuesta directa.',
+      name: 'Nombre', email: 'Email', phone: 'Teléfono', company: 'Empresa', subject: 'Asunto',
+      message: 'Mensaje', summary: 'Contexto del proyecto y resultado deseado', projectType: 'Tipo de trabajo',
+      budget: 'Presupuesto estimado', timeline: 'Plazo', optional: 'Opcional', submit: isProject ? 'Enviar solicitud' : 'Enviar consulta',
+      consent: 'Acepto que estos datos se utilicen para responder a mi consulta.',
+      privacy: 'Leer aviso de privacidad', required: 'Los campos obligatorios están marcados con un asterisco.',
+      successTitle: 'Solicitud recibida.', successBody: 'Tu información fue guardada de forma segura. Carlos responderá directamente.',
+      noscript: `Se requiere JavaScript para el envío seguro. Escribe a ${site.email}.`,
+    };
+
+const projectTypes = locale === 'en'
+  ? [
+      ['technology-advisory', 'Technology advisory'], ['solution-architecture', 'Solution architecture'],
+      ['ai-engineering', 'AI engineering'], ['product-engineering', 'Product engineering'],
+      ['fractional-leadership', 'Fractional technology leadership'], ['other', 'Other'],
+    ]
+  : [
+      ['technology-advisory', 'Asesoría tecnológica'], ['solution-architecture', 'Arquitectura de soluciones'],
+      ['ai-engineering', 'Ingeniería de IA'], ['product-engineering', 'Ingeniería de producto'],
+      ['fractional-leadership', 'Liderazgo tecnológico fraccional'], ['other', 'Otro'],
+    ];
+const budgets = locale === 'en'
+  ? [['under-5k', 'Under €5,000'], ['5k-15k', '€5,000–€15,000'], ['15k-50k', '€15,000–€50,000'], ['50k-plus', '€50,000+'], ['discuss', 'Prefer to discuss']]
+  : [['under-5k', 'Menos de 5.000 €'], ['5k-15k', '5.000–15.000 €'], ['15k-50k', '15.000–50.000 €'], ['50k-plus', 'Más de 50.000 €'], ['discuss', 'Prefiero conversarlo']];
+const timelines = locale === 'en'
+  ? [['urgent', 'Urgent'], ['one-to-three-months', '1–3 months'], ['three-to-six-months', '3–6 months'], ['flexible', 'Flexible']]
+  : [['urgent', 'Urgente'], ['one-to-three-months', '1–3 meses'], ['three-to-six-months', '3–6 meses'], ['flexible', 'Flexible']];
+---
+
+<section class="content-section form-section" aria-labelledby={`${kind}-form-title`}>
+  <div class="shell form-layout">
+    <header class="form-introduction">
+      <p class="eyebrow">{copy.eyebrow}</p>
+      <h2 id={`${kind}-form-title`}>{copy.title}</h2>
+      <p>{copy.intro}</p>
+      <p class="form-required-note">{copy.required}</p>
+    </header>
+
+    <div class="form-surface">
+      <form
+        data-lead-form
+        data-form-kind={kind}
+        data-locale={locale}
+        data-api-base={apiBase}
+      >
+        <div class="form-grid">
+          <div class="form-field">
+            <label for={`${kind}-name`}>{copy.name} <span aria-hidden="true">*</span></label>
+            <input id={`${kind}-name`} name="name" type="text" autocomplete="name" minlength="2" maxlength="100" required aria-describedby={`${kind}-name-error`} />
+            <small id={`${kind}-name-error`} data-field-error data-error-for="name"></small>
+          </div>
+          <div class="form-field">
+            <label for={`${kind}-email`}>{copy.email} <span aria-hidden="true">*</span></label>
+            <input id={`${kind}-email`} name="email" type="email" autocomplete="email" maxlength="254" required aria-describedby={`${kind}-email-error`} />
+            <small id={`${kind}-email-error`} data-field-error data-error-for="email"></small>
+          </div>
+
+          {isProject ? (
+            <>
+              <div class="form-field">
+                <label for="project-company">{copy.company} <span class="optional-label">{copy.optional}</span></label>
+                <input id="project-company" name="company" type="text" autocomplete="organization" minlength="2" maxlength="160" aria-describedby="project-company-error" />
+                <small id="project-company-error" data-field-error data-error-for="company"></small>
+              </div>
+              <div class="form-field">
+                <label for="project-type">{copy.projectType} <span aria-hidden="true">*</span></label>
+                <select id="project-type" name="projectType" required aria-describedby="project-type-error">
+                  <option value="">—</option>
+                  {projectTypes.map(([value, label]) => <option value={value}>{label}</option>)}
+                </select>
+                <small id="project-type-error" data-field-error data-error-for="projectType"></small>
+              </div>
+              <div class="form-field">
+                <label for="project-budget">{copy.budget} <span aria-hidden="true">*</span></label>
+                <select id="project-budget" name="budgetRange" required aria-describedby="project-budget-error">
+                  <option value="">—</option>
+                  {budgets.map(([value, label]) => <option value={value}>{label}</option>)}
+                </select>
+                <small id="project-budget-error" data-field-error data-error-for="budgetRange"></small>
+              </div>
+              <div class="form-field">
+                <label for="project-timeline">{copy.timeline} <span aria-hidden="true">*</span></label>
+                <select id="project-timeline" name="timeline" required aria-describedby="project-timeline-error">
+                  <option value="">—</option>
+                  {timelines.map(([value, label]) => <option value={value}>{label}</option>)}
+                </select>
+                <small id="project-timeline-error" data-field-error data-error-for="timeline"></small>
+              </div>
+              <div class="form-field form-field-wide">
+                <label for="project-summary">{copy.summary} <span aria-hidden="true">*</span></label>
+                <textarea id="project-summary" name="summary" rows="9" minlength="30" maxlength="8000" required aria-describedby="project-summary-help project-summary-error"></textarea>
+                <p id="project-summary-help" class="field-help">{locale === 'en' ? 'Include the current state, constraint, desired result and important dates.' : 'Incluye el estado actual, la restricción, el resultado deseado y las fechas importantes.'}</p>
+                <small id="project-summary-error" data-field-error data-error-for="summary"></small>
+              </div>
+            </>
+          ) : (
+            <>
+              <div class="form-field">
+                <label for="contact-phone">{copy.phone} <span class="optional-label">{copy.optional}</span></label>
+                <input id="contact-phone" name="phone" type="tel" autocomplete="tel" minlength="7" maxlength="40" aria-describedby="contact-phone-error" />
+                <small id="contact-phone-error" data-field-error data-error-for="phone"></small>
+              </div>
+              <div class="form-field">
+                <label for="contact-subject">{copy.subject} <span aria-hidden="true">*</span></label>
+                <input id="contact-subject" name="subject" type="text" minlength="3" maxlength="160" required aria-describedby="contact-subject-error" />
+                <small id="contact-subject-error" data-field-error data-error-for="subject"></small>
+              </div>
+              <div class="form-field form-field-wide">
+                <label for="contact-message">{copy.message} <span aria-hidden="true">*</span></label>
+                <textarea id="contact-message" name="message" rows="7" minlength="20" maxlength="5000" required aria-describedby="contact-message-error"></textarea>
+                <small id="contact-message-error" data-field-error data-error-for="message"></small>
+              </div>
+            </>
+          )}
+        </div>
+
+        <div class="honeypot-field" aria-hidden="true">
+          <label for={`${kind}-website`}>Website</label>
+          <input id={`${kind}-website`} name="website" type="text" tabindex="-1" autocomplete="off" />
+        </div>
+
+        {turnstileSiteKey && (
+          <div class="turnstile-field">
+            <div class="cf-turnstile" data-sitekey={turnstileSiteKey} data-action={isProject ? 'project-request' : 'contact'} data-theme="light" data-size="flexible"></div>
+          </div>
+        )}
+
+        <div class="consent-row">
+          <input id={`${kind}-consent`} name="consent" type="checkbox" required />
+          <label for={`${kind}-consent`}>
+            {copy.consent} <a href={routes[locale].privacy}>{copy.privacy}</a>.
+          </label>
+        </div>
+
+        <div class="form-actions">
+          <button class="button" type="submit">{copy.submit}</button>
+          <p data-form-status class="form-status" role="status" aria-live="polite"></p>
+        </div>
+        <noscript><p class="form-noscript">{copy.noscript}</p></noscript>
+      </form>
+
+      <div data-form-success class="form-success" role="status" tabindex="-1" hidden>
+        <span aria-hidden="true">✓</span>
+        <div><h3>{copy.successTitle}</h3><p>{copy.successBody}</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{turnstileSiteKey && <script is:inline src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>}
+<script>
+  import '../scripts/lead-form';
+</script>

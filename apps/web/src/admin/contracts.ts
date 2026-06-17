@@ -162,7 +162,7 @@ export type Diagnostics = Readonly<{
     publicErrors: 'sanitized';
     openApi: 'enabled' | 'disabled';
     webhookStorage: 'summary-only';
-    secrets: 'runtime-only';
+    credentials: 'runtime-only';
   }>;
   retention: readonly RetentionRule[];
 }>;

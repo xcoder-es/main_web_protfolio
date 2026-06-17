@@ -4,22 +4,32 @@ import {
 } from '@carlos-pinto/contracts';
 import type { FastifyInstance } from 'fastify';
 
-import type { SubmissionNotificationCoordinator } from '../../notifications/application/submission-coordinator.js';
+import type { PublicSubmissionService } from '../../submissions/application/service.js';
 import { ApplicationError } from '../errors.js';
+
+const contactRouteOptions = {
+  bodyLimit: 12 * 1024,
+  config: { rateLimit: { max: 5, timeWindow: '10 minutes' } },
+} as const;
+
+const projectRouteOptions = {
+  bodyLimit: 24 * 1024,
+  config: { rateLimit: { max: 3, timeWindow: '10 minutes' } },
+} as const;
 
 export async function registerPublicRoutes(
   app: FastifyInstance,
-  submissions: SubmissionNotificationCoordinator,
+  submissions: PublicSubmissionService,
 ): Promise<void> {
   app.get('/status', async () => ({ available: true }));
 
-  app.post('/contact', async (request, reply) => {
+  app.post('/contact', contactRouteOptions, async (request, reply) => {
     const parsed = contactSubmissionSchema.safeParse(request.body);
     if (!parsed.success) throw validationError(parsed.error.issues);
 
     const result = await submissions.submitContact(parsed.data, {
-      type: 'visitor',
-      correlationId: request.id,
+      actor: { type: 'visitor', correlationId: request.id },
+      remoteIp: request.ip,
     });
     return reply.code(result.created ? 201 : 200).send({
       leadId: result.lead.id,
@@ -28,13 +38,13 @@ export async function registerPublicRoutes(
     });
   });
 
-  app.post('/project-requests', async (request, reply) => {
+  app.post('/project-requests', projectRouteOptions, async (request, reply) => {
     const parsed = projectRequestSubmissionSchema.safeParse(request.body);
     if (!parsed.success) throw validationError(parsed.error.issues);
 
     const result = await submissions.submitProject(parsed.data, {
-      type: 'visitor',
-      correlationId: request.id,
+      actor: { type: 'visitor', correlationId: request.id },
+      remoteIp: request.ip,
     });
     return reply.code(result.created ? 201 : 200).send({
       leadId: result.lead.id,

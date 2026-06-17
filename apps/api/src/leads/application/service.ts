@@ -229,8 +229,19 @@ export class LeadsService {
     return this.changeStatus(id, 'spam', actor);
   }
 
-  public async exportCsv(filter: LeadListFilter = {}): Promise<string> {
+  public async exportCsv(
+    filter: LeadListFilter = {},
+    actor?: LeadActor,
+  ): Promise<string> {
     const rows = await this.listLeads(filter);
+    if (actor) {
+      await this.writeAuditEvent(actor, 'lead.exported', 'lead_collection', undefined, {
+        resultCount: rows.length,
+        statusFilter: filter.status ?? null,
+        typeFilter: filter.type ?? null,
+        searchApplied: Boolean(filter.search?.trim()),
+      });
+    }
     const headers = ['id', 'type', 'status', 'name', 'email', 'company', 'submittedAt'];
     return [
       headers.join(','),
@@ -279,10 +290,20 @@ export class LeadsService {
     return lead;
   }
 
-  private async writeAudit(
+  private writeAudit(
     actor: LeadActor,
     action: string,
     leadId: string,
+    metadata: Readonly<Record<string, unknown>>,
+  ): Promise<void> {
+    return this.writeAuditEvent(actor, action, 'lead', leadId, metadata);
+  }
+
+  private async writeAuditEvent(
+    actor: LeadActor,
+    action: string,
+    entityType: string,
+    entityId: string | undefined,
     metadata: Readonly<Record<string, unknown>>,
   ): Promise<void> {
     const event: AuditEventRecord = {
@@ -290,8 +311,8 @@ export class LeadsService {
       actorType: actor.type,
       ...(actor.id ? { actorId: actor.id } : {}),
       action,
-      entityType: 'lead',
-      entityId: leadId,
+      entityType,
+      ...(entityId ? { entityId } : {}),
       correlationId: actor.correlationId,
       metadata,
       createdAt: this.dependencies.clock.now(),

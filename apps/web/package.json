@@ -8,5 +8,8 @@
     "dev": "astro dev",
     "preview": "astro preview"
   },
+  "dependencies": {
+    "@carlos-pinto/contracts": "workspace:*"
+  },
   "devDependencies": { "astro": "^6.1.8" }
 }

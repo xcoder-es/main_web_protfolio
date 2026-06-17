@@ -7,6 +7,7 @@ import { LeadApplicationError } from '../leads/application/errors.js';
 import { NotificationApplicationError } from '../notifications/application/notification-errors.js';
 import { PaymentApplicationError } from '../payments/application/errors.js';
 import { PaymentGatewayError } from '../payments/application/ports.js';
+import { PublicSubmissionError } from '../spam/application/errors.js';
 
 export class ApplicationError extends Error {
   public constructor(
@@ -57,7 +58,8 @@ export function registerErrorHandlers(app: FastifyInstance): void {
         | LeadApplicationError
         | NotificationApplicationError
         | PaymentApplicationError
-        | PaymentGatewayError,
+        | PaymentGatewayError
+        | PublicSubmissionError,
       request,
       reply: FastifyReply,
     ) => {
@@ -65,7 +67,8 @@ export function registerErrorHandlers(app: FastifyInstance): void {
         error instanceof ApplicationError ||
         error instanceof LeadApplicationError ||
         error instanceof NotificationApplicationError ||
-        error instanceof PaymentApplicationError
+        error instanceof PaymentApplicationError ||
+        error instanceof PublicSubmissionError
       ) {
         void reply
           .code(error.statusCode)

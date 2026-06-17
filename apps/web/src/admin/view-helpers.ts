@@ -78,9 +78,7 @@ export function formatMoney(amountMinor: number, currency: string): string {
 }
 
 export function humanize(value: string): string {
-  return value
-    .replaceAll(/[._-]+/g, ' ')
-    .replace(/\b\w/g, (character) => character.toUpperCase());
+  return value.replaceAll(/[._-]+/g, ' ').replace(/\b\w/g, (character) => character.toUpperCase());
 }
 
 export function truncate(value: string, length = 110): string {
@@ -91,9 +89,7 @@ export function truncate(value: string, length = 110): string {
 export function metadataSummary(metadata: Readonly<Record<string, unknown>>): string {
   const entries = Object.entries(metadata).slice(0, 4);
   if (entries.length === 0) return 'No additional metadata';
-  return entries
-    .map(([key, value]) => `${humanize(key)}: ${primitive(value)}`)
-    .join(' · ');
+  return entries.map(([key, value]) => `${humanize(key)}: ${primitive(value)}`).join(' · ');
 }
 
 export function setBusy(button: HTMLButtonElement, busy: boolean, label?: string): void {

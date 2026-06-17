@@ -4,10 +4,7 @@ import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
 import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
 import { InMemoryPersistence } from '../../src/persistence/adapters/in-memory/in-memory-persistence.js';
-import {
-  administratorHeaders,
-  administratorIdentityOverrides,
-} from '../support/identity.js';
+import { administratorHeaders, administratorIdentityOverrides } from '../support/identity.js';
 
 const config: ApiRuntimeConfig = {
   environment: 'test',
@@ -91,7 +88,7 @@ describe('administrator lead hardening', () => {
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body).toContain("\"'=2+2\"");
+    expect(response.body).toContain('"\'=2+2"');
     expect(response.body).not.toContain(',"=2+2"');
     const exportAudit = (await persistence.auditEvents.list()).find(
       (event) => event.action === 'lead.exported',

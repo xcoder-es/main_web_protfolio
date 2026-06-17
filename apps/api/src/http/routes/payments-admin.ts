@@ -22,20 +22,15 @@ export async function registerPaymentAdminRoutes(
     const body = (request.body ?? {}) as Record<string, unknown>;
     const expiresAt = parseOptionalDate(body.expiresAt);
     if (body.expiresAt !== undefined && !expiresAt) {
-      throw new ApplicationError(
-        'VALIDATION_ERROR',
-        'The request contains invalid fields.',
-        400,
-        { expiresAt: ['Expiration must be a valid ISO date.'] },
-      );
+      throw new ApplicationError('VALIDATION_ERROR', 'The request contains invalid fields.', 400, {
+        expiresAt: ['Expiration must be a valid ISO date.'],
+      });
     }
     const created = await payments.createRequest(
       {
         ...(typeof body.leadId === 'string' ? { leadId: body.leadId } : {}),
         title: typeof body.title === 'string' ? body.title : '',
-        ...(typeof body.description === 'string'
-          ? { description: body.description }
-          : {}),
+        ...(typeof body.description === 'string' ? { description: body.description } : {}),
         amountMinor: typeof body.amountMinor === 'number' ? body.amountMinor : Number.NaN,
         currency: typeof body.currency === 'string' ? body.currency : '',
         ...(expiresAt ? { expiresAt } : {}),

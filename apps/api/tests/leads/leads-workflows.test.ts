@@ -5,13 +5,10 @@ import { afterEach, describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
 import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
-import { LeadApplicationError } from '../../src/leads/application/errors.js';
+import type { LeadApplicationError } from '../../src/leads/application/errors.js';
 import { LeadsService } from '../../src/leads/application/service.js';
 import { InMemoryPersistence } from '../../src/persistence/adapters/in-memory/in-memory-persistence.js';
-import {
-  administratorHeaders,
-  administratorIdentityOverrides,
-} from '../support/identity.js';
+import { administratorHeaders, administratorIdentityOverrides } from '../support/identity.js';
 
 const now = new Date('2026-06-15T12:00:00.000Z');
 const clock: Clock = { now: () => new Date(now) };
@@ -71,7 +68,7 @@ describe('lead application workflows', () => {
     expect(first.created).toBe(true);
     expect(duplicate.created).toBe(false);
     expect(duplicate.lead.id).toBe(first.lead.id);
-    expect((await persistence.leads.list())).toHaveLength(1);
+    expect(await persistence.leads.list()).toHaveLength(1);
     expect(await persistence.auditEvents.listByEntity('lead', first.lead.id)).toHaveLength(1);
     expect(first.lead.email).toBe('ada@example.com');
   });
@@ -82,7 +79,11 @@ describe('lead application workflows', () => {
 
     await leads.changeStatus(submitted.lead.id, 'qualified', administrator);
     await leads.changeStatus(submitted.lead.id, 'won', administrator);
-    const note = await leads.addNote(submitted.lead.id, 'Contract discussion completed.', administrator);
+    const note = await leads.addNote(
+      submitted.lead.id,
+      'Contract discussion completed.',
+      administrator,
+    );
     const details = await leads.getLead(submitted.lead.id);
 
     expect(details.lead.status).toBe('won');
@@ -94,10 +95,12 @@ describe('lead application workflows', () => {
       'lead.note_added',
     ]);
 
-    await expect(leads.changeStatus(submitted.lead.id, 'new', administrator)).rejects.toMatchObject({
-      code: 'INVALID_LEAD_TRANSITION',
-      statusCode: 409,
-    } satisfies Partial<LeadApplicationError>);
+    await expect(leads.changeStatus(submitted.lead.id, 'new', administrator)).rejects.toMatchObject(
+      {
+        code: 'INVALID_LEAD_TRANSITION',
+        statusCode: 409,
+      } satisfies Partial<LeadApplicationError>,
+    );
   });
 
   it('filters leads and exports safe CSV rows', async () => {
@@ -165,11 +168,19 @@ describe('lead HTTP acceptance', () => {
     const app = await buildApp(config, dependencies);
     apps.push(app);
 
-    const created = await app.inject({ method: 'POST', url: '/api/public/contact', payload: contact() });
+    const created = await app.inject({
+      method: 'POST',
+      url: '/api/public/contact',
+      payload: contact(),
+    });
     expect(created.statusCode).toBe(201);
     const leadId = created.json().leadId as string;
 
-    const duplicate = await app.inject({ method: 'POST', url: '/api/public/contact', payload: contact() });
+    const duplicate = await app.inject({
+      method: 'POST',
+      url: '/api/public/contact',
+      payload: contact(),
+    });
     expect(duplicate.statusCode).toBe(200);
     expect(duplicate.json().created).toBe(false);
 

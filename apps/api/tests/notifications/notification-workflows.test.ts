@@ -1,8 +1,4 @@
-import type {
-  Clock,
-  ContactSubmission,
-  IdGenerator,
-} from '@carlos-pinto/contracts';
+import type { Clock, ContactSubmission, IdGenerator } from '@carlos-pinto/contracts';
 import { describe, expect, it } from 'vitest';
 
 import { LeadsService } from '../../src/leads/application/service.js';

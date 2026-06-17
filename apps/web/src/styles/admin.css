@@ -2,7 +2,14 @@
   min-height: 100vh;
   background: #eef0e9;
   color: #0d1715;
-  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
 }
 
 .admin-root *,
@@ -271,7 +278,7 @@
 }
 
 .admin-navigation button:hover,
-.admin-navigation button[aria-current="page"] {
+.admin-navigation button[aria-current='page'] {
   border-color: #0d1715;
   background: #0d1715;
   color: #f4f1e8;
@@ -283,7 +290,7 @@
   text-align: center;
 }
 
-.admin-navigation button[aria-current="page"] > span:first-child {
+.admin-navigation button[aria-current='page'] > span:first-child {
   color: #b5f239;
 }
 
@@ -324,7 +331,7 @@
   background: #fbfaf5;
 }
 
-.admin-global-status[data-state="error"] {
+.admin-global-status[data-state='error'] {
   border-left-color: #a33128;
   color: #85251d;
 }
@@ -499,7 +506,7 @@
 
 .admin-compact-item:hover,
 .admin-list-item:hover,
-.admin-list-item[aria-current="true"] {
+.admin-list-item[aria-current='true'] {
   border-color: #0d1715;
   background: #fff;
 }
@@ -553,29 +560,29 @@
   height: 0.45rem;
   border-radius: 50%;
   background: #76847d;
-  content: "";
+  content: '';
 }
 
-.admin-status-badge[data-status="ready"]::before,
-.admin-status-badge[data-status="sent"]::before,
-.admin-status-badge[data-status="paid"]::before,
-.admin-status-badge[data-status="won"]::before,
-.admin-status-badge[data-status="active"]::before,
-.admin-status-badge[data-status="qualified"]::before {
+.admin-status-badge[data-status='ready']::before,
+.admin-status-badge[data-status='sent']::before,
+.admin-status-badge[data-status='paid']::before,
+.admin-status-badge[data-status='won']::before,
+.admin-status-badge[data-status='active']::before,
+.admin-status-badge[data-status='qualified']::before {
   background: #4a8b28;
 }
 
-.admin-status-badge[data-status="unavailable"]::before,
-.admin-status-badge[data-status="failed"]::before,
-.admin-status-badge[data-status="spam"]::before,
-.admin-status-badge[data-status="lost"]::before {
+.admin-status-badge[data-status='unavailable']::before,
+.admin-status-badge[data-status='failed']::before,
+.admin-status-badge[data-status='spam']::before,
+.admin-status-badge[data-status='lost']::before {
   background: #a33128;
 }
 
-.admin-status-badge[data-status="pending"]::before,
-.admin-status-badge[data-status="processing"]::before,
-.admin-status-badge[data-status="reviewing"]::before,
-.admin-status-badge[data-status="new"]::before {
+.admin-status-badge[data-status='pending']::before,
+.admin-status-badge[data-status='processing']::before,
+.admin-status-badge[data-status='reviewing']::before,
+.admin-status-badge[data-status='new']::before {
   background: #c58c18;
 }
 
@@ -892,7 +899,7 @@
   font-weight: 650;
 }
 
-.admin-toast[data-state="error"] {
+.admin-toast[data-state='error'] {
   border-color: #85251d;
   background: #85251d;
 }
@@ -992,7 +999,8 @@
     height: auto;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     gap: 0;
-    padding: 0.35rem max(0.35rem, env(safe-area-inset-right)) max(0.35rem, env(safe-area-inset-bottom)) max(0.35rem, env(safe-area-inset-left));
+    padding: 0.35rem max(0.35rem, env(safe-area-inset-right))
+      max(0.35rem, env(safe-area-inset-bottom)) max(0.35rem, env(safe-area-inset-left));
     border-top: 1px solid #ccd0c8;
     border-right: 0;
     background: rgb(251 250 245 / 0.98);
@@ -1005,7 +1013,7 @@
   }
 
   .admin-navigation button:hover,
-  .admin-navigation button[aria-current="page"] {
+  .admin-navigation button[aria-current='page'] {
     background: #0d1715;
   }
 

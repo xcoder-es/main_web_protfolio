@@ -68,7 +68,15 @@ export type PaymentRequestRecord = {
   description?: string;
   amountMinor: number;
   currency: string;
-  status: 'draft' | 'active' | 'processing' | 'paid' | 'cancelled' | 'expired' | 'failed' | 'refunded';
+  status:
+    | 'draft'
+    | 'active'
+    | 'processing'
+    | 'paid'
+    | 'cancelled'
+    | 'expired'
+    | 'failed'
+    | 'refunded';
   provider?: 'paypal';
   providerOrderId?: string;
   expiresAt?: Date;

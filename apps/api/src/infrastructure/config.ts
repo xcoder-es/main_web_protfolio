@@ -1,9 +1,6 @@
 import { parsePrivateRuntimeConfig } from '@carlos-pinto/config/private-runtime';
 
-import {
-  createRetentionPolicy,
-  type RetentionRule,
-} from '../security/retention-policy.js';
+import { createRetentionPolicy, type RetentionRule } from '../security/retention-policy.js';
 
 export type ApiRuntimeConfig = {
   environment: 'development' | 'test' | 'production';
@@ -69,7 +66,8 @@ function booleanValue(value: string | undefined, fallback: boolean): boolean {
 function positiveInteger(value: string | undefined, fallback: number, name: string): number {
   if (value === undefined) return fallback;
   const parsed = Number(value);
-  if (!Number.isInteger(parsed) || parsed <= 0) throw new Error(`${name} must be a positive integer`);
+  if (!Number.isInteger(parsed) || parsed <= 0)
+    throw new Error(`${name} must be a positive integer`);
   return parsed;
 }
 
@@ -80,7 +78,10 @@ function csvValues(value: string | undefined): string[] {
     .filter(Boolean);
 }
 
-function origins(value: string | undefined, environment: ApiRuntimeConfig['environment']): string[] {
+function origins(
+  value: string | undefined,
+  environment: ApiRuntimeConfig['environment'],
+): string[] {
   const configured = csvValues(value ?? 'http://localhost:4321');
 
   for (const origin of configured) {
@@ -253,11 +254,7 @@ function operationalConfig(
       180,
       'WEBHOOK_SUMMARY_RETENTION_DAYS',
     ),
-    auditEvents: positiveInteger(
-      env.AUDIT_EVENT_RETENTION_DAYS,
-      730,
-      'AUDIT_EVENT_RETENTION_DAYS',
-    ),
+    auditEvents: positiveInteger(env.AUDIT_EVENT_RETENTION_DAYS, 730, 'AUDIT_EVENT_RETENTION_DAYS'),
     operationalLogs: positiveInteger(
       env.OPERATIONAL_LOG_RETENTION_DAYS,
       30,
@@ -274,11 +271,7 @@ function operationalConfig(
   };
 }
 
-function validatedIdentifier(
-  value: string | undefined,
-  fallback: string,
-  name: string,
-): string {
+function validatedIdentifier(value: string | undefined, fallback: string, name: string): string {
   const normalized = value?.trim() || fallback;
   if (!/^[A-Za-z0-9._-]{1,120}$/.test(normalized)) {
     throw new Error(`${name} contains unsupported characters`);

@@ -99,7 +99,7 @@
   outline-offset: 1px;
 }
 
-.form-field [aria-invalid="true"] {
+.form-field [aria-invalid='true'] {
   border-color: #9c2f24;
   box-shadow: inset 4px 0 0 #9c2f24;
 }
@@ -176,11 +176,11 @@
   font-weight: 650;
 }
 
-.form-status[data-state="error"] {
+.form-status[data-state='error'] {
   color: #85251d;
 }
 
-.form-status[data-state="success"] {
+.form-status[data-state='success'] {
   color: #2c6013;
 }
 

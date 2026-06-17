@@ -12,7 +12,10 @@ import type {
 } from '../../application/ports.js';
 import { InMemoryRepository } from './base-repository.js';
 
-export class InMemoryLeadRepository extends InMemoryRepository<LeadRecord> implements LeadRepository {
+export class InMemoryLeadRepository
+  extends InMemoryRepository<LeadRecord>
+  implements LeadRepository
+{
   public override async insert(record: LeadRecord): Promise<void> {
     if (await this.findByIdempotencyKey(record.idempotencyKey)) {
       throw new Error(`Duplicate lead idempotency key: ${record.idempotencyKey}`);
@@ -45,13 +48,17 @@ export class InMemoryNotificationRepository
     await super.insert(record);
   }
 
-  public async findByDeduplicationKey(deduplicationKey: string): Promise<NotificationRecord | null> {
+  public async findByDeduplicationKey(
+    deduplicationKey: string,
+  ): Promise<NotificationRecord | null> {
     return this.find((record) => record.deduplicationKey === deduplicationKey);
   }
 
   public async listPending(): Promise<readonly NotificationRecord[]> {
     const records = await this.filter((record) => record.status === 'pending');
-    return [...records].sort((left, right) => left.scheduledAt.getTime() - right.scheduledAt.getTime());
+    return [...records].sort(
+      (left, right) => left.scheduledAt.getTime() - right.scheduledAt.getTime(),
+    );
   }
 }
 
@@ -62,7 +69,9 @@ export class InMemoryNotificationAttemptRepository
   public override async insert(record: NotificationAttemptRecord): Promise<void> {
     const attempts = await this.listByNotificationId(record.notificationId);
     if (attempts.some((attempt) => attempt.attemptNumber === record.attemptNumber)) {
-      throw new Error(`Duplicate notification attempt: ${record.notificationId}/${record.attemptNumber}`);
+      throw new Error(
+        `Duplicate notification attempt: ${record.notificationId}/${record.attemptNumber}`,
+      );
     }
     await super.insert(record);
   }

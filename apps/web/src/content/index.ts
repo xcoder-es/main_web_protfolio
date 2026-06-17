@@ -8,8 +8,7 @@ const privacyPages: Readonly<Record<Locale, PageContent>> = {
     title: 'Privacy is treated as a system property.',
     description:
       'A plain-language explanation of the information this independent consulting platform collects, stores and shares.',
-    lead:
-      'The platform collects only information needed to respond to enquiries, operate agreed work, reconcile payments, secure the service and meet applicable obligations.',
+    lead: 'The platform collects only information needed to respond to enquiries, operate agreed work, reconcile payments, secure the service and meet applicable obligations.',
     sections: [
       {
         title: 'Information you provide',
@@ -53,8 +52,7 @@ const privacyPages: Readonly<Record<Locale, PageContent>> = {
     title: 'La privacidad se trata como una propiedad del sistema.',
     description:
       'Una explicación clara de la información que esta plataforma de consultoría independiente recopila, almacena y comparte.',
-    lead:
-      'La plataforma recopila únicamente lo necesario para responder consultas, operar trabajos acordados, conciliar pagos, proteger el servicio y cumplir obligaciones aplicables.',
+    lead: 'La plataforma recopila únicamente lo necesario para responder consultas, operar trabajos acordados, conciliar pagos, proteger el servicio y cumplir obligaciones aplicables.',
     sections: [
       {
         title: 'Información que proporcionas',

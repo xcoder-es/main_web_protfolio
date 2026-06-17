@@ -20,9 +20,7 @@ describe('ClerkIdentityVerifier', () => {
       async authenticateRequest(clerkRequest, options) {
         calls.push({
           request: clerkRequest,
-          ...(options.authorizedParties
-            ? { authorizedParties: options.authorizedParties }
-            : {}),
+          ...(options.authorizedParties ? { authorizedParties: options.authorizedParties } : {}),
         });
         return {
           isAuthenticated: true,
@@ -42,11 +40,7 @@ describe('ClerkIdentityVerifier', () => {
         },
       },
     };
-    const verifier = new ClerkIdentityVerifier(
-      client,
-      ['https://portfolio.example.com'],
-      true,
-    );
+    const verifier = new ClerkIdentityVerifier(client, ['https://portfolio.example.com'], true);
 
     const principal = await verifier.verify(
       request({ authorization: 'Bearer clerk-session-token' }),
@@ -59,9 +53,7 @@ describe('ClerkIdentityVerifier', () => {
       provider: 'clerk',
     });
     expect(calls).toHaveLength(1);
-    expect(calls[0]?.request.headers.get('authorization')).toBe(
-      'Bearer clerk-session-token',
-    );
+    expect(calls[0]?.request.headers.get('authorization')).toBe('Bearer clerk-session-token');
     expect(calls[0]?.authorizedParties).toEqual(['https://portfolio.example.com']);
   });
 
@@ -70,7 +62,11 @@ describe('ClerkIdentityVerifier', () => {
       async authenticateRequest() {
         return { isAuthenticated: false, toAuth: () => ({}) };
       },
-      users: { async getUser() { throw new Error('must not be called'); } },
+      users: {
+        async getUser() {
+          throw new Error('must not be called');
+        },
+      },
     };
     const incomplete: ClerkClientGateway = {
       async authenticateRequest() {
@@ -79,7 +75,11 @@ describe('ClerkIdentityVerifier', () => {
           toAuth: () => ({ userId: 'user_123', sessionId: null }),
         };
       },
-      users: { async getUser() { throw new Error('must not be called'); } },
+      users: {
+        async getUser() {
+          throw new Error('must not be called');
+        },
+      },
     };
 
     await expect(
@@ -95,7 +95,11 @@ describe('ClerkIdentityVerifier', () => {
       async authenticateRequest() {
         throw new Error('network detail');
       },
-      users: { async getUser() { throw new Error('must not be called'); } },
+      users: {
+        async getUser() {
+          throw new Error('must not be called');
+        },
+      },
     };
     const lookupFailure: ClerkClientGateway = {
       async authenticateRequest() {
@@ -104,7 +108,11 @@ describe('ClerkIdentityVerifier', () => {
           toAuth: () => ({ userId: 'user_123', sessionId: 'sess_123' }),
         };
       },
-      users: { async getUser() { throw new Error('provider detail'); } },
+      users: {
+        async getUser() {
+          throw new Error('provider detail');
+        },
+      },
     };
 
     await expect(

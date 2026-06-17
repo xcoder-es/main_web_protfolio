@@ -6,8 +6,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Arquitectura, IA e ingeniería de producto para trabajos que importan.',
     description:
       'Carlos Pinto ayuda a organizaciones a tomar decisiones tecnológicas difíciles, modernizar sistemas complejos y construir productos útiles habilitados por IA.',
-    lead:
-      'Asesoría senior sin teatro. Ejecución práctica sin el modelo inflado de una gran consultora. Decisiones claras, arquitectura deliberada y resultados medibles.',
+    lead: 'Asesoría senior sin teatro. Ejecución práctica sin el modelo inflado de una gran consultora. Decisiones claras, arquitectura deliberada y resultados medibles.',
     primaryAction: { label: 'Solicitar proyecto', href: '/es/solicitar-proyecto' },
     secondaryAction: { label: 'Explorar el trabajo', href: '/es/trabajo' },
     sections: [
@@ -70,8 +69,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Experiencia enfocada para decisiones tecnológicas complejas.',
     description:
       'Servicios de arquitectura, IA y producto diseñados alrededor de resultados, no de cantidad de consultores.',
-    lead:
-      'Cada proyecto se adapta a la restricción real: estrategia, arquitectura, entrega, capacidad o riesgo de ejecución.',
+    lead: 'Cada proyecto se adapta a la restricción real: estrategia, arquitectura, entrega, capacidad o riesgo de ejecución.',
     primaryAction: { label: 'Hablar sobre un proyecto', href: '/es/contacto' },
     sections: [
       {
@@ -132,8 +130,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Sistemas diseñados para resistir el contacto con la realidad.',
     description:
       'Áreas representativas de trabajo en IA, plataformas empresariales, datos y entrega de producto.',
-    lead:
-      'Los ejemplos describen la naturaleza del trabajo sin revelar información confidencial de clientes.',
+    lead: 'Los ejemplos describen la naturaleza del trabajo sin revelar información confidencial de clientes.',
     primaryAction: { label: 'Ver casos de estudio', href: '/es/casos-de-estudio' },
     sections: [
       {
@@ -181,10 +178,8 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
   caseStudies: {
     eyebrow: 'Casos de estudio',
     title: 'Una mirada más cercana a las decisiones detrás de los sistemas.',
-    description:
-      'Casos condensados centrados en arquitectura, restricciones y cambio medible.',
-    lead:
-      'Los nombres y detalles sensibles se omiten deliberadamente. El foco está en el razonamiento y la entrega.',
+    description: 'Casos condensados centrados en arquitectura, restricciones y cambio medible.',
+    lead: 'Los nombres y detalles sensibles se omiten deliberadamente. El foco está en el razonamiento y la entrega.',
     sections: [
       {
         eyebrow: '01',
@@ -194,7 +189,10 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
           'La solución separó clasificación, recuperación, reranking y generación detrás de contratos propios. Las citas, la evaluación y los fallos observables se trataron como requisitos de producto.',
         ],
         items: [
-          { title: 'Resultado', body: 'Una capacidad de IA multifuente capaz de evolucionar sin depender de un solo modelo o framework.' },
+          {
+            title: 'Resultado',
+            body: 'Una capacidad de IA multifuente capaz de evolucionar sin depender de un solo modelo o framework.',
+          },
         ],
       },
       {
@@ -205,7 +203,10 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
           'La arquitectura introdujo orquestación explícita, comparación determinista, alta precisión y análisis trazable de diferencias.',
         ],
         items: [
-          { title: 'Resultado', body: 'Un sistema repetible de evidencia para preparación de migraciones e investigación de excepciones.' },
+          {
+            title: 'Resultado',
+            body: 'Un sistema repetible de evidencia para preparación de migraciones e investigación de excepciones.',
+          },
         ],
       },
       {
@@ -216,7 +217,10 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
           'El modelo operativo se centró en calidad de especificación, restricciones arquitectónicas, controles automatizados y validación antes que generación.',
         ],
         items: [
-          { title: 'Resultado', body: 'Iteraciones más rápidas con mayor disciplina de revisión y propiedad clara de las decisiones técnicas.' },
+          {
+            title: 'Resultado',
+            body: 'Iteraciones más rápidas con mayor disciplina de revisión y propiedad clara de las decisiones técnicas.',
+          },
         ],
       },
     ],
@@ -226,8 +230,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Un estratega técnico que todavía construye.',
     description:
       'Liderazgo tecnológico independiente basado en arquitectura, ingeniería e IA aplicada.',
-    lead:
-      'Trabajo mejor donde se cruzan la ambición del negocio, los sistemas complejos y la presión por entregar.',
+    lead: 'Trabajo mejor donde se cruzan la ambición del negocio, los sistemas complejos y la presión por entregar.',
     primaryAction: { label: 'Iniciar conversación', href: '/es/contacto' },
     sections: [
       {
@@ -240,9 +243,18 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
       {
         title: 'Cómo trabajo',
         items: [
-          { title: 'De forma directa', body: 'Los problemas se nombran con claridad, incluidas las restricciones organizacionales y de entrega.' },
-          { title: 'De forma práctica', body: 'La estrategia permanece conectada con código, sistemas, datos, operaciones y usuarios reales.' },
-          { title: 'De forma independiente', body: 'Las recomendaciones no responden a incentivos de reventa ni a equipos que necesiten ocupación.' },
+          {
+            title: 'De forma directa',
+            body: 'Los problemas se nombran con claridad, incluidas las restricciones organizacionales y de entrega.',
+          },
+          {
+            title: 'De forma práctica',
+            body: 'La estrategia permanece conectada con código, sistemas, datos, operaciones y usuarios reales.',
+          },
+          {
+            title: 'De forma independiente',
+            body: 'Las recomendaciones no responden a incentivos de reventa ni a equipos que necesiten ocupación.',
+          },
         ],
       },
       {
@@ -258,8 +270,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Empieza por el problema, no por un proceso de ventas.',
     description:
       'Comparte el contexto, la restricción y lo que debe cambiar. Recibirás una respuesta directa.',
-    lead:
-      'Para una conversación rápida, usa email o WhatsApp. Para una iniciativa definida, utiliza la página de solicitud de proyecto.',
+    lead: 'Para una conversación rápida, usa email o WhatsApp. Para una iniciativa definida, utiliza la página de solicitud de proyecto.',
     primaryAction: { label: 'Escribir por email', href: 'mailto:capintobe@gmail.com' },
     secondaryAction: { label: 'Abrir WhatsApp', href: 'https://wa.me/34625038287' },
     sections: [
@@ -286,8 +297,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Describe el trabajo que realmente importa.',
     description:
       'Un punto de partida estructurado para proyectos de arquitectura, IA, modernización y producto.',
-    lead:
-      'El formulario autogestionado y su flujo seguro se implementan en el siguiente issue. Mientras tanto, envía el mismo contexto por email o WhatsApp.',
+    lead: 'El formulario autogestionado y su flujo seguro se implementan en el siguiente issue. Mientras tanto, envía el mismo contexto por email o WhatsApp.',
     primaryAction: {
       label: 'Enviar detalles por email',
       href: 'mailto:capintobe@gmail.com?subject=Solicitud%20de%20proyecto',
@@ -297,10 +307,19 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
       {
         title: 'Incluye',
         items: [
-          { title: 'Resultado', body: 'El resultado de negocio u operativo que el trabajo debe crear.' },
-          { title: 'Estado actual', body: 'Productos, sistemas, arquitectura, equipo y restricciones relevantes.' },
+          {
+            title: 'Resultado',
+            body: 'El resultado de negocio u operativo que el trabajo debe crear.',
+          },
+          {
+            title: 'Estado actual',
+            body: 'Productos, sistemas, arquitectura, equipo y restricciones relevantes.',
+          },
           { title: 'Tiempo', body: 'Fechas importantes, dependencias y ventanas de decisión.' },
-          { title: 'Contexto comercial', body: 'Rango de presupuesto, compras y autoridad para decidir.' },
+          {
+            title: 'Contexto comercial',
+            body: 'Rango de presupuesto, compras y autoridad para decidir.',
+          },
         ],
       },
       {
@@ -316,15 +335,23 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Paga una solicitud de proyecto acordada.',
     description:
       'Los enlaces de pago los crea Carlos con un importe fijo y el servidor los verifica antes de mostrar éxito.',
-    lead:
-      'Nunca introduzcas un importe enviado mediante un mensaje no verificado. Usa únicamente el enlace único de tu proyecto.',
+    lead: 'Nunca introduzcas un importe enviado mediante un mensaje no verificado. Usa únicamente el enlace único de tu proyecto.',
     sections: [
       {
         title: 'Cómo funciona',
         items: [
-          { title: '1. Solicitud acordada', body: 'Se confirman proyecto, hito e importe antes de crear el enlace.' },
-          { title: '2. Aprobación en PayPal', body: 'PayPal gestiona la aprobación. Este sitio nunca recibe datos de tarjeta.' },
-          { title: '3. Verificación del servidor', body: 'La plataforma verifica pedido, importe, moneda y estado antes de registrar el pago.' },
+          {
+            title: '1. Solicitud acordada',
+            body: 'Se confirman proyecto, hito e importe antes de crear el enlace.',
+          },
+          {
+            title: '2. Aprobación en PayPal',
+            body: 'PayPal gestiona la aprobación. Este sitio nunca recibe datos de tarjeta.',
+          },
+          {
+            title: '3. Verificación del servidor',
+            body: 'La plataforma verifica pedido, importe, moneda y estado antes de registrar el pago.',
+          },
         ],
       },
       {
@@ -340,8 +367,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'La privacidad se trata como una propiedad del sistema.',
     description:
       'Resumen claro de cómo este sitio de consultoría independiente maneja la información.',
-    lead:
-      'El sitio está diseñado para recopilar únicamente lo necesario para responder, operar el servicio y cumplir obligaciones legales.',
+    lead: 'El sitio está diseñado para recopilar únicamente lo necesario para responder, operar el servicio y cumplir obligaciones legales.',
     sections: [
       {
         title: 'Información recopilada',
@@ -369,8 +395,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Expectativas claras antes de comenzar.',
     description:
       'Términos generales del sitio y de las consultas para Carlos Pinto Digital Consulting.',
-    lead:
-      'Una propuesta, alcance de trabajo o acuerdo firmado regirá cualquier proyecto pagado y prevalecerá sobre estos términos generales cuando exista diferencia.',
+    lead: 'Una propuesta, alcance de trabajo o acuerdo firmado regirá cualquier proyecto pagado y prevalecerá sobre estos términos generales cuando exista diferencia.',
     sections: [
       {
         title: 'Información del sitio',

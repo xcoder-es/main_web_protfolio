@@ -65,7 +65,10 @@ class SupabaseRepository<T extends { id: string }> implements Repository<T> {
   }
 }
 
-export class SupabaseLeadRepository extends SupabaseRepository<LeadRecord> implements LeadRepository {
+export class SupabaseLeadRepository
+  extends SupabaseRepository<LeadRecord>
+  implements LeadRepository
+{
   public constructor(gateway: SupabaseGateway) {
     super(gateway, 'leads');
   }
@@ -99,7 +102,9 @@ export class SupabaseNotificationRepository
     super(gateway, 'notifications');
   }
 
-  public async findByDeduplicationKey(deduplicationKey: string): Promise<NotificationRecord | null> {
+  public async findByDeduplicationKey(
+    deduplicationKey: string,
+  ): Promise<NotificationRecord | null> {
     return this.findOne([{ column: 'deduplication_key', value: deduplicationKey }]);
   }
 
@@ -141,7 +146,9 @@ export class SupabasePaymentRequestRepository
     return this.findOne([{ column: 'public_token', value: publicToken }]);
   }
 
-  public async findByProviderOrderId(providerOrderId: string): Promise<PaymentRequestRecord | null> {
+  public async findByProviderOrderId(
+    providerOrderId: string,
+  ): Promise<PaymentRequestRecord | null> {
     return this.findOne([{ column: 'provider_order_id', value: providerOrderId }]);
   }
 }
@@ -164,7 +171,9 @@ export class SupabasePaymentEventRepository
     ]);
   }
 
-  public async listByPaymentRequestId(paymentRequestId: string): Promise<readonly PaymentEventRecord[]> {
+  public async listByPaymentRequestId(
+    paymentRequestId: string,
+  ): Promise<readonly PaymentEventRecord[]> {
     return this.findMany(
       [{ column: 'payment_request_id', value: paymentRequestId }],
       [{ column: 'occurred_at', ascending: true }],
@@ -180,7 +189,9 @@ export class SupabasePaypalWebhookEventRepository
     super(gateway, 'paypal_webhook_events');
   }
 
-  public async findByProviderEventId(providerEventId: string): Promise<PaypalWebhookEventRecord | null> {
+  public async findByProviderEventId(
+    providerEventId: string,
+  ): Promise<PaypalWebhookEventRecord | null> {
     return this.findOne([{ column: 'provider_event_id', value: providerEventId }]);
   }
 }

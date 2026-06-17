@@ -65,7 +65,8 @@ async function bootstrap(rootElement: HTMLElement): Promise<void> {
   } catch (error) {
     boot.hidden = true;
     signIn.hidden = false;
-    authError.textContent = error instanceof Error ? error.message : 'Authentication could not load.';
+    authError.textContent =
+      error instanceof Error ? error.message : 'Authentication could not load.';
     return;
   }
 
@@ -88,7 +89,10 @@ async function bootstrap(rootElement: HTMLElement): Promise<void> {
     return;
   }
 
-  const api = new AdministratorApi(apiBase, () => clerk.session?.getToken() ?? Promise.resolve(null));
+  const api = new AdministratorApi(
+    apiBase,
+    () => clerk.session?.getToken() ?? Promise.resolve(null),
+  );
   try {
     const status = await api.status();
     requiredElement<HTMLElement>(rootElement, '[data-admin-environment]').textContent =
@@ -134,7 +138,10 @@ function createDashboard(
   const auditList = requiredElement<HTMLElement>(rootElement, '[data-audit-list]');
   const paymentForm = requiredElement<HTMLFormElement>(rootElement, '[data-payment-form]');
   const paymentFormError = requiredElement<HTMLElement>(rootElement, '[data-payment-form-error]');
-  const paymentLeadSelect = requiredElement<HTMLSelectElement>(paymentForm, 'select[name="leadId"]');
+  const paymentLeadSelect = requiredElement<HTMLSelectElement>(
+    paymentForm,
+    'select[name="leadId"]',
+  );
   let toastTimer: number | undefined;
 
   const showToast = (message: string, stateName: 'success' | 'error' = 'success'): void => {
@@ -188,7 +195,9 @@ function createDashboard(
       state.payments = payments;
       state.audit = audit;
       renderAll();
-      setGlobalStatus(`Updated ${new Intl.DateTimeFormat('en-GB', { timeStyle: 'short' }).format(new Date())}.`);
+      setGlobalStatus(
+        `Updated ${new Intl.DateTimeFormat('en-GB', { timeStyle: 'short' }).format(new Date())}.`,
+      );
       window.setTimeout(() => setGlobalStatus(''), 2_500);
     } catch (error) {
       setGlobalStatus('Administrator data could not be refreshed.', 'error');
@@ -242,11 +251,13 @@ function createDashboard(
     clear(leadList);
     leadList.append(loadingState());
     try {
-      state.leads = await api.listLeads({
-        search: formValue(values, 'search'),
-        status: formValue(values, 'status'),
-        type: formValue(values, 'type'),
-      });
+      state.leads = await api.listLeads(
+        compactOptional({
+          search: formValue(values, 'search'),
+          status: formValue(values, 'status'),
+          type: formValue(values, 'type'),
+        }),
+      );
       renderLeadList(leadList, state.leads, state.selectedLeadId);
       renderNavigationCounts(rootElement, state);
       populateLeadSelect(paymentLeadSelect, state.leads);
@@ -324,7 +335,12 @@ function createDashboard(
       });
     } catch (error) {
       clear(leadDetail);
-      leadDetail.append(emptyState('Lead unavailable', 'The lead may have been removed or the session may have expired.'));
+      leadDetail.append(
+        emptyState(
+          'Lead unavailable',
+          'The lead may have been removed or the session may have expired.',
+        ),
+      );
       await handleError(error);
     }
   };
@@ -348,7 +364,11 @@ function createDashboard(
     setBusy(button, true, 'Retrying…');
     try {
       const notification = await api.retryNotification(id);
-      showToast(notification.status === 'sent' ? 'Notification delivered.' : `Delivery is ${notification.status}.`);
+      showToast(
+        notification.status === 'sent'
+          ? 'Notification delivered.'
+          : `Delivery is ${notification.status}.`,
+      );
       state.notifications = await api.listNotifications();
       renderNotifications(notificationList, state.notifications);
       renderNavigationCounts(rootElement, state);
@@ -393,12 +413,12 @@ function createDashboard(
 
     setBusy(submit, true, 'Saving…');
     try {
+      const leadId = formValue(values, 'leadId');
+      const description = formValue(values, 'description');
       await api.createPayment({
-        ...(formValue(values, 'leadId') ? { leadId: formValue(values, 'leadId') } : {}),
+        ...(leadId ? { leadId } : {}),
         title: formValue(values, 'title') ?? '',
-        ...(formValue(values, 'description')
-          ? { description: formValue(values, 'description') }
-          : {}),
+        ...(description ? { description } : {}),
         amountMinor,
         currency: (formValue(values, 'currency') ?? '').toUpperCase(),
         ...(expiresAt ? { expiresAt: expiresAt.toISOString() } : {}),
@@ -414,7 +434,10 @@ function createDashboard(
       renderAudit(auditList, state.audit);
       renderNavigationCounts(rootElement, state);
     } catch (error) {
-      paymentFormError.textContent = error instanceof AdministratorApiError ? error.message : 'Payment request could not be saved.';
+      paymentFormError.textContent =
+        error instanceof AdministratorApiError
+          ? error.message
+          : 'Payment request could not be saved.';
       await handleError(error);
     } finally {
       setBusy(submit, false);
@@ -452,7 +475,9 @@ function createDashboard(
         if (!window.confirm('Cancel this payment request?')) return;
         await api.cancelPayment(id);
       }
-      showToast(action === 'activate' ? 'Payment request activated.' : 'Payment request cancelled.');
+      showToast(
+        action === 'activate' ? 'Payment request activated.' : 'Payment request cancelled.',
+      );
       state.payments = await api.listPayments();
       state.audit = await api.audit({ limit: 100 });
       renderPayments(paymentList, state.payments, state.leads, siteBase);
@@ -472,12 +497,14 @@ function createDashboard(
     clear(auditList);
     auditList.append(loadingState());
     try {
-      state.audit = await api.audit({
-        entityType: formValue(values, 'entityType'),
-        entityId: formValue(values, 'entityId'),
-        action: formValue(values, 'action'),
-        limit: 250,
-      });
+      state.audit = await api.audit(
+        compactOptional({
+          entityType: formValue(values, 'entityType'),
+          entityId: formValue(values, 'entityId'),
+          action: formValue(values, 'action'),
+          limit: 250,
+        }),
+      );
       renderAudit(auditList, state.audit);
     } catch (error) {
       await handleError(error);
@@ -488,7 +515,9 @@ function createDashboard(
     for (const button of rootElement.querySelectorAll<HTMLButtonElement>('[data-admin-nav]')) {
       button.addEventListener('click', () => showView(asView(button.dataset.adminNav)));
     }
-    for (const button of rootElement.querySelectorAll<HTMLButtonElement>('[data-admin-open-view]')) {
+    for (const button of rootElement.querySelectorAll<HTMLButtonElement>(
+      '[data-admin-open-view]',
+    )) {
       button.addEventListener('click', () => showView(asView(button.dataset.adminOpenView)));
     }
     for (const button of rootElement.querySelectorAll<HTMLButtonElement>('[data-admin-refresh]')) {
@@ -513,11 +542,13 @@ function createDashboard(
         const values = new FormData(form);
         setBusy(button, true, 'Exporting…');
         void api
-          .exportLeads({
-            search: formValue(values, 'search'),
-            status: formValue(values, 'status'),
-            type: formValue(values, 'type'),
-          })
+          .exportLeads(
+            compactOptional({
+              search: formValue(values, 'search'),
+              status: formValue(values, 'status'),
+              type: formValue(values, 'type'),
+            }),
+          )
           .then(() => showToast('Lead export downloaded.'))
           .catch(handleError)
           .finally(() => setBusy(button, false));
@@ -535,20 +566,27 @@ function createDashboard(
       },
     );
     notificationList.addEventListener('click', (event) => {
-      const button = (event.target as Element).closest<HTMLButtonElement>('[data-notification-action]');
+      const button = (event.target as Element).closest<HTMLButtonElement>(
+        '[data-notification-action]',
+      );
       const id = button?.dataset.notificationId;
       const action = button?.dataset.notificationAction;
       if (!button || !id || !action) return;
       if (action === 'retry') void retryNotification(id, button);
       if (action === 'attempts') void showNotificationAttempts(id, button);
     });
-    for (const button of rootElement.querySelectorAll<HTMLButtonElement>('[data-toggle-payment-form]')) {
+    for (const button of rootElement.querySelectorAll<HTMLButtonElement>(
+      '[data-toggle-payment-form]',
+    )) {
       button.addEventListener('click', () => {
         paymentForm.hidden = !paymentForm.hidden;
-        if (!paymentForm.hidden) requiredElement<HTMLInputElement>(paymentForm, 'input[name="title"]').focus();
+        if (!paymentForm.hidden)
+          requiredElement<HTMLInputElement>(paymentForm, 'input[name="title"]').focus();
       });
     }
-    for (const button of rootElement.querySelectorAll<HTMLButtonElement>('[data-close-payment-form]')) {
+    for (const button of rootElement.querySelectorAll<HTMLButtonElement>(
+      '[data-close-payment-form]',
+    )) {
       button.addEventListener('click', () => {
         paymentForm.hidden = true;
         paymentFormError.textContent = '';
@@ -575,9 +613,21 @@ function createDashboard(
 }
 
 function renderNavigationCounts(root: HTMLElement, state: DashboardState): void {
-  setCount(root, 'leads', state.leads.filter((lead) => !['won', 'lost', 'archived', 'spam'].includes(lead.status)).length);
-  setCount(root, 'notifications', state.notifications.filter((item) => item.status === 'failed').length);
-  setCount(root, 'payments', state.payments.filter((item) => ['active', 'processing'].includes(item.status)).length);
+  setCount(
+    root,
+    'leads',
+    state.leads.filter((lead) => !['won', 'lost', 'archived', 'spam'].includes(lead.status)).length,
+  );
+  setCount(
+    root,
+    'notifications',
+    state.notifications.filter((item) => item.status === 'failed').length,
+  );
+  setCount(
+    root,
+    'payments',
+    state.payments.filter((item) => ['active', 'processing'].includes(item.status)).length,
+  );
 }
 
 function setCount(root: HTMLElement, name: string, count: number): void {
@@ -588,23 +638,37 @@ function setCount(root: HTMLElement, name: string, count: number): void {
 }
 
 function renderOverview(root: HTMLElement, state: DashboardState): void {
-  metric(root, 'open-leads', state.leads.filter((lead) => !['won', 'lost', 'archived', 'spam'].includes(lead.status)).length);
-  metric(root, 'failed-notifications', state.notifications.filter((item) => item.status === 'failed').length);
-  metric(root, 'active-payments', state.payments.filter((item) => ['active', 'processing'].includes(item.status)).length);
+  metric(
+    root,
+    'open-leads',
+    state.leads.filter((lead) => !['won', 'lost', 'archived', 'spam'].includes(lead.status)).length,
+  );
+  metric(
+    root,
+    'failed-notifications',
+    state.notifications.filter((item) => item.status === 'failed').length,
+  );
+  metric(
+    root,
+    'active-payments',
+    state.payments.filter((item) => ['active', 'processing'].includes(item.status)).length,
+  );
   const paid = state.payments.filter((item) => item.status === 'paid');
   const paidMetric = paid.length === 0 ? '0' : paidCurrencies(paid);
   requiredElement<HTMLElement>(root, '[data-metric="paid-total"]').textContent = paidMetric;
 
   const recentLeads = requiredElement<HTMLElement>(root, '[data-overview-leads]');
   clear(recentLeads);
-  if (state.leads.length === 0) recentLeads.append(emptyState('No leads yet', 'New enquiries will appear here.'));
+  if (state.leads.length === 0)
+    recentLeads.append(emptyState('No leads yet', 'New enquiries will appear here.'));
   else {
     for (const lead of state.leads.slice(0, 5)) recentLeads.append(compactLead(lead));
   }
 
   const diagnostics = requiredElement<HTMLElement>(root, '[data-admin-diagnostics]');
   clear(diagnostics);
-  if (!state.diagnostics) diagnostics.append(emptyState('Diagnostics unavailable', 'Refresh the workspace.'));
+  if (!state.diagnostics)
+    diagnostics.append(emptyState('Diagnostics unavailable', 'Refresh the workspace.'));
   else {
     for (const check of state.diagnostics.checks) {
       const item = document.createElement('div');
@@ -640,14 +704,24 @@ function compactLead(lead: LeadRecord): HTMLButtonElement {
   const top = document.createElement('div');
   top.className = 'admin-item-topline';
   top.append(textElement('span', humanize(lead.leadType)), statusBadge(lead.status));
-  button.append(top, textElement('strong', lead.name), textElement('p', truncate(lead.message, 80)));
+  button.append(
+    top,
+    textElement('strong', lead.name),
+    textElement('p', truncate(lead.message, 80)),
+  );
   return button;
 }
 
-function renderLeadList(container: HTMLElement, leads: readonly LeadRecord[], selectedId?: string): void {
+function renderLeadList(
+  container: HTMLElement,
+  leads: readonly LeadRecord[],
+  selectedId?: string,
+): void {
   clear(container);
   if (leads.length === 0) {
-    container.append(emptyState('No matching leads', 'Adjust the filters or wait for a new enquiry.'));
+    container.append(
+      emptyState('No matching leads', 'Adjust the filters or wait for a new enquiry.'),
+    );
     return;
   }
   for (const lead of leads) {
@@ -684,22 +758,35 @@ function renderLeadDetail(
   const header = document.createElement('div');
   header.className = 'admin-detail-header';
   const title = document.createElement('div');
-  title.append(textElement('p', humanize(lead.leadType), 'admin-kicker'), textElement('h2', lead.name));
+  title.append(
+    textElement('p', humanize(lead.leadType), 'admin-kicker'),
+    textElement('h2', lead.name),
+  );
   header.append(title, statusBadge(lead.status));
   container.append(header);
 
   const meta = document.createElement('div');
   meta.className = 'admin-detail-meta';
-  meta.append(textElement('span', `Submitted ${formatDate(lead.submittedAt)}`), textElement('span', lead.language.toUpperCase()));
+  meta.append(
+    textElement('span', `Submitted ${formatDate(lead.submittedAt)}`),
+    textElement('span', lead.language.toUpperCase()),
+  );
   container.append(meta);
 
   const grid = document.createElement('div');
   grid.className = 'admin-detail-grid';
   grid.append(
     detailField('Email', lead.email, `mailto:${lead.email}`),
-    detailField('Phone', lead.phone ?? 'Not provided', lead.phone ? `tel:${lead.phone}` : undefined),
+    detailField(
+      'Phone',
+      lead.phone ?? 'Not provided',
+      lead.phone ? `tel:${lead.phone}` : undefined,
+    ),
     detailField('Company', lead.company ?? 'Not provided'),
-    detailField('Project type', lead.projectType ? humanize(lead.projectType) : lead.subject ?? 'Not provided'),
+    detailField(
+      'Project type',
+      lead.projectType ? humanize(lead.projectType) : (lead.subject ?? 'Not provided'),
+    ),
     detailField('Budget', lead.budgetRange ? humanize(lead.budgetRange) : 'Not provided'),
     detailField('Timeline', lead.timeline ? humanize(lead.timeline) : 'Not provided'),
   );
@@ -709,7 +796,10 @@ function renderLeadDetail(
   shortcuts.className = 'admin-action-row';
   shortcuts.append(actionLink('Email', `mailto:${lead.email}`));
   if (lead.phone) shortcuts.append(actionLink('Call', `tel:${lead.phone}`));
-  if (lead.phone) shortcuts.append(actionLink('WhatsApp', `https://wa.me/${lead.phone.replaceAll(/\D/g, '')}`, true));
+  if (lead.phone)
+    shortcuts.append(
+      actionLink('WhatsApp', `https://wa.me/${lead.phone.replaceAll(/\D/g, '')}`, true),
+    );
   container.append(shortcuts);
 
   const statusSection = document.createElement('section');
@@ -719,7 +809,16 @@ function renderLeadDetail(
   statusRow.className = 'admin-action-row';
   const select = document.createElement('select');
   select.setAttribute('aria-label', 'Lead status');
-  for (const status of ['new', 'reviewing', 'qualified', 'contacted', 'won', 'lost', 'archived', 'spam'] as const) {
+  for (const status of [
+    'new',
+    'reviewing',
+    'qualified',
+    'contacted',
+    'won',
+    'lost',
+    'archived',
+    'spam',
+  ] as const) {
     const option = document.createElement('option');
     option.value = status;
     option.textContent = humanize(status);
@@ -758,12 +857,18 @@ function renderLeadDetail(
   notesSection.append(textarea, saveNote);
   const noteList = document.createElement('div');
   noteList.className = 'admin-note-list';
-  if (details.notes.length === 0) noteList.append(emptyState('No notes', 'Add the first internal note.'));
+  if (details.notes.length === 0)
+    noteList.append(emptyState('No notes', 'Add the first internal note.'));
   else {
-    for (const note of [...details.notes].sort((a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt))) {
+    for (const note of [...details.notes].sort(
+      (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt),
+    )) {
       const item = document.createElement('article');
       item.className = 'admin-note';
-      item.append(textElement('p', note.body), textElement('small', `${formatDate(note.createdAt)} · ${note.authorPrincipalId}`));
+      item.append(
+        textElement('p', note.body),
+        textElement('small', `${formatDate(note.createdAt)} · ${note.authorPrincipalId}`),
+      );
       noteList.append(item);
     }
   }
@@ -809,7 +914,10 @@ function button(label: string, className: string): HTMLButtonElement {
   return element;
 }
 
-function renderNotifications(container: HTMLElement, notifications: readonly NotificationRecord[]): void {
+function renderNotifications(
+  container: HTMLElement,
+  notifications: readonly NotificationRecord[],
+): void {
   clear(container);
   if (notifications.length === 0) {
     container.append(emptyState('No notifications', 'Delivery attempts will appear here.'));
@@ -823,13 +931,22 @@ function renderNotifications(container: HTMLElement, notifications: readonly Not
     const content = document.createElement('div');
     const top = document.createElement('div');
     top.className = 'admin-card-topline';
-    top.append(textElement('span', formatDate(notification.updatedAt)), statusBadge(notification.status));
+    top.append(
+      textElement('span', formatDate(notification.updatedAt)),
+      statusBadge(notification.status),
+    );
     content.append(
       top,
       textElement('strong', humanize(notification.templateKey)),
       textElement('p', `To ${notification.recipient}`),
     );
-    if (notification.lastErrorMessage) content.append(textElement('p', `${notification.lastErrorCode ?? 'Delivery error'} · ${notification.lastErrorMessage}`));
+    if (notification.lastErrorMessage)
+      content.append(
+        textElement(
+          'p',
+          `${notification.lastErrorCode ?? 'Delivery error'} · ${notification.lastErrorMessage}`,
+        ),
+      );
     const actions = document.createElement('div');
     actions.className = 'admin-operation-actions';
     if (notification.status === 'failed' || notification.status === 'pending') {
@@ -854,7 +971,8 @@ function renderNotificationAttempts(card: HTMLElement, details: NotificationDeta
   wrapper.dataset.notificationAttempts = 'true';
   wrapper.className = 'admin-detail-section';
   wrapper.append(textElement('h3', 'Delivery attempts'));
-  if (details.attempts.length === 0) wrapper.append(emptyState('No attempts', 'This notification has not been dispatched.'));
+  if (details.attempts.length === 0)
+    wrapper.append(emptyState('No attempts', 'This notification has not been dispatched.'));
   else {
     const timeline = document.createElement('div');
     timeline.className = 'admin-timeline';
@@ -865,8 +983,21 @@ function renderNotificationAttempts(card: HTMLElement, details: NotificationDeta
       const content = document.createElement('div');
       const top = document.createElement('div');
       top.className = 'admin-timeline-meta';
-      top.append(textElement('span', `Attempt ${attempt.attemptNumber}`), statusBadge(attempt.status));
-      content.append(top, textElement('h3', attempt.errorCode ?? attempt.providerMessageId ?? humanize(attempt.status)), textElement('p', attempt.errorMessage ?? formatDate(attempt.finishedAt ?? attempt.startedAt)));
+      top.append(
+        textElement('span', `Attempt ${attempt.attemptNumber}`),
+        statusBadge(attempt.status),
+      );
+      content.append(
+        top,
+        textElement(
+          'h3',
+          attempt.errorCode ?? attempt.providerMessageId ?? humanize(attempt.status),
+        ),
+        textElement(
+          'p',
+          attempt.errorMessage ?? formatDate(attempt.finishedAt ?? attempt.startedAt),
+        ),
+      );
       item.append(content);
       timeline.append(item);
     }
@@ -883,7 +1014,12 @@ function renderPayments(
 ): void {
   clear(container);
   if (payments.length === 0) {
-    container.append(emptyState('No payment requests', 'Create a fixed, server-owned request when commercial terms are agreed.'));
+    container.append(
+      emptyState(
+        'No payment requests',
+        'Create a fixed, server-owned request when commercial terms are agreed.',
+      ),
+    );
     return;
   }
   const leadNames = new Map(leads.map((lead) => [lead.id, lead.name]));
@@ -905,15 +1041,21 @@ function renderPayments(
     details.className = 'admin-operation-details';
     details.append(
       operationField('Amount', formatMoney(payment.amountMinor, payment.currency)),
-      operationField('Lead', payment.leadId ? leadNames.get(payment.leadId) ?? payment.leadId : 'Not linked'),
+      operationField(
+        'Lead',
+        payment.leadId ? (leadNames.get(payment.leadId) ?? payment.leadId) : 'Not linked',
+      ),
       operationField('Expires', formatDate(payment.expiresAt)),
     );
     content.append(details);
     const actions = document.createElement('div');
     actions.className = 'admin-operation-actions';
-    if (payment.status === 'draft' || payment.status === 'failed') actions.append(paymentButton('Activate', 'activate', payment.id, 'admin-primary-button'));
-    if (['draft', 'active', 'processing', 'failed'].includes(payment.status)) actions.append(paymentButton('Cancel', 'cancel', payment.id, 'admin-danger-button'));
-    if (payment.status === 'active' || payment.status === 'processing') actions.append(paymentButton('Share', 'share', payment.id, 'admin-secondary-button'));
+    if (payment.status === 'draft' || payment.status === 'failed')
+      actions.append(paymentButton('Activate', 'activate', payment.id, 'admin-primary-button'));
+    if (['draft', 'active', 'processing', 'failed'].includes(payment.status))
+      actions.append(paymentButton('Cancel', 'cancel', payment.id, 'admin-danger-button'));
+    if (payment.status === 'active' || payment.status === 'processing')
+      actions.append(paymentButton('Share', 'share', payment.id, 'admin-secondary-button'));
     actions.append(paymentButton('History', 'history', payment.id, 'admin-secondary-button'));
     const link = new URL('/payment', siteBase);
     link.searchParams.set('token', payment.publicToken);
@@ -955,10 +1097,20 @@ function renderPaymentEvents(card: HTMLElement, events: readonly PaymentEvent[])
   wrapper.append(textElement('h3', 'Payment history'));
   const timeline = document.createElement('div');
   timeline.className = 'admin-timeline';
-  if (events.length === 0) timeline.append(emptyState('No events', 'The request has no recorded events.'));
+  if (events.length === 0)
+    timeline.append(emptyState('No events', 'The request has no recorded events.'));
   else {
-    for (const event of [...events].sort((a, b) => Date.parse(b.occurredAt) - Date.parse(a.occurredAt))) {
-      timeline.append(auditLikeItem(event.eventType, event.provider, event.occurredAt, metadataSummary(event.payload)));
+    for (const event of [...events].sort(
+      (a, b) => Date.parse(b.occurredAt) - Date.parse(a.occurredAt),
+    )) {
+      timeline.append(
+        auditLikeItem(
+          event.eventType,
+          event.provider,
+          event.occurredAt,
+          metadataSummary(event.payload),
+        ),
+      );
     }
   }
   wrapper.append(timeline);
@@ -968,11 +1120,20 @@ function renderPaymentEvents(card: HTMLElement, events: readonly PaymentEvent[])
 function renderAudit(container: HTMLElement, events: readonly AuditEvent[]): void {
   clear(container);
   if (events.length === 0) {
-    container.append(emptyState('No audit events', 'Actions will appear here as the system is used.'));
+    container.append(
+      emptyState('No audit events', 'Actions will appear here as the system is used.'),
+    );
     return;
   }
   for (const event of events) {
-    container.append(auditLikeItem(event.action, `${event.actorType}${event.actorId ? ` · ${event.actorId}` : ''}`, event.createdAt, metadataSummary(event.metadata)));
+    container.append(
+      auditLikeItem(
+        event.action,
+        `${event.actorType}${event.actorId ? ` · ${event.actorId}` : ''}`,
+        event.createdAt,
+        metadataSummary(event.metadata),
+      ),
+    );
   }
 }
 
@@ -1055,6 +1216,17 @@ function authorizationMessage(error: unknown): string {
     return 'Administrator identity is not fully configured on the API service.';
   }
   return error instanceof Error ? error.message : 'Administrator access could not be verified.';
+}
+
+function compactOptional<T extends Record<string, unknown>>(
+  input: T,
+): { [K in keyof T]?: Exclude<T[K], undefined> } {
+  return Object.fromEntries(
+    Object.entries(input).filter((entry): entry is [string, Exclude<unknown, undefined>] => {
+      const [, value] = entry;
+      return value !== undefined;
+    }),
+  ) as { [K in keyof T]?: Exclude<T[K], undefined> };
 }
 
 function renderSignedInButUnauthorized(container: HTMLElement, clerk: ClerkBrowser): void {

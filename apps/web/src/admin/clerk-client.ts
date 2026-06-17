@@ -67,9 +67,13 @@ function loadScript(src: string, attributes: Readonly<Record<string, string>> = 
       },
       { once: true },
     );
-    script.addEventListener('error', () => reject(new Error('Authentication assets failed to load.')), {
-      once: true,
-    });
+    script.addEventListener(
+      'error',
+      () => reject(new Error('Authentication assets failed to load.')),
+      {
+        once: true,
+      },
+    );
     if (!existing) document.head.append(script);
   });
 }

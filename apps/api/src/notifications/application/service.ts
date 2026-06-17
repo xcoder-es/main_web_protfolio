@@ -11,11 +11,7 @@ import type {
   NotificationAttemptRecord,
   NotificationRecord,
 } from '../../persistence/application/records.js';
-import {
-  assertNotificationTransition,
-  notificationStatuses,
-  type NotificationStatus,
-} from '../domain/model.js';
+import { assertNotificationTransition, notificationStatuses } from '../domain/model.js';
 import { NotificationApplicationError } from './notification-errors.js';
 import {
   NotificationSenderError,

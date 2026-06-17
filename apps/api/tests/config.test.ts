@@ -15,9 +15,9 @@ describe('API runtime configuration', () => {
   });
 
   it('rejects wildcard origins and malformed numeric settings', () => {
-    expect(() =>
-      loadApiRuntimeConfig({ NODE_ENV: 'production', CORS_ORIGINS: '*' }),
-    ).toThrow('wildcard');
+    expect(() => loadApiRuntimeConfig({ NODE_ENV: 'production', CORS_ORIGINS: '*' })).toThrow(
+      'wildcard',
+    );
     expect(() =>
       loadApiRuntimeConfig({
         NODE_ENV: 'test',
@@ -49,8 +49,7 @@ describe('API runtime configuration', () => {
       CLERK_SECRET_KEY: 'sk_test_example',
       CLERK_PUBLISHABLE_KEY: 'pk_test_example',
       CLERK_JWT_KEY: '-----BEGIN PUBLIC KEY-----example',
-      CLERK_AUTHORIZED_PARTIES:
-        'https://portfolio.example.com, https://staging.example.com',
+      CLERK_AUTHORIZED_PARTIES: 'https://portfolio.example.com, https://staging.example.com',
       CLERK_ADMIN_USER_IDS: 'user_123,user_456',
       CLERK_ADMIN_EMAILS: 'ADMIN@EXAMPLE.COM,owner@example.com',
     });
@@ -59,10 +58,7 @@ describe('API runtime configuration', () => {
       clerkSecretKey: 'sk_test_example',
       clerkPublishableKey: 'pk_test_example',
       clerkJwtKey: '-----BEGIN PUBLIC KEY-----example',
-      authorizedParties: [
-        'https://portfolio.example.com',
-        'https://staging.example.com',
-      ],
+      authorizedParties: ['https://portfolio.example.com', 'https://staging.example.com'],
       administratorUserIds: ['user_123', 'user_456'],
       administratorEmails: ['admin@example.com', 'owner@example.com'],
     });

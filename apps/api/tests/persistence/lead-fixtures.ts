@@ -39,7 +39,9 @@ export function leadNoteFixture(overrides: Partial<LeadNoteRecord> = {}): LeadNo
   };
 }
 
-export function notificationFixture(overrides: Partial<NotificationRecord> = {}): NotificationRecord {
+export function notificationFixture(
+  overrides: Partial<NotificationRecord> = {},
+): NotificationRecord {
   return {
     id: '30000000-0000-4000-8000-000000000001',
     leadId: '10000000-0000-4000-8000-000000000001',

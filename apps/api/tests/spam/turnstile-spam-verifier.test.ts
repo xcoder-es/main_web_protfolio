@@ -67,19 +67,25 @@ describe('TurnstileSpamVerifier', () => {
           hostname: 'portfolio.example.com',
         })) as typeof fetch,
     });
-    expect(
-      await actionMismatch.verify({ token: 'token', action: 'contact' }),
-    ).toMatchObject({ status: 'rejected', errorCodes: ['action-mismatch'] });
+    expect(await actionMismatch.verify({ token: 'token', action: 'contact' })).toMatchObject({
+      status: 'rejected',
+      errorCodes: ['action-mismatch'],
+    });
 
     const hostnameMismatch = new TurnstileSpamVerifier({
       secretKey: 'secret-key',
       allowedHostnames: ['portfolio.example.com'],
       fetch: (async () =>
-        jsonResponse({ success: true, action: 'contact', hostname: 'attacker.example' })) as typeof fetch,
+        jsonResponse({
+          success: true,
+          action: 'contact',
+          hostname: 'attacker.example',
+        })) as typeof fetch,
     });
-    expect(
-      await hostnameMismatch.verify({ token: 'token', action: 'contact' }),
-    ).toMatchObject({ status: 'rejected', errorCodes: ['hostname-mismatch'] });
+    expect(await hostnameMismatch.verify({ token: 'token', action: 'contact' })).toMatchObject({
+      status: 'rejected',
+      errorCodes: ['hostname-mismatch'],
+    });
   });
 
   it('returns controlled unavailable results for network and provider failures', async () => {
@@ -88,17 +94,18 @@ describe('TurnstileSpamVerifier', () => {
       allowedHostnames: [],
       fetch: (async () => Promise.reject(new Error('offline'))) as typeof fetch,
     });
-    expect(
-      await networkFailure.verify({ token: 'token', action: 'contact' }),
-    ).toMatchObject({ status: 'unavailable' });
+    expect(await networkFailure.verify({ token: 'token', action: 'contact' })).toMatchObject({
+      status: 'unavailable',
+    });
 
     const providerFailure = new TurnstileSpamVerifier({
       secretKey: 'secret-key',
       allowedHostnames: [],
       fetch: (async () => jsonResponse({}, 503)) as typeof fetch,
     });
-    expect(
-      await providerFailure.verify({ token: 'token', action: 'contact' }),
-    ).toMatchObject({ status: 'unavailable', errorCodes: ['provider-http-503'] });
+    expect(await providerFailure.verify({ token: 'token', action: 'contact' })).toMatchObject({
+      status: 'unavailable',
+      errorCodes: ['provider-http-503'],
+    });
   });
 });

@@ -4,10 +4,7 @@ import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
 import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
 import { InMemoryPersistence } from '../../src/persistence/adapters/in-memory/in-memory-persistence.js';
-import {
-  administratorHeaders,
-  administratorIdentityOverrides,
-} from '../support/identity.js';
+import { administratorHeaders, administratorIdentityOverrides } from '../support/identity.js';
 
 const config: ApiRuntimeConfig = {
   environment: 'test',
@@ -83,11 +80,13 @@ describe('administrator overview routes', () => {
     expect(payload.generatedAt).toBe('2026-06-17T14:00:00.000Z');
     expect(payload.durationMs).toBeTypeOf('number');
     expect(payload.checks).toHaveLength(5);
-    expect(payload.checks.map((check: { name: string; state: string; required: boolean }) => ({
-      name: check.name,
-      state: check.state,
-      required: check.required,
-    }))).toEqual([
+    expect(
+      payload.checks.map((check: { name: string; state: string; required: boolean }) => ({
+        name: check.name,
+        state: check.state,
+        required: check.required,
+      })),
+    ).toEqual([
       { name: 'persistence', state: 'ready', required: true },
       { name: 'identity', state: 'ready', required: true },
       { name: 'notifications', state: 'disabled', required: false },

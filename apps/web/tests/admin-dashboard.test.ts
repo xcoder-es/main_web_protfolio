@@ -49,7 +49,7 @@ describe('mobile administrator dashboard', () => {
     expect(controller).toContain('api.leadDetails');
     expect(controller).toContain('api.updateLeadStatus');
     expect(controller).toContain('api.addLeadNote');
-    expect(controller).toContain('api.exportLeads');
+    expect(controller).toContain('.exportLeads');
     expect(controller).toContain('api.retryNotification');
     expect(controller).toContain('api.createPayment');
     expect(controller).toContain('api.activatePayment');

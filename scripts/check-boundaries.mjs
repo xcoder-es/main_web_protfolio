@@ -1,9 +1,18 @@
 import { readdir, readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
 import { extname, join, relative, sep } from 'node:path';
 
-const root = new URL('../', import.meta.url);
-const apiSource = new URL('../apps/api/src/', import.meta.url);
-const forbiddenImports = ['fastify', '@supabase/', '@clerk/', 'resend', '@paypal/', 'turnstile', 'render'];
+const root = fileURLToPath(new URL('../', import.meta.url));
+const apiSource = fileURLToPath(new URL('../apps/api/src/', import.meta.url));
+const forbiddenImports = [
+  'fastify',
+  '@supabase/',
+  '@clerk/',
+  'resend',
+  '@paypal/',
+  'turnstile',
+  'render',
+];
 
 async function walk(directory) {
   const entries = await readdir(directory, { withFileTypes: true });
@@ -20,7 +29,8 @@ let files = [];
 try {
   files = await walk(apiSource);
 } catch (error) {
-  if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT') process.exit(0);
+  if (error && typeof error === 'object' && 'code' in error && error.code === 'ENOENT')
+    process.exit(0);
   throw error;
 }
 
@@ -31,7 +41,7 @@ for (const file of files) {
   if (!isInnerLayer) continue;
   const source = await readFile(file, 'utf8');
   for (const token of forbiddenImports) {
-    if (source.includes(`from '${token}`) || source.includes(`from \"${token}`)) {
+    if (source.includes(`from '${token}`) || source.includes(`from "${token}`)) {
       violations.push(`${relative(root, file)} imports forbidden dependency ${token}`);
     }
   }

@@ -149,7 +149,10 @@ describe('protected public submission acceptance', () => {
     const trapped = await honeypotApp.inject({
       method: 'POST',
       url: '/api/public/contact',
-      payload: { ...contact(), antiSpam: { website: 'https://spam.example', turnstileToken: 'token' } },
+      payload: {
+        ...contact(),
+        antiSpam: { website: 'https://spam.example', turnstileToken: 'token' },
+      },
     });
     expect(trapped.statusCode).toBe(400);
     expect(trapped.json().code).toBe('SUBMISSION_REJECTED');
@@ -175,7 +178,10 @@ describe('protected public submission acceptance', () => {
 
   it('rejects failed challenges and reports unavailable providers without saving leads', async () => {
     const rejectedHarness = harness();
-    rejectedHarness.spamVerifier.result = { status: 'rejected', errorCodes: ['invalid-input-response'] };
+    rejectedHarness.spamVerifier.result = {
+      status: 'rejected',
+      errorCodes: ['invalid-input-response'],
+    };
     const rejectedApp = await buildApp(config, rejectedHarness.dependencies);
     const rejected = await rejectedApp.inject({
       method: 'POST',

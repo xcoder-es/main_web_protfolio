@@ -3,10 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
 import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
-import {
-  administratorHeaders,
-  administratorIdentityOverrides,
-} from '../support/identity.js';
+import { administratorHeaders, administratorIdentityOverrides } from '../support/identity.js';
 
 const config: ApiRuntimeConfig = {
   environment: 'test',

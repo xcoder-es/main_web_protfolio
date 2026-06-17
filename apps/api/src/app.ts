@@ -4,7 +4,7 @@ import cors from '@fastify/cors';
 import helmet from '@fastify/helmet';
 import rateLimit from '@fastify/rate-limit';
 import swagger from '@fastify/swagger';
-import Fastify, { type FastifyInstance } from 'fastify';
+import Fastify, { type FastifyInstance, type RawServerDefault } from 'fastify';
 
 import type { ApplicationDependencies } from './composition.js';
 import { ApplicationError, registerErrorHandlers } from './http/errors.js';
@@ -28,7 +28,7 @@ export async function buildApp(
   config: ApiRuntimeConfig,
   dependencies: ApplicationDependencies,
 ): Promise<FastifyInstance> {
-  const app = Fastify({
+  const app: FastifyInstance = Fastify<RawServerDefault>({
     bodyLimit: config.bodyLimit,
     trustProxy: config.trustProxy,
     disableRequestLogging: true,
@@ -58,21 +58,12 @@ export async function buildApp(
   await app.register(cors, {
     credentials: false,
     methods: ['GET', 'HEAD', 'POST', 'PATCH', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'content-type',
-      'authorization',
-      'x-correlation-id',
-      'idempotency-key',
-    ],
+    allowedHeaders: ['content-type', 'authorization', 'x-correlation-id', 'idempotency-key'],
     exposedHeaders: ['x-correlation-id', 'retry-after'],
     origin(origin, callback) {
       if (!origin || config.allowedOrigins.includes(origin)) return callback(null, true);
       return callback(
-        new ApplicationError(
-          'ORIGIN_NOT_ALLOWED',
-          'The request origin is not allowed.',
-          403,
-        ),
+        new ApplicationError('ORIGIN_NOT_ALLOWED', 'The request origin is not allowed.', 403),
         false,
       );
     },
@@ -94,8 +85,7 @@ export async function buildApp(
 
   registerErrorHandlers(app);
   await registerSystemRoutes(app, dependencies.probes, {
-    openApiEnabled:
-      config.operational?.openApiEnabled ?? config.environment !== 'production',
+    openApiEnabled: config.operational?.openApiEnabled ?? config.environment !== 'production',
   });
   await app.register(
     async (scope) => {

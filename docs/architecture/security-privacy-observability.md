@@ -20,15 +20,15 @@ The static Astro website is public and contains no private credentials. All prov
 
 ## Threat model
 
-| Surface | Principal threats | Controls |
-| --- | --- | --- |
-| Public forms | automated submissions, oversized payloads, duplicate retries, origin abuse | schema validation, route payload limits, rate limits, timing check, honeypot, optional Turnstile, CORS allowlist, durable idempotency |
-| Administrator routes | stolen token, valid but unauthorized account, bulk data extraction | Clerk verification, authorized-party checks, administrator allowlist, no-store responses, audit events, sanitized errors |
-| Payment links | guessed identifiers, client-side amount changes, duplicate capture | unguessable public tokens, server-owned amount and currency, provider verification, deterministic idempotency, unique provider references |
-| Payment callbacks | forged signature, replay, excessive provider payload retention | signature verification, unique event IDs, summary-only persistence, reconciliation against server records |
-| Logs | credential or personal-data leakage, log injection | request logging disabled, allowlisted metadata serializers, broad Pino redaction, control-character removal, production stack suppression |
-| Diagnostics | infrastructure disclosure | minimal public readiness, detailed diagnostics behind administrator authentication, release identifiers validated and truncated |
-| CSV exports | formula execution, untracked bulk extraction | spreadsheet-cell neutralization, authenticated export, persistent audit event without search terms or row contents |
+| Surface              | Principal threats                                                          | Controls                                                                                                                                  |
+| -------------------- | -------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Public forms         | automated submissions, oversized payloads, duplicate retries, origin abuse | schema validation, route payload limits, rate limits, timing check, honeypot, optional Turnstile, CORS allowlist, durable idempotency     |
+| Administrator routes | stolen token, valid but unauthorized account, bulk data extraction         | Clerk verification, authorized-party checks, administrator allowlist, no-store responses, audit events, sanitized errors                  |
+| Payment links        | guessed identifiers, client-side amount changes, duplicate capture         | unguessable public tokens, server-owned amount and currency, provider verification, deterministic idempotency, unique provider references |
+| Payment callbacks    | forged signature, replay, excessive provider payload retention             | signature verification, unique event IDs, summary-only persistence, reconciliation against server records                                 |
+| Logs                 | credential or personal-data leakage, log injection                         | request logging disabled, allowlisted metadata serializers, broad Pino redaction, control-character removal, production stack suppression |
+| Diagnostics          | infrastructure disclosure                                                  | minimal public readiness, detailed diagnostics behind administrator authentication, release identifiers validated and truncated           |
+| CSV exports          | formula execution, untracked bulk extraction                               | spreadsheet-cell neutralization, authenticated export, persistent audit event without search terms or row contents                        |
 
 ## HTTP defaults
 
@@ -117,16 +117,16 @@ Probe exceptions become controlled `unavailable` results rather than crashing th
 
 ## Retention baseline
 
-| Domain | Baseline | Trigger | Enforcement |
-| --- | ---: | --- | --- |
-| Leads | 730 days | last activity or closure | administrator review |
-| Spam-classified leads | 30 days | spam classification | administrator review |
-| Lead notes | 730 days | parent lead disposal | administrator review |
-| Notifications and attempts | 180 days | terminal delivery state | administrator review |
-| Payment records | 2190 days | final payment state | administrator review |
-| Webhook summaries | 180 days | processing completion | administrator review |
-| Audit events | 730 days | event creation | administrator review |
-| Operational logs | 30 days | log creation | Render retention controls and review |
+| Domain                     |  Baseline | Trigger                  | Enforcement                          |
+| -------------------------- | --------: | ------------------------ | ------------------------------------ |
+| Leads                      |  730 days | last activity or closure | administrator review                 |
+| Spam-classified leads      |   30 days | spam classification      | administrator review                 |
+| Lead notes                 |  730 days | parent lead disposal     | administrator review                 |
+| Notifications and attempts |  180 days | terminal delivery state  | administrator review                 |
+| Payment records            | 2190 days | final payment state      | administrator review                 |
+| Webhook summaries          |  180 days | processing completion    | administrator review                 |
+| Audit events               |  730 days | event creation           | administrator review                 |
+| Operational logs           |   30 days | log creation             | Render retention controls and review |
 
 These are operating defaults, not a promise to delete records where a contract, tax requirement, active engagement, dispute or legal hold requires continued retention. Automated deletion is intentionally not implied by the current `manual-review` enforcement value. A future scheduled retention job must use the same policy module and add deletion audit events before claiming automatic enforcement.
 

@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createLoggerOptions,
-  safeLogText,
-  sensitiveLogPaths,
-} from '../../src/security/logging.js';
+import { createLoggerOptions, safeLogText, sensitiveLogPaths } from '../../src/security/logging.js';
 
 describe('security logging', () => {
   it('serializes request metadata without raw URLs, headers or bodies', () => {
@@ -41,7 +37,7 @@ describe('security logging', () => {
       code: 'PROVIDER_FAILURE',
       statusCode: 503,
     });
-    expect(production).not.toHaveProperty('stack');
+    expect(production).toHaveProperty('stack', '');
     expect(development).toHaveProperty('stack');
     expect(safeLogText('line one\nline two\tvalue')).toBe('line one line two value');
   });

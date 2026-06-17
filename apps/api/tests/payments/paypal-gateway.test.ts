@@ -14,33 +14,39 @@ describe('PayPalGateway', () => {
     const calls: Array<{ url: string; init?: RequestInit }> = [];
     const responses = [
       jsonResponse({ access_token: 'access-token', expires_in: 3600 }),
-      jsonResponse({
-        id: 'ORDER-123',
-        status: 'CREATED',
-        links: [
-          {
-            rel: 'approve',
-            href: 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER-123',
-          },
-        ],
-      }, 201),
-      jsonResponse({
-        id: 'ORDER-123',
-        status: 'COMPLETED',
-        purchase_units: [
-          {
-            payments: {
-              captures: [
-                {
-                  id: 'CAPTURE-123',
-                  status: 'COMPLETED',
-                  amount: { value: '125.00', currency_code: 'EUR' },
-                },
-              ],
+      jsonResponse(
+        {
+          id: 'ORDER-123',
+          status: 'CREATED',
+          links: [
+            {
+              rel: 'approve',
+              href: 'https://www.sandbox.paypal.com/checkoutnow?token=ORDER-123',
             },
-          },
-        ],
-      }, 201),
+          ],
+        },
+        201,
+      ),
+      jsonResponse(
+        {
+          id: 'ORDER-123',
+          status: 'COMPLETED',
+          purchase_units: [
+            {
+              payments: {
+                captures: [
+                  {
+                    id: 'CAPTURE-123',
+                    status: 'COMPLETED',
+                    amount: { value: '125.00', currency_code: 'EUR' },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+        201,
+      ),
     ];
     const request = (async (input: RequestInfo | URL, init?: RequestInit) => {
       calls.push({ url: String(input), ...(init ? { init } : {}) });

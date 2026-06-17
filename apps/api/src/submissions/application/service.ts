@@ -28,9 +28,7 @@ export class PublicSubmissionService {
       () =>
         this.dependencies.guard.verify({
           startedAt: submission.metadata.startedAt,
-          ...(submission.antiSpam?.website
-            ? { honeypot: submission.antiSpam.website }
-            : {}),
+          ...(submission.antiSpam?.website ? { honeypot: submission.antiSpam.website } : {}),
           ...(submission.antiSpam?.turnstileToken
             ? { turnstileToken: submission.antiSpam.turnstileToken }
             : {}),
@@ -50,9 +48,7 @@ export class PublicSubmissionService {
       () =>
         this.dependencies.guard.verify({
           startedAt: submission.metadata.startedAt,
-          ...(submission.antiSpam?.website
-            ? { honeypot: submission.antiSpam.website }
-            : {}),
+          ...(submission.antiSpam?.website ? { honeypot: submission.antiSpam.website } : {}),
           ...(submission.antiSpam?.turnstileToken
             ? { turnstileToken: submission.antiSpam.turnstileToken }
             : {}),

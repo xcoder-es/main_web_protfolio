@@ -53,15 +53,14 @@ export function createLoggerOptions(
         };
         return {
           requestId: safeLogText(candidate.id),
-          method: safeLogText(candidate.method),
+          method: safeLogText(candidate.method) ?? 'UNKNOWN',
           route: safeLogText(candidate.routeOptions?.url) ?? 'unmatched',
         };
       },
       res(reply: unknown) {
         const candidate = reply as { statusCode?: unknown };
         return {
-          statusCode:
-            typeof candidate.statusCode === 'number' ? candidate.statusCode : undefined,
+          statusCode: typeof candidate.statusCode === 'number' ? candidate.statusCode : 0,
         };
       },
       err(error: unknown) {
@@ -110,7 +109,11 @@ export function logHandledError(
 
 export function safeLogText(value: unknown, maximumLength = 180): string | undefined {
   if (typeof value !== 'string') return undefined;
-  const sanitized = value.replace(/[\u0000-\u001f\u007f]+/g, ' ').trim();
+  const controlCharacters = new RegExp(
+    `[${String.fromCharCode(0)}-${String.fromCharCode(31)}${String.fromCharCode(127)}]+`,
+    'g',
+  );
+  const sanitized = value.replace(controlCharacters, ' ').trim();
   if (!sanitized) return undefined;
   return sanitized.length <= maximumLength
     ? sanitized
@@ -123,15 +126,14 @@ function routeTemplate(request: FastifyRequest): string {
 
 function serializeError(error: unknown, includeStack: boolean) {
   if (!(error instanceof Error)) {
-    return { type: 'UnknownError', message: 'Non-error value thrown' };
+    return { type: 'UnknownError', message: 'Non-error value thrown', stack: '' };
   }
   const candidate = error as Error & { code?: unknown; statusCode?: unknown };
   return {
     type: safeLogText(error.name) ?? 'Error',
     message: safeLogText(error.message, 240) ?? 'Error',
+    stack: includeStack && error.stack ? (safeLogText(error.stack, 2_000) ?? '') : '',
     code: safeLogText(candidate.code),
-    statusCode:
-      typeof candidate.statusCode === 'number' ? candidate.statusCode : undefined,
-    ...(includeStack && error.stack ? { stack: safeLogText(error.stack, 2_000) } : {}),
+    statusCode: typeof candidate.statusCode === 'number' ? candidate.statusCode : undefined,
   };
 }

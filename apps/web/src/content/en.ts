@@ -6,8 +6,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Architecture, AI and product engineering for consequential work.',
     description:
       'Carlos Pinto helps organisations make difficult technology decisions, modernise complex systems and deliver practical AI-enabled products.',
-    lead:
-      'Senior advisory without theatre. Hands-on delivery without a bloated consultancy model. Clear decisions, deliberate architecture and measurable outcomes.',
+    lead: 'Senior advisory without theatre. Hands-on delivery without a bloated consultancy model. Clear decisions, deliberate architecture and measurable outcomes.',
     primaryAction: { label: 'Request a project', href: '/request-a-project' },
     secondaryAction: { label: 'Explore the work', href: '/work' },
     sections: [
@@ -70,8 +69,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Focused expertise for complex technology decisions.',
     description:
       'Architecture, AI and product services designed around outcomes rather than headcount.',
-    lead:
-      'Each engagement is shaped around the actual constraint: strategy, architecture, delivery, capability or execution risk.',
+    lead: 'Each engagement is shaped around the actual constraint: strategy, architecture, delivery, capability or execution risk.',
     primaryAction: { label: 'Discuss an engagement', href: '/contact' },
     sections: [
       {
@@ -132,8 +130,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Systems designed to survive contact with reality.',
     description:
       'Representative areas of work across AI, enterprise platforms, data and product delivery.',
-    lead:
-      'The examples below describe the nature of the work without exposing confidential client information.',
+    lead: 'The examples below describe the nature of the work without exposing confidential client information.',
     primaryAction: { label: 'Read the case studies', href: '/case-studies' },
     sections: [
       {
@@ -183,8 +180,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'A closer look at the decisions behind the systems.',
     description:
       'Condensed case studies focused on architecture, constraints and measurable change.',
-    lead:
-      'Names and sensitive details are intentionally omitted. The emphasis is on reasoning and delivery approach.',
+    lead: 'Names and sensitive details are intentionally omitted. The emphasis is on reasoning and delivery approach.',
     sections: [
       {
         eyebrow: '01',
@@ -194,7 +190,10 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
           'The solution separated classification, retrieval, reranking and generation behind application-owned contracts. Citations, evaluation and observable failure modes were treated as product requirements, not optional polish.',
         ],
         items: [
-          { title: 'Result', body: 'A multi-source AI capability that could evolve without locking the product to one model or framework.' },
+          {
+            title: 'Result',
+            body: 'A multi-source AI capability that could evolve without locking the product to one model or framework.',
+          },
         ],
       },
       {
@@ -205,7 +204,10 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
           'The architecture introduced explicit run orchestration, deterministic comparison, high-precision calculations and traceable variance analysis rather than relying on manual sampling.',
         ],
         items: [
-          { title: 'Result', body: 'A repeatable evidence system for migration readiness and exception investigation.' },
+          {
+            title: 'Result',
+            body: 'A repeatable evidence system for migration readiness and exception investigation.',
+          },
         ],
       },
       {
@@ -216,7 +218,10 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
           'The operating model centred on specification quality, architectural constraints, automated checks and validation over generation.',
         ],
         items: [
-          { title: 'Result', body: 'Faster iteration with a stronger review discipline and clearer ownership of technical decisions.' },
+          {
+            title: 'Result',
+            body: 'Faster iteration with a stronger review discipline and clearer ownership of technical decisions.',
+          },
         ],
       },
     ],
@@ -226,8 +231,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'A technical strategist who still builds.',
     description:
       'Independent technology leadership grounded in architecture, engineering and applied AI.',
-    lead:
-      'I work best where business ambition, complex systems and delivery pressure collide.',
+    lead: 'I work best where business ambition, complex systems and delivery pressure collide.',
     primaryAction: { label: 'Start a conversation', href: '/contact' },
     sections: [
       {
@@ -240,9 +244,18 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
       {
         title: 'How I work',
         items: [
-          { title: 'Directly', body: 'Problems are named clearly, including organisational and delivery constraints.' },
-          { title: 'Practically', body: 'Strategy remains connected to code, systems, data, operations and real users.' },
-          { title: 'Independently', body: 'Recommendations are not shaped by reseller incentives or a bench that needs utilisation.' },
+          {
+            title: 'Directly',
+            body: 'Problems are named clearly, including organisational and delivery constraints.',
+          },
+          {
+            title: 'Practically',
+            body: 'Strategy remains connected to code, systems, data, operations and real users.',
+          },
+          {
+            title: 'Independently',
+            body: 'Recommendations are not shaped by reseller incentives or a bench that needs utilisation.',
+          },
         ],
       },
       {
@@ -258,8 +271,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Start with the problem, not a sales process.',
     description:
       'Share the context, the constraint and what needs to change. You will receive a direct response.',
-    lead:
-      'For a quick conversation, use email or WhatsApp. For a defined initiative, use the project request page.',
+    lead: 'For a quick conversation, use email or WhatsApp. For a defined initiative, use the project request page.',
     primaryAction: { label: 'Email Carlos', href: 'mailto:capintobe@gmail.com' },
     secondaryAction: { label: 'Open WhatsApp', href: 'https://wa.me/34625038287' },
     sections: [
@@ -286,8 +298,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Describe the work that matters.',
     description:
       'A structured starting point for architecture, AI, modernisation and product engagements.',
-    lead:
-      'The self-hosted project form and secure submission flow are delivered in the next implementation issue. For now, send the same context by email or WhatsApp.',
+    lead: 'The self-hosted project form and secure submission flow are delivered in the next implementation issue. For now, send the same context by email or WhatsApp.',
     primaryAction: {
       label: 'Send project details by email',
       href: 'mailto:capintobe@gmail.com?subject=Project%20request',
@@ -298,9 +309,15 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
         title: 'Please cover',
         items: [
           { title: 'Outcome', body: 'The business or operational result the work must create.' },
-          { title: 'Current state', body: 'Relevant products, systems, architecture, team and constraints.' },
+          {
+            title: 'Current state',
+            body: 'Relevant products, systems, architecture, team and constraints.',
+          },
           { title: 'Timing', body: 'Important dates, dependencies and decision windows.' },
-          { title: 'Commercial context', body: 'Budget range, procurement expectations and decision authority.' },
+          {
+            title: 'Commercial context',
+            body: 'Budget range, procurement expectations and decision authority.',
+          },
         ],
       },
       {
@@ -316,15 +333,23 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Pay an agreed project request.',
     description:
       'Payment links are created by Carlos with a fixed amount and verified by the server before success is displayed.',
-    lead:
-      'Never enter an amount sent through an unverified message. Use only the unique payment link provided for your engagement.',
+    lead: 'Never enter an amount sent through an unverified message. Use only the unique payment link provided for your engagement.',
     sections: [
       {
         title: 'How it works',
         items: [
-          { title: '1. Agreed request', body: 'The engagement, milestone and amount are confirmed before a link is created.' },
-          { title: '2. PayPal approval', body: 'PayPal handles account or card approval. This website never receives card details.' },
-          { title: '3. Server verification', body: 'The platform verifies order, amount, currency and provider status before recording payment.' },
+          {
+            title: '1. Agreed request',
+            body: 'The engagement, milestone and amount are confirmed before a link is created.',
+          },
+          {
+            title: '2. PayPal approval',
+            body: 'PayPal handles account or card approval. This website never receives card details.',
+          },
+          {
+            title: '3. Server verification',
+            body: 'The platform verifies order, amount, currency and provider status before recording payment.',
+          },
         ],
       },
       {
@@ -340,8 +365,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
     title: 'Privacy is treated as a system property.',
     description:
       'A plain-language overview of how this independent consulting website handles information.',
-    lead:
-      'The website is designed to collect only what is needed to respond, operate the service and meet legal obligations.',
+    lead: 'The website is designed to collect only what is needed to respond, operate the service and meet legal obligations.',
     sections: [
       {
         title: 'Information collected',
@@ -367,10 +391,8 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
   terms: {
     eyebrow: 'Terms',
     title: 'Clear expectations before an engagement begins.',
-    description:
-      'General website and enquiry terms for Carlos Pinto Digital Consulting.',
-    lead:
-      'A proposal, statement of work or signed agreement will govern any paid engagement and will override these general website terms where they differ.',
+    description: 'General website and enquiry terms for Carlos Pinto Digital Consulting.',
+    lead: 'A proposal, statement of work or signed agreement will govern any paid engagement and will override these general website terms where they differ.',
     sections: [
       {
         title: 'Website information',

@@ -12,6 +12,11 @@ export const submissionMetadataSchema = z.object({
   consent: z.literal(true),
 });
 
+export const antiSpamSubmissionSchema = z.object({
+  website: z.string().max(200).optional(),
+  turnstileToken: z.string().trim().min(1).max(2048).optional(),
+});
+
 export const contactSubmissionSchema = z.object({
   name: z.string().trim().min(2).max(100),
   email: z.string().trim().email().max(254),
@@ -19,6 +24,7 @@ export const contactSubmissionSchema = z.object({
   subject: z.string().trim().min(3).max(160),
   message: z.string().trim().min(20).max(5000),
   metadata: submissionMetadataSchema,
+  antiSpam: antiSpamSubmissionSchema.optional(),
 });
 
 export const projectTypeSchema = z.enum([
@@ -39,7 +45,9 @@ export const projectRequestSubmissionSchema = z.object({
   budgetRange: z.enum(['under-5k', '5k-15k', '15k-50k', '50k-plus', 'discuss']),
   timeline: z.enum(['urgent', 'one-to-three-months', 'three-to-six-months', 'flexible']),
   metadata: submissionMetadataSchema,
+  antiSpam: antiSpamSubmissionSchema.optional(),
 });
 
+export type AntiSpamSubmission = z.infer<typeof antiSpamSubmissionSchema>;
 export type ContactSubmission = z.infer<typeof contactSubmissionSchema>;
 export type ProjectRequestSubmission = z.infer<typeof projectRequestSubmissionSchema>;

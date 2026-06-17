@@ -30,13 +30,22 @@ const navItems: readonly [PageKey, string][] = [
     </a>
 
     <nav class="desktop-nav" aria-label="Primary">
-      {navItems.map(([key, label]) => (
-        <a href={routes[locale][key]} aria-current={pageKey === key ? 'page' : undefined}>{label}</a>
-      ))}
+      {
+        navItems.map(([key, label]) => (
+          <a href={routes[locale][key]} aria-current={pageKey === key ? 'page' : undefined}>
+            {label}
+          </a>
+        ))
+      }
     </nav>
 
     <div class="header-actions">
-      <a class="language-link" href={alternatePath(locale, pageKey)} hreflang={otherLocale} lang={otherLocale}>
+      <a
+        class="language-link"
+        href={alternatePath(locale, pageKey)}
+        hreflang={otherLocale}
+        lang={otherLocale}
+      >
         {copy.language}
       </a>
       <a class="button button-small" href={routes[locale].requestProject}>{copy.requestProject}</a>
@@ -45,11 +54,17 @@ const navItems: readonly [PageKey, string][] = [
     <details class="mobile-nav">
       <summary>{copy.menu}</summary>
       <div class="mobile-nav-panel">
-        {navItems.map(([key, label]) => (
-          <a href={routes[locale][key]} aria-current={pageKey === key ? 'page' : undefined}>{label}</a>
-        ))}
+        {
+          navItems.map(([key, label]) => (
+            <a href={routes[locale][key]} aria-current={pageKey === key ? 'page' : undefined}>
+              {label}
+            </a>
+          ))
+        }
         <a href={routes[locale].requestProject}>{copy.requestProject}</a>
-        <a href={alternatePath(locale, pageKey)} hreflang={otherLocale} lang={otherLocale}>{copy.language}</a>
+        <a href={alternatePath(locale, pageKey)} hreflang={otherLocale} lang={otherLocale}
+          >{copy.language}</a
+        >
       </div>
     </details>
   </div>

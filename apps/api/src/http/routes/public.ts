@@ -1,7 +1,4 @@
-import {
-  contactSubmissionSchema,
-  projectRequestSubmissionSchema,
-} from '@carlos-pinto/contracts';
+import { contactSubmissionSchema, projectRequestSubmissionSchema } from '@carlos-pinto/contracts';
 import type { FastifyInstance } from 'fastify';
 
 import type { PublicSubmissionService } from '../../submissions/application/service.js';

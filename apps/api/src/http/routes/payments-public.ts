@@ -20,22 +20,16 @@ export async function registerPaymentPublicRoutes(
   });
 
   app.post('/payment-requests/:publicToken/orders', async (request, reply) => {
-    const result = await payments.createProviderOrder(
-      tokenFrom(request),
-      visitorActor(request),
-    );
+    const result = await payments.createProviderOrder(tokenFrom(request), visitorActor(request));
     return reply.code(result.created ? 201 : 200).send(result);
   });
 
   app.post('/payment-requests/:publicToken/capture', async (request) => {
     const body = (request.body ?? {}) as Record<string, unknown>;
     if (typeof body.orderId !== 'string' || body.orderId.trim().length === 0) {
-      throw new ApplicationError(
-        'VALIDATION_ERROR',
-        'The request contains invalid fields.',
-        400,
-        { orderId: ['PayPal order ID is required.'] },
-      );
+      throw new ApplicationError('VALIDATION_ERROR', 'The request contains invalid fields.', 400, {
+        orderId: ['PayPal order ID is required.'],
+      });
     }
     const payment = await payments.captureProviderOrder(
       tokenFrom(request),

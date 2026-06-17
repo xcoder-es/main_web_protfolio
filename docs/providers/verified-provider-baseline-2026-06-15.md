@@ -6,15 +6,15 @@ This document records the official provider constraints used to design the first
 
 ## Decision summary
 
-| Capability | Initial provider | Zero-budget position | Application boundary |
-| --- | --- | --- | --- |
-| Static frontend | Render Static Site | Suitable | Deployment configuration only |
-| API hosting | Render Free Web Service | Suitable with cold-start constraints | Deployment configuration only |
-| PostgreSQL | Supabase Free | Suitable for initial low-volume operation | Repository and unit-of-work ports |
-| Administrator identity | Clerk Hobby | Suitable for a very small administrator allowlist | `IdentityVerifier` port |
-| Email notifications | Resend Free | Suitable within daily and monthly limits | `NotificationSender` port |
-| Payments | PayPal Checkout | No fixed hosting dependency, transaction fees apply | `PaymentGateway` port |
-| Bot verification | Cloudflare Turnstile Free | Suitable and optional | `SpamVerifier` port |
+| Capability             | Initial provider          | Zero-budget position                                | Application boundary              |
+| ---------------------- | ------------------------- | --------------------------------------------------- | --------------------------------- |
+| Static frontend        | Render Static Site        | Suitable                                            | Deployment configuration only     |
+| API hosting            | Render Free Web Service   | Suitable with cold-start constraints                | Deployment configuration only     |
+| PostgreSQL             | Supabase Free             | Suitable for initial low-volume operation           | Repository and unit-of-work ports |
+| Administrator identity | Clerk Hobby               | Suitable for a very small administrator allowlist   | `IdentityVerifier` port           |
+| Email notifications    | Resend Free               | Suitable within daily and monthly limits            | `NotificationSender` port         |
+| Payments               | PayPal Checkout           | No fixed hosting dependency, transaction fees apply | `PaymentGateway` port             |
+| Bot verification       | Cloudflare Turnstile Free | Suitable and optional                               | `SpamVerifier` port               |
 
 ## Render
 

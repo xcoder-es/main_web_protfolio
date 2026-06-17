@@ -56,7 +56,10 @@ for (const [name, createHarness] of factories) {
       lead.name = 'Mutated outside repository';
       expect((await repositories.leads.getById(lead.id))?.name).toBe('Carlos Pinto');
 
-      const updated = leadFixture({ status: 'reviewing', updatedAt: new Date('2026-06-15T13:00:00Z') });
+      const updated = leadFixture({
+        status: 'reviewing',
+        updatedAt: new Date('2026-06-15T13:00:00Z'),
+      });
       await repositories.leads.update(updated);
       expect((await repositories.leads.getById(lead.id))?.status).toBe('reviewing');
       expect(await repositories.leads.list()).toHaveLength(1);
@@ -110,7 +113,9 @@ for (const [name, createHarness] of factories) {
       await repositories.paypalWebhookEvents.insert(webhook);
       await repositories.auditEvents.insert(audit);
 
-      expect(await repositories.paymentRequests.findByPublicToken(payment.publicToken)).toEqual(payment);
+      expect(await repositories.paymentRequests.findByPublicToken(payment.publicToken)).toEqual(
+        payment,
+      );
       expect(
         await repositories.paymentRequests.findByProviderOrderId(payment.providerOrderId ?? ''),
       ).toEqual(payment);

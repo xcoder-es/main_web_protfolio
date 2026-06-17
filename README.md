@@ -25,8 +25,16 @@ tests/       Cross-application acceptance and architecture tests
 
 ```bash
 corepack enable
-pnpm install
-pnpm ci
+pnpm install --no-frozen-lockfile
+pnpm run ci
+pnpm build
+```
+
+Run the API and web frontend from two terminals:
+
+```bash
+pnpm --filter @carlos-pinto/api start
+pnpm --filter @carlos-pinto/web dev -- --host 127.0.0.1 --port 4321
 ```
 
 Node.js 24 LTS and pnpm 11.5.2 are pinned. CI is the source of truth when operating only from a phone.

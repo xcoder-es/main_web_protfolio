@@ -1,7 +1,4 @@
-import {
-  contactSubmissionSchema,
-  projectRequestSubmissionSchema,
-} from '@carlos-pinto/contracts';
+import { contactSubmissionSchema, projectRequestSubmissionSchema } from '@carlos-pinto/contracts';
 
 const copy = {
   en: {
@@ -21,7 +18,8 @@ const copy = {
     duplicate: 'Esta solicitud ya fue recibida de forma segura.',
     validation: 'Revisa los campos señalados e inténtalo de nuevo.',
     offline: 'Parece que no tienes conexión. Reconéctate e inténtalo de nuevo.',
-    unavailable: 'El servicio está iniciando o no está disponible temporalmente. Inténtalo de nuevo en breve.',
+    unavailable:
+      'El servicio está iniciando o no está disponible temporalmente. Inténtalo de nuevo en breve.',
     generic: 'No fue posible enviar la solicitud. Inténtalo de nuevo.',
   },
 } as const;
@@ -122,7 +120,11 @@ function initialise(form: HTMLFormElement): void {
         return;
       }
 
-      setStatus(status, result.created === false ? copy[locale].duplicate : copy[locale].success, 'success');
+      setStatus(
+        status,
+        result.created === false ? copy[locale].duplicate : copy[locale].success,
+        'success',
+      );
       form.hidden = true;
       if (success) {
         success.hidden = false;
@@ -133,7 +135,11 @@ function initialise(form: HTMLFormElement): void {
       startedAt = new Date().toISOString();
       resetTurnstile(form);
     } catch {
-      setStatus(status, navigator.onLine ? copy[locale].unavailable : copy[locale].offline, 'error');
+      setStatus(
+        status,
+        navigator.onLine ? copy[locale].unavailable : copy[locale].offline,
+        'error',
+      );
     } finally {
       setBusy(submit, false);
     }
@@ -200,7 +206,8 @@ async function readPayload(response: Response): Promise<ApiErrorPayload & { crea
 }
 
 function clearErrors(form: HTMLFormElement): void {
-  for (const element of form.querySelectorAll<HTMLElement>('[data-field-error]')) element.textContent = '';
+  for (const element of form.querySelectorAll<HTMLElement>('[data-field-error]'))
+    element.textContent = '';
   for (const element of form.querySelectorAll<HTMLElement>('[aria-invalid="true"]')) {
     element.removeAttribute('aria-invalid');
   }

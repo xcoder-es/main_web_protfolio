@@ -98,9 +98,9 @@ export function createApplicationDependencies(
   const authorizer = new AdministratorAuthorizer(administratorUserIds, administratorEmails);
   const clerkConfigured = Boolean(
     config.identity?.clerkSecretKey &&
-      config.identity.clerkPublishableKey &&
-      config.identity.authorizedParties.length > 0 &&
-      authorizer.configured,
+    config.identity.clerkPublishableKey &&
+    config.identity.authorizedParties.length > 0 &&
+    authorizer.configured,
   );
   const identityVerifier: IdentityVerifier =
     overrides.identityVerifier ??
@@ -115,14 +115,14 @@ export function createApplicationDependencies(
       : new DisabledIdentityVerifier());
   const identityConfigured = Boolean(
     authorizer.configured &&
-      (overrides.identityVerifier || identityVerifier instanceof ClerkIdentityVerifier),
+    (overrides.identityVerifier || identityVerifier instanceof ClerkIdentityVerifier),
   );
 
   const notificationConfigured = Boolean(
     overrides.notificationSender ||
-      (config.notification?.resendApiKey &&
-        config.notification.fromAddress &&
-        config.notification.recipientAddress),
+    (config.notification?.resendApiKey &&
+      config.notification.fromAddress &&
+      config.notification.recipientAddress),
   );
   const notificationSender =
     overrides.notificationSender ??
@@ -135,7 +135,7 @@ export function createApplicationDependencies(
 
   const paymentConfigured = Boolean(
     overrides.paymentGateway ||
-      (config.payment?.clientId && config.payment.clientSecret && config.payment.webhookId),
+    (config.payment?.clientId && config.payment.clientSecret && config.payment.webhookId),
   );
   const paymentGateway =
     overrides.paymentGateway ??
@@ -209,7 +209,7 @@ export function createApplicationDependencies(
     ),
   });
   const probes: readonly ServiceProbe[] = [
-    capabilityProbe('persistence', config.features.persistence),
+    capabilityProbe('persistence', config.features.persistence, true),
     capabilityProbe('identity', config.features.identity, identityConfigured),
     capabilityProbe('notifications', config.features.notifications, notificationConfigured),
     capabilityProbe('payments', config.features.payments, paymentConfigured),

@@ -78,7 +78,11 @@ describe('PayPal webhook processing', () => {
     const stored = await persistence.paymentRequests.getById(payment.id);
     const webhook = await persistence.paypalWebhookEvents.findByProviderEventId('WH-EVENT-1');
 
-    expect(result).toMatchObject({ accepted: true, duplicate: false, paymentRequestId: payment.id });
+    expect(result).toMatchObject({
+      accepted: true,
+      duplicate: false,
+      paymentRequestId: payment.id,
+    });
     expect(duplicate).toMatchObject({ accepted: true, duplicate: true });
     expect(stored?.status).toBe('paid');
     expect(webhook?.verificationStatus).toBe('verified');
@@ -97,7 +101,9 @@ describe('PayPal webhook processing', () => {
     expect(serializedWebhook).not.toContain('nested-private@example.com');
     expect(serializedWebhook).not.toContain('api.paypal.com/private');
     expect(await persistence.paymentEvents.listByPaymentRequestId(payment.id)).toHaveLength(1);
-    expect(await persistence.auditEvents.listByEntity('payment_request', payment.id)).toHaveLength(1);
+    expect(await persistence.auditEvents.listByEntity('payment_request', payment.id)).toHaveLength(
+      1,
+    );
     expect(gateway.verificationCalls).toHaveLength(1);
   });
 

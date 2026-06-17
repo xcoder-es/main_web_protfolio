@@ -14,7 +14,9 @@ describe('runtime configuration', () => {
   });
 
   it('rejects invalid public configuration', () => {
-    expect(() => parsePublicRuntimeConfig({ siteUrl: 'not-a-url', apiUrl: 'also-invalid' })).toThrow();
+    expect(() =>
+      parsePublicRuntimeConfig({ siteUrl: 'not-a-url', apiUrl: 'also-invalid' }),
+    ).toThrow();
   });
 
   it('returns actionable private configuration errors', () => {

@@ -23,18 +23,22 @@ export type PayPalWebhookVerificationInput = Readonly<{
 }>;
 
 export interface PaymentGateway {
-  createOrder(input: Readonly<{
-    paymentRequestId: string;
-    title: string;
-    description?: string;
-    money: Money;
-    idempotencyKey: string;
-  }>): Promise<ProviderOrder>;
+  createOrder(
+    input: Readonly<{
+      paymentRequestId: string;
+      title: string;
+      description?: string;
+      money: Money;
+      idempotencyKey: string;
+    }>,
+  ): Promise<ProviderOrder>;
 
-  captureOrder(input: Readonly<{
-    orderId: string;
-    idempotencyKey: string;
-  }>): Promise<ProviderCapture>;
+  captureOrder(
+    input: Readonly<{
+      orderId: string;
+      idempotencyKey: string;
+    }>,
+  ): Promise<ProviderCapture>;
 
   verifyWebhook(input: PayPalWebhookVerificationInput): Promise<boolean>;
 }

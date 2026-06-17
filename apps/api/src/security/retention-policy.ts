@@ -75,7 +75,9 @@ const defaultDays: Readonly<Record<RetentionDomain, number>> = {
   operationalLogs: 30,
 };
 
-export function createRetentionPolicy(overrides: RetentionOverrides = {}): readonly RetentionRule[] {
+export function createRetentionPolicy(
+  overrides: RetentionOverrides = {},
+): readonly RetentionRule[] {
   return retentionDomains.map((domain) => {
     const days = overrides[domain] ?? defaultDays[domain];
     if (!Number.isSafeInteger(days) || days <= 0) {

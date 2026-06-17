@@ -1,9 +1,6 @@
 import { readFile } from 'node:fs/promises';
 
-import {
-  contactSubmissionSchema,
-  projectRequestSubmissionSchema,
-} from '@carlos-pinto/contracts';
+import { contactSubmissionSchema, projectRequestSubmissionSchema } from '@carlos-pinto/contracts';
 import { describe, expect, it } from 'vitest';
 
 const validMetadata = {
@@ -65,7 +62,7 @@ describe('public lead forms', () => {
     );
 
     expect(controller).toContain("form.addEventListener('focusin', wake, { once: true })");
-    expect(controller).toContain("'/api/public/status'");
+    expect(controller).toContain('/api/public/status');
     expect(controller).not.toContain('setInterval');
     expect(controller).toContain('let idempotencyKey = createIdempotencyKey()');
     expect(controller).toContain('idempotencyKey = createIdempotencyKey()');

@@ -143,7 +143,9 @@ export class PaymentsService {
 
   public async list(): Promise<readonly PaymentRequestRecord[]> {
     const payments = await this.dependencies.paymentRequests.list();
-    return [...payments].sort((left, right) => right.createdAt.getTime() - left.createdAt.getTime());
+    return [...payments].sort(
+      (left, right) => right.createdAt.getTime() - left.createdAt.getTime(),
+    );
   }
 
   public async getHistory(id: string): Promise<readonly PaymentEventRecord[]> {
@@ -373,11 +375,7 @@ function assertTransition(from: PaymentStatus, to: PaymentStatus): void {
     assertPaymentTransition(from, to);
   } catch (error) {
     if (error instanceof PaymentDomainError) {
-      throw new PaymentApplicationError(
-        'INVALID_PAYMENT_TRANSITION',
-        error.message,
-        409,
-      );
+      throw new PaymentApplicationError('INVALID_PAYMENT_TRANSITION', error.message, 409);
     }
     throw error;
   }

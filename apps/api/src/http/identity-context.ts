@@ -17,9 +17,7 @@ export function getAuthenticatedPrincipal(
   return principals.get(request);
 }
 
-export function requireAuthenticatedPrincipal(
-  request: FastifyRequest,
-): AuthenticatedPrincipal {
+export function requireAuthenticatedPrincipal(request: FastifyRequest): AuthenticatedPrincipal {
   const principal = principals.get(request);
   if (!principal) throw new Error('Authenticated principal is missing from the request context.');
   return principal;

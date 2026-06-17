@@ -33,10 +33,14 @@ export function minimizeWebhookPayload(
   const relatedIds = objectValue(objectValue(resource, 'supplementary_data'), 'related_ids');
   return {
     ...(stringValue(payload, 'id') ? { providerEventId: stringValue(payload, 'id') } : {}),
-    ...(stringValue(payload, 'event_type') ? { eventType: stringValue(payload, 'event_type') } : {}),
+    ...(stringValue(payload, 'event_type')
+      ? { eventType: stringValue(payload, 'event_type') }
+      : {}),
     ...(stringValue(resource, 'id') ? { resourceId: stringValue(resource, 'id') } : {}),
     ...(stringValue(resource, 'status') ? { resourceStatus: stringValue(resource, 'status') } : {}),
-    ...(stringValue(relatedIds, 'order_id') ? { orderId: stringValue(relatedIds, 'order_id') } : {}),
+    ...(stringValue(relatedIds, 'order_id')
+      ? { orderId: stringValue(relatedIds, 'order_id') }
+      : {}),
     ...(stringValue(relatedIds, 'capture_id')
       ? { captureId: stringValue(relatedIds, 'capture_id') }
       : {}),

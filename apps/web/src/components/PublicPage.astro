@@ -18,12 +18,7 @@ const formKind =
   pageKey === 'contact' ? 'contact' : pageKey === 'requestProject' ? 'project' : undefined;
 ---
 
-<BaseLayout
-  locale={locale}
-  pageKey={pageKey}
-  title={page.title}
-  description={page.description}
->
+<BaseLayout locale={locale} pageKey={pageKey} title={page.title} description={page.description}>
   <PageRenderer locale={locale} pageKey={pageKey} page={page} showClosing={!formKind} />
   {formKind && <LeadForm locale={locale} kind={formKind} />}
   {formKind && <ClosingBand locale={locale} />}

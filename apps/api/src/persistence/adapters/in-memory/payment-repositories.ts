@@ -30,7 +30,9 @@ export class InMemoryPaymentRequestRepository
     return this.find((record) => record.publicToken === publicToken);
   }
 
-  public async findByProviderOrderId(providerOrderId: string): Promise<PaymentRequestRecord | null> {
+  public async findByProviderOrderId(
+    providerOrderId: string,
+  ): Promise<PaymentRequestRecord | null> {
     return this.find((record) => record.providerOrderId === providerOrderId);
   }
 }
@@ -62,7 +64,9 @@ export class InMemoryPaymentEventRepository
     paymentRequestId: string,
   ): Promise<readonly PaymentEventRecord[]> {
     const records = await this.filter((record) => record.paymentRequestId === paymentRequestId);
-    return [...records].sort((left, right) => left.occurredAt.getTime() - right.occurredAt.getTime());
+    return [...records].sort(
+      (left, right) => left.occurredAt.getTime() - right.occurredAt.getTime(),
+    );
   }
 }
 
@@ -77,7 +81,9 @@ export class InMemoryPaypalWebhookEventRepository
     await super.insert(record);
   }
 
-  public async findByProviderEventId(providerEventId: string): Promise<PaypalWebhookEventRecord | null> {
+  public async findByProviderEventId(
+    providerEventId: string,
+  ): Promise<PaypalWebhookEventRecord | null> {
     return this.find((record) => record.providerEventId === providerEventId);
   }
 }
@@ -90,7 +96,9 @@ export class InMemoryAuditEventRepository
     entityType: string,
     entityId: string,
   ): Promise<readonly AuditEventRecord[]> {
-    return this.filter((record) => record.entityType === entityType && record.entityId === entityId);
+    return this.filter(
+      (record) => record.entityType === entityType && record.entityId === entityId,
+    );
   }
 
   public async listByCorrelationId(correlationId: string): Promise<readonly AuditEventRecord[]> {

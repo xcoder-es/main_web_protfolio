@@ -1,9 +1,7 @@
 import type { FastifyReply, FastifyRequest } from 'fastify';
 
-import {
-  AdministratorAuthorizer,
-  IdentityAccessError,
-} from '../identity/application/authorization.js';
+import { IdentityAccessError } from '../identity/application/authorization.js';
+import type { AdministratorAuthorizer } from '../identity/application/authorization.js';
 import type { IdentityVerifier } from '../identity/application/ports.js';
 import { setAuthenticatedPrincipal } from './identity-context.js';
 

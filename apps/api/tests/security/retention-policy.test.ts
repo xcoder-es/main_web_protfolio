@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  createRetentionPolicy,
-  retentionDomains,
-} from '../../src/security/retention-policy.js';
+import { createRetentionPolicy, retentionDomains } from '../../src/security/retention-policy.js';
 
 describe('minimum-data retention policy', () => {
   it('defines one explicit rule for every stored information domain', () => {

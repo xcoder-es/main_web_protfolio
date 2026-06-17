@@ -71,12 +71,11 @@ export class PayPalGateway implements PaymentGateway {
     const approvalUrl = arrayValue(payload, 'links')
       ?.map(asObject)
       .find((link) => stringValue(link, 'rel') === 'approve');
+    const approvalHref = stringValue(approvalUrl, 'href');
     return {
       orderId,
       status,
-      ...(approvalUrl && stringValue(approvalUrl, 'href')
-        ? { approvalUrl: stringValue(approvalUrl, 'href') }
-        : {}),
+      ...(approvalHref ? { approvalUrl: approvalHref } : {}),
     };
   }
 
@@ -118,9 +117,10 @@ export class PayPalGateway implements PaymentGateway {
         : providerStatus === 'PENDING' || providerStatus === 'APPROVED'
           ? 'PENDING'
           : 'FAILED';
+    const captureId = stringValue(capture, 'id');
     return {
       orderId,
-      ...(stringValue(capture, 'id') ? { captureId: stringValue(capture, 'id') } : {}),
+      ...(captureId ? { captureId } : {}),
       status,
       money: fromPayPalAmount(value, currency),
     };
@@ -155,11 +155,7 @@ export class PayPalGateway implements PaymentGateway {
         signal: AbortSignal.timeout(this.timeoutMs),
       });
     } catch {
-      throw new PaymentGatewayError(
-        'PAYPAL_UNAVAILABLE',
-        'PayPal could not be reached.',
-        true,
-      );
+      throw new PaymentGatewayError('PAYPAL_UNAVAILABLE', 'PayPal could not be reached.', true);
     }
     const payload = await readJson(response);
     if (!response.ok) {

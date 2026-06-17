@@ -1,9 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { siteContent } from '../src/content/site.js';
+import { getPageContent } from '../src/content/index.js';
 
 describe('public site foundation', () => {
   it('provides intentional positioning copy', () => {
-    expect(siteContent.title).toBe('Carlos Pinto Digital Consulting');
-    expect(siteContent.description.length).toBeGreaterThan(40);
+    const home = getPageContent('en', 'home');
+    expect(home.title).toBe('Architecture, AI and product engineering for consequential work.');
+    expect(home.description.length).toBeGreaterThan(40);
   });
 });

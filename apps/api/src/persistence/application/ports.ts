@@ -39,7 +39,10 @@ export interface PaymentRequestRepository extends Repository<PaymentRequestRecor
 }
 
 export interface PaymentEventRepository extends Repository<PaymentEventRecord> {
-  findByProviderEventId(provider: string, providerEventId: string): Promise<PaymentEventRecord | null>;
+  findByProviderEventId(
+    provider: string,
+    providerEventId: string,
+  ): Promise<PaymentEventRecord | null>;
   listByPaymentRequestId(paymentRequestId: string): Promise<readonly PaymentEventRecord[]>;
 }
 

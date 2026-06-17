@@ -4,9 +4,32 @@
   "private": true,
   "type": "module",
   "exports": {
-    ".": "./src/index.ts",
-    "./private-runtime": "./src/private-runtime.ts",
-    "./runtime": "./src/runtime.ts",
-    "./validation-error": "./src/validation-error.ts"
+    ".": {
+      "types": "./src/index.ts",
+      "development": "./src/index.ts",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./private-runtime": {
+      "types": "./src/private-runtime.ts",
+      "development": "./src/private-runtime.ts",
+      "import": "./dist/private-runtime.js",
+      "default": "./dist/private-runtime.js"
+    },
+    "./runtime": {
+      "types": "./src/runtime.ts",
+      "development": "./src/runtime.ts",
+      "import": "./dist/runtime.js",
+      "default": "./dist/runtime.js"
+    },
+    "./validation-error": {
+      "types": "./src/validation-error.ts",
+      "development": "./src/validation-error.ts",
+      "import": "./dist/validation-error.js",
+      "default": "./dist/validation-error.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json"
   }
 }

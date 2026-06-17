@@ -22,7 +22,6 @@ import {
   isLeadType,
   LeadDomainError,
   type LeadStatus,
-  type LeadType,
 } from '../domain/model.js';
 import { LeadApplicationError } from './errors.js';
 
@@ -160,11 +159,7 @@ export class LeadsService {
       .sort((left, right) => right.submittedAt.getTime() - left.submittedAt.getTime());
   }
 
-  public async changeStatus(
-    id: string,
-    status: LeadStatus,
-    actor: LeadActor,
-  ): Promise<LeadRecord> {
+  public async changeStatus(id: string, status: LeadStatus, actor: LeadActor): Promise<LeadRecord> {
     return this.dependencies.unitOfWork.execute(async () => {
       const lead = await this.requireLead(id);
       try {
@@ -229,10 +224,7 @@ export class LeadsService {
     return this.changeStatus(id, 'spam', actor);
   }
 
-  public async exportCsv(
-    filter: LeadListFilter = {},
-    actor?: LeadActor,
-  ): Promise<string> {
+  public async exportCsv(filter: LeadListFilter = {}, actor?: LeadActor): Promise<string> {
     const rows = await this.listLeads(filter);
     if (actor) {
       await this.writeAuditEvent(actor, 'lead.exported', 'lead_collection', undefined, {

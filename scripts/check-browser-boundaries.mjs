@@ -1,8 +1,9 @@
 import { readdir, readFile } from 'node:fs/promises';
 import { extname, join, relative } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = new URL('../', import.meta.url);
-const webSource = new URL('../apps/web/src/', import.meta.url);
+const root = fileURLToPath(new URL('../', import.meta.url));
+const webSource = fileURLToPath(new URL('../apps/web/src/', import.meta.url));
 const forbiddenTokens = [
   '@carlos-pinto/config/private-runtime',
   'packages/config/src/private-runtime',
@@ -28,7 +29,8 @@ const violations = [];
 for (const file of await walk(webSource)) {
   const source = await readFile(file, 'utf8');
   for (const token of forbiddenTokens) {
-    if (source.includes(token)) violations.push(`${relative(root, file)} contains forbidden token ${token}`);
+    if (source.includes(token))
+      violations.push(`${relative(root, file)} contains forbidden token ${token}`);
   }
 }
 

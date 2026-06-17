@@ -48,9 +48,7 @@ export class ClerkIdentityVerifier implements IdentityVerifier {
     private readonly resolvePrimaryEmail: boolean,
   ) {}
 
-  public async verify(
-    input: IdentityVerificationRequest,
-  ): Promise<AuthenticatedPrincipal | null> {
+  public async verify(input: IdentityVerificationRequest): Promise<AuthenticatedPrincipal | null> {
     let state: ClerkAuthState;
     try {
       const request = new Request(input.url, {
@@ -109,9 +107,5 @@ export function createClerkIdentityVerifier(config: ClerkIdentityConfig): ClerkI
     ...(config.jwtKey ? { jwtKey: config.jwtKey } : {}),
   }) as unknown as ClerkClientGateway;
 
-  return new ClerkIdentityVerifier(
-    client,
-    config.authorizedParties,
-    config.resolvePrimaryEmail,
-  );
+  return new ClerkIdentityVerifier(client, config.authorizedParties, config.resolvePrimaryEmail);
 }

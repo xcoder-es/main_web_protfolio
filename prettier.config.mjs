@@ -1,9 +1,8 @@
-import astroPlugin from 'prettier-plugin-astro';
-
 export default {
-  plugins: [astroPlugin],
+  plugins: ['prettier-plugin-astro'],
   printWidth: 100,
   singleQuote: true,
   trailingComma: 'all',
-  overrides: [{ files: '*.astro', options: { parser: 'astro' } }]
+  endOfLine: 'auto',
+  overrides: [{ files: '*.astro', options: { parser: 'astro' } }],
 };

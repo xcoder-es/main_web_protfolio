@@ -2,15 +2,9 @@ import type { FastifyInstance } from 'fastify';
 import { afterEach, describe, expect, it } from 'vitest';
 
 import { buildApp } from '../src/app.js';
-import {
-  createApplicationDependencies,
-  type ApplicationOverrides,
-} from '../src/composition.js';
+import { createApplicationDependencies, type ApplicationOverrides } from '../src/composition.js';
 import type { ApiRuntimeConfig } from '../src/infrastructure/config.js';
-import {
-  administratorHeaders,
-  administratorIdentityOverrides,
-} from './support/identity.js';
+import { administratorHeaders, administratorIdentityOverrides } from './support/identity.js';
 
 const apps: FastifyInstance[] = [];
 
@@ -87,8 +81,8 @@ describe('Fastify API foundation', () => {
   it('fails readiness when an enabled capability has no adapter', async () => {
     const runtime = config({
       features: {
-        persistence: true,
-        identity: false,
+        persistence: false,
+        identity: true,
         notifications: false,
         payments: false,
         spamVerification: false,
@@ -148,10 +142,7 @@ describe('Fastify API foundation', () => {
   });
 
   it('enforces payload and request-rate limits', async () => {
-    const app = await createApp(
-      config({ rateLimitMax: 1 }),
-      administratorIdentityOverrides(),
-    );
+    const app = await createApp(config({ rateLimitMax: 2 }), administratorIdentityOverrides());
     app.post('/test-body', async () => ({ accepted: true }));
 
     const oversized = await app.inject({

@@ -17,9 +17,6 @@ export async function registerPayPalWebhookRoute(
       headers[name.toLowerCase()] = Array.isArray(value) ? value[0] : value;
     }
 
-    return service.process(
-      headers,
-      request.body as Readonly<Record<string, unknown>>,
-    );
+    return service.process(headers, request.body as Readonly<Record<string, unknown>>);
   });
 }

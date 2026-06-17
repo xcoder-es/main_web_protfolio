@@ -21,7 +21,8 @@ export function fromDatabaseRow<T>(row: DatabaseRow): T {
   const mapped = Object.fromEntries(
     Object.entries(row).map(([key, value]) => {
       const property = toCamelCase(key);
-      const mappedValue = key.endsWith('_at') && typeof value === 'string' ? new Date(value) : value;
+      const mappedValue =
+        key.endsWith('_at') && typeof value === 'string' ? new Date(value) : value;
       return [property, mappedValue];
     }),
   );

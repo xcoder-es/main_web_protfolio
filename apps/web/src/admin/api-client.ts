@@ -32,7 +32,9 @@ export class AdministratorApi {
     private readonly tokenProvider: TokenProvider,
   ) {}
 
-  public status(): Promise<Readonly<{ available: boolean; authentication: string; userId: string }>> {
+  public status(): Promise<
+    Readonly<{ available: boolean; authentication: string; userId: string }>
+  > {
     return this.request('/api/admin/status');
   }
 
@@ -40,7 +42,9 @@ export class AdministratorApi {
     return this.request('/api/admin/diagnostics');
   }
 
-  public listLeads(filter: Readonly<{ search?: string; status?: string; type?: string }> = {}): Promise<readonly LeadRecord[]> {
+  public listLeads(
+    filter: Readonly<{ search?: string; status?: string; type?: string }> = {},
+  ): Promise<readonly LeadRecord[]> {
     return this.request(`/api/admin/leads${queryString(filter)}`);
   }
 
@@ -70,8 +74,12 @@ export class AdministratorApi {
     return this.request(`/api/admin/leads/${encodeURIComponent(id)}/spam`, { method: 'POST' });
   }
 
-  public async exportLeads(filter: Readonly<{ search?: string; status?: string; type?: string }> = {}): Promise<void> {
-    const response = await this.authenticatedFetch(`/api/admin/leads/export.csv${queryString(filter)}`);
+  public async exportLeads(
+    filter: Readonly<{ search?: string; status?: string; type?: string }> = {},
+  ): Promise<void> {
+    const response = await this.authenticatedFetch(
+      `/api/admin/leads/export.csv${queryString(filter)}`,
+    );
     if (!response.ok) throw await this.toError(response);
     const blob = await response.blob();
     const url = URL.createObjectURL(blob);
@@ -100,14 +108,16 @@ export class AdministratorApi {
     return this.request('/api/admin/payment-requests');
   }
 
-  public createPayment(input: Readonly<{
-    leadId?: string;
-    title: string;
-    description?: string;
-    amountMinor: number;
-    currency: string;
-    expiresAt?: string;
-  }>): Promise<PaymentRequest> {
+  public createPayment(
+    input: Readonly<{
+      leadId?: string;
+      title: string;
+      description?: string;
+      amountMinor: number;
+      currency: string;
+      expiresAt?: string;
+    }>,
+  ): Promise<PaymentRequest> {
     return this.request('/api/admin/payment-requests', {
       method: 'POST',
       body: JSON.stringify(input),
@@ -130,12 +140,14 @@ export class AdministratorApi {
     return this.request(`/api/admin/payment-requests/${encodeURIComponent(id)}/events`);
   }
 
-  public audit(filter: Readonly<{
-    entityType?: string;
-    entityId?: string;
-    action?: string;
-    limit?: number;
-  }> = {}): Promise<readonly AuditEvent[]> {
+  public audit(
+    filter: Readonly<{
+      entityType?: string;
+      entityId?: string;
+      action?: string;
+      limit?: number;
+    }> = {},
+  ): Promise<readonly AuditEvent[]> {
     return this.request(`/api/admin/audit${queryString(filter)}`);
   }
 

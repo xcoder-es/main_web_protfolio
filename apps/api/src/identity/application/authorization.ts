@@ -11,7 +11,8 @@ export class AdministratorAuthorizer {
 
   public isAllowed(principal: AuthenticatedPrincipal): boolean {
     if (this.userIds.has(principal.userId)) return true;
-    if (principal.primaryEmail && this.emails.has(principal.primaryEmail.toLowerCase())) return true;
+    if (principal.primaryEmail && this.emails.has(principal.primaryEmail.toLowerCase()))
+      return true;
     return false;
   }
 

@@ -17,7 +17,9 @@ describe('bilingual public website', () => {
     expect(routes.en.home).toBe('/');
     expect(routes.es.home).toBe('/es');
     expect(Object.values(routes.en).every((path) => !path.startsWith('/es'))).toBe(true);
-    expect(Object.values(routes.es).every((path) => path === '/es' || path.startsWith('/es/'))).toBe(true);
+    expect(
+      Object.values(routes.es).every((path) => path === '/es' || path.startsWith('/es/')),
+    ).toBe(true);
   });
 
   it('keeps metadata and editorial content substantive', () => {

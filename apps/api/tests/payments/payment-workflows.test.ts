@@ -73,7 +73,9 @@ describe('payment workflows', () => {
     expect(duplicateCapture.status).toBe('paid');
     expect(gateway.captureCalls).toHaveLength(1);
     expect(await persistence.paymentEvents.listByPaymentRequestId(created.id)).toHaveLength(4);
-    expect(await persistence.auditEvents.listByEntity('payment_request', created.id)).toHaveLength(4);
+    expect(await persistence.auditEvents.listByEntity('payment_request', created.id)).toHaveLength(
+      4,
+    );
   });
 
   it('rejects provider amount mismatches without marking the request paid', async () => {
@@ -95,10 +97,7 @@ describe('payment workflows', () => {
   it('enforces lifecycle transitions and validates owner input', async () => {
     const { service } = harness();
     await expect(
-      service.createRequest(
-        { title: 'x', amountMinor: 0, currency: 'bad' },
-        administrator,
-      ),
+      service.createRequest({ title: 'x', amountMinor: 0, currency: 'bad' }, administrator),
     ).rejects.toMatchObject({ code: 'INVALID_PAYMENT_REQUEST', statusCode: 400 });
 
     const created = await service.createRequest(

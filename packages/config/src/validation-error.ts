@@ -9,7 +9,9 @@ export class ConfigurationError extends Error {
       message: issue.message,
     }));
 
-    super(`Invalid configuration: ${issues.map((issue) => `${issue.path}: ${issue.message}`).join('; ')}`);
+    super(
+      `Invalid configuration: ${issues.map((issue) => `${issue.path}: ${issue.message}`).join('; ')}`,
+    );
     this.name = 'ConfigurationError';
     this.issues = issues;
   }

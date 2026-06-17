@@ -29,7 +29,14 @@ for (const [file, officialDomain] of decisions) {
 const baselineFile = 'docs/providers/verified-provider-baseline-2026-06-15.md';
 const baseline = await readFile(baselineFile, 'utf8');
 requireText(baseline, `**Verification date:** ${verificationDate}`, baselineFile);
-for (const provider of ['Render', 'Supabase', 'Clerk', 'Resend', 'PayPal', 'Cloudflare Turnstile']) {
+for (const provider of [
+  'Render',
+  'Supabase',
+  'Clerk',
+  'Resend',
+  'PayPal',
+  'Cloudflare Turnstile',
+]) {
   requireText(baseline, `## ${provider}`, baselineFile);
 }
 

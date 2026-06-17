@@ -32,7 +32,9 @@ describe('operational security configuration', () => {
 
     expect(config.operational?.openApiEnabled).toBe(false);
     expect(config.operational?.retention.find((rule) => rule.domain === 'leads')?.days).toBe(365);
-    expect(config.operational?.retention.find((rule) => rule.domain === 'spamLeads')?.days).toBe(14);
+    expect(config.operational?.retention.find((rule) => rule.domain === 'spamLeads')?.days).toBe(
+      14,
+    );
     expect(
       config.operational?.retention.find((rule) => rule.domain === 'operationalLogs')?.days,
     ).toBe(7);

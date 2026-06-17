@@ -4,12 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "astro build",
-    "dev": "astro dev",
-    "preview": "astro preview"
+    "build": "node ../../scripts/run-astro.mjs build",
+    "dev": "node ../../scripts/run-astro.mjs dev",
+    "preview": "node ../../scripts/run-astro.mjs preview"
   },
   "dependencies": {
     "@carlos-pinto/contracts": "workspace:*"
   },
-  "devDependencies": { "astro": "^6.1.8" }
+  "devDependencies": {
+    "astro": "^6.1.8"
+  }
 }

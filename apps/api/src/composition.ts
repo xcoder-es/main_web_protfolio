@@ -2,6 +2,7 @@ import { randomUUID } from 'node:crypto';
 
 import type { Clock, IdGenerator } from '@carlos-pinto/contracts';
 
+import { AdministratorOverviewService } from './admin/application/overview-service.js';
 import type { ServiceProbe } from './application/readiness.js';
 import { createAdministratorAuthentication } from './http/admin-authentication.js';
 import {
@@ -47,6 +48,7 @@ function capabilityProbe(name: string, enabled: boolean, configured = false): Se
 
 export type ApplicationDependencies = {
   probes: readonly ServiceProbe[];
+  adminOverview: AdministratorOverviewService;
   leads: LeadsService;
   notifications: NotificationsService;
   submissions: PublicSubmissionService;
@@ -199,15 +201,22 @@ export function createApplicationDependencies(
     ...paymentDependencies,
     webhookEvents: persistence.repositories.paypalWebhookEvents,
   });
+  const probes: readonly ServiceProbe[] = [
+    capabilityProbe('persistence', config.features.persistence),
+    capabilityProbe('identity', config.features.identity, identityConfigured),
+    capabilityProbe('notifications', config.features.notifications, notificationConfigured),
+    capabilityProbe('payments', config.features.payments, paymentConfigured),
+    capabilityProbe('spam-verification', config.features.spamVerification, spamConfigured),
+  ];
+  const adminOverview = new AdministratorOverviewService({
+    probes,
+    audit: persistence.repositories.auditEvents,
+    now: () => clock.now(),
+  });
 
   return {
-    probes: [
-      capabilityProbe('persistence', config.features.persistence),
-      capabilityProbe('identity', config.features.identity, identityConfigured),
-      capabilityProbe('notifications', config.features.notifications, notificationConfigured),
-      capabilityProbe('payments', config.features.payments, paymentConfigured),
-      capabilityProbe('spam-verification', config.features.spamVerification, spamConfigured),
-    ],
+    probes,
+    adminOverview,
     leads,
     notifications,
     submissions,

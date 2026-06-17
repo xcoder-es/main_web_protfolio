@@ -38,6 +38,13 @@ export type ApiRuntimeConfig = {
     webhookId?: string;
     baseUrl: string;
   };
+  spam?: {
+    turnstileSecretKey?: string;
+    allowedHostnames: readonly string[];
+    siteverifyUrl: string;
+    minimumCompletionMs: number;
+    maximumCompletionMs: number;
+  };
 };
 
 function booleanValue(value: string | undefined, fallback: boolean): boolean {
@@ -152,6 +159,55 @@ function optionalPaymentConfig(env: Record<string, string | undefined>) {
   };
 }
 
+function optionalSpamConfig(env: Record<string, string | undefined>) {
+  const turnstileSecretKey = env.TURNSTILE_SECRET_KEY?.trim();
+  const allowedHostnames = csvValues(env.TURNSTILE_ALLOWED_HOSTNAMES);
+  const configuredUrl = env.TURNSTILE_SITEVERIFY_URL?.trim();
+  const configuredMinimum = env.FORM_MINIMUM_COMPLETION_MS;
+  const configuredMaximum = env.FORM_MAXIMUM_COMPLETION_MS;
+
+  for (const hostname of allowedHostnames) {
+    if (hostname === '*' || hostname.includes('://') || hostname.includes('/')) {
+      throw new Error('TURNSTILE_ALLOWED_HOSTNAMES must contain exact hostnames');
+    }
+  }
+
+  if (
+    !turnstileSecretKey &&
+    allowedHostnames.length === 0 &&
+    !configuredUrl &&
+    !configuredMinimum &&
+    !configuredMaximum
+  ) {
+    return undefined;
+  }
+
+  const siteverifyUrl =
+    configuredUrl || 'https://challenges.cloudflare.com/turnstile/v0/siteverify';
+  new URL(siteverifyUrl);
+  const minimumCompletionMs = positiveInteger(
+    configuredMinimum,
+    1_200,
+    'FORM_MINIMUM_COMPLETION_MS',
+  );
+  const maximumCompletionMs = positiveInteger(
+    configuredMaximum,
+    7_200_000,
+    'FORM_MAXIMUM_COMPLETION_MS',
+  );
+  if (maximumCompletionMs <= minimumCompletionMs) {
+    throw new Error('FORM_MAXIMUM_COMPLETION_MS must exceed FORM_MINIMUM_COMPLETION_MS');
+  }
+
+  return {
+    ...(turnstileSecretKey ? { turnstileSecretKey } : {}),
+    allowedHostnames,
+    siteverifyUrl,
+    minimumCompletionMs,
+    maximumCompletionMs,
+  };
+}
+
 export function loadApiRuntimeConfig(
   env: Record<string, string | undefined> = process.env,
 ): ApiRuntimeConfig {
@@ -178,6 +234,7 @@ export function loadApiRuntimeConfig(
   const identity = optionalIdentityConfig(env);
   const notification = optionalNotificationConfig(env);
   const payment = optionalPaymentConfig(env);
+  const spam = optionalSpamConfig(env);
   return {
     ...base,
     logLevel: logLevel as ApiRuntimeConfig['logLevel'],
@@ -189,5 +246,6 @@ export function loadApiRuntimeConfig(
     ...(identity ? { identity } : {}),
     ...(notification ? { notification } : {}),
     ...(payment ? { payment } : {}),
+    ...(spam ? { spam } : {}),
   };
 }

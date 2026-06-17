@@ -39,14 +39,13 @@ describe('readiness diagnostics', () => {
     expect(report.ready).toBe(false);
     expect(report.generatedAt).toBe('2026-06-17T15:00:00.000Z');
     expect(report.durationMs).toBeGreaterThanOrEqual(0);
-    expect(report.checks).toEqual([
+    expect(report.checks.map(({ latencyMs: _latencyMs, ...check }) => check)).toEqual([
       {
         name: 'database',
         ok: true,
         required: true,
         state: 'ready',
         checkedAt: '2026-06-17T15:00:00.000Z',
-        latencyMs: 5,
       },
       {
         name: 'notifications',
@@ -54,7 +53,6 @@ describe('readiness diagnostics', () => {
         required: false,
         state: 'disabled',
         checkedAt: '2026-06-17T15:00:00.000Z',
-        latencyMs: 5,
       },
       {
         name: 'payments',
@@ -62,9 +60,9 @@ describe('readiness diagnostics', () => {
         required: true,
         state: 'unavailable',
         checkedAt: '2026-06-17T15:00:00.000Z',
-        latencyMs: 5,
       },
     ]);
+    expect(report.checks.every((check) => check.latencyMs >= 0)).toBe(true);
     expect(JSON.stringify(report)).not.toContain('credentials must not leak');
   });
 

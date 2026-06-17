@@ -26,7 +26,7 @@ export type AdministratorDiagnostics = Readonly<{
     publicErrors: 'sanitized';
     openApi: 'enabled' | 'disabled';
     webhookStorage: 'summary-only';
-    secrets: 'runtime-only';
+    credentials: 'runtime-only';
   }>;
   retention: readonly RetentionRule[];
 }>;
@@ -88,7 +88,7 @@ export class AdministratorOverviewService {
         publicErrors: 'sanitized',
         openApi: profile.openApiEnabled ? 'enabled' : 'disabled',
         webhookStorage: 'summary-only',
-        secrets: 'runtime-only',
+        credentials: 'runtime-only',
       },
       retention: profile.retention,
     };

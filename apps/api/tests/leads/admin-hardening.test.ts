@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
 import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
+import { InMemoryPersistence } from '../../src/persistence/adapters/in-memory/in-memory-persistence.js';
 import {
   administratorHeaders,
   administratorIdentityOverrides,
@@ -28,9 +29,13 @@ const config: ApiRuntimeConfig = {
 };
 
 async function createLead() {
+  const persistence = new InMemoryPersistence();
   const app = await buildApp(
     config,
-    createApplicationDependencies(config, administratorIdentityOverrides()),
+    createApplicationDependencies(config, {
+      persistence: { repositories: persistence.repositories, unitOfWork: persistence },
+      ...administratorIdentityOverrides(),
+    }),
   );
   const response = await app.inject({
     method: 'POST',
@@ -49,7 +54,7 @@ async function createLead() {
       },
     },
   });
-  return { app, leadId: response.json().leadId as string };
+  return { app, persistence, leadId: response.json().leadId as string };
 }
 
 describe('administrator lead hardening', () => {
@@ -74,17 +79,37 @@ describe('administrator lead hardening', () => {
     await app.close();
   });
 
-  it('neutralizes spreadsheet formulas in downloadable CSV data', async () => {
-    const { app } = await createLead();
+  it('neutralizes spreadsheet formulas and audits bulk lead exports', async () => {
+    const { app, persistence } = await createLead();
     const response = await app.inject({
       method: 'GET',
-      url: '/api/admin/leads/export.csv',
-      headers: administratorHeaders,
+      url: '/api/admin/leads/export.csv?status=new&search=formula',
+      headers: {
+        ...administratorHeaders,
+        'x-correlation-id': 'export-request-12345678',
+      },
     });
 
     expect(response.statusCode).toBe(200);
-    expect(response.body).toContain('"\'=2+2"');
+    expect(response.body).toContain("\"'=2+2\"");
     expect(response.body).not.toContain(',"=2+2"');
+    const exportAudit = (await persistence.auditEvents.list()).find(
+      (event) => event.action === 'lead.exported',
+    );
+    expect(exportAudit).toMatchObject({
+      actorType: 'administrator',
+      actorId: 'user_admin_123',
+      entityType: 'lead_collection',
+      correlationId: 'export-request-12345678',
+      metadata: {
+        resultCount: 1,
+        statusFilter: 'new',
+        typeFilter: null,
+        searchApplied: true,
+      },
+    });
+    expect(JSON.stringify(exportAudit)).not.toContain('formula@example.com');
+    expect(JSON.stringify(exportAudit)).not.toContain('search=formula');
     await app.close();
   });
 });

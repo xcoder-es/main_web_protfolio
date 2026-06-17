@@ -1,0 +1,19 @@
+---
+import type { Locale } from '../content/site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+---
+
+<section class="closing-band">
+  <div class="shell closing-grid">
+    <p class="eyebrow">{locale === 'en' ? 'Next decision' : 'Siguiente decisión'}</p>
+    <h2>{locale === 'en' ? 'Make the problem explicit. Then design the system.' : 'Haz explícito el problema. Luego diseña el sistema.'}</h2>
+    <a class="button button-inverse" href={locale === 'en' ? '/contact' : '/es/contacto'}>
+      {locale === 'en' ? 'Start a conversation' : 'Iniciar conversación'}
+    </a>
+  </div>
+</section>

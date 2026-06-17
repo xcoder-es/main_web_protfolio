@@ -28,9 +28,13 @@ export class PublicSubmissionService {
       () =>
         this.dependencies.guard.verify({
           startedAt: submission.metadata.startedAt,
-          honeypot: submission.antiSpam?.website,
-          turnstileToken: submission.antiSpam?.turnstileToken,
-          remoteIp: context.remoteIp,
+          ...(submission.antiSpam?.website
+            ? { honeypot: submission.antiSpam.website }
+            : {}),
+          ...(submission.antiSpam?.turnstileToken
+            ? { turnstileToken: submission.antiSpam.turnstileToken }
+            : {}),
+          ...(context.remoteIp ? { remoteIp: context.remoteIp } : {}),
           action: 'contact',
         }),
       () => this.dependencies.submissions.submitContact(submission, context.actor),
@@ -46,9 +50,13 @@ export class PublicSubmissionService {
       () =>
         this.dependencies.guard.verify({
           startedAt: submission.metadata.startedAt,
-          honeypot: submission.antiSpam?.website,
-          turnstileToken: submission.antiSpam?.turnstileToken,
-          remoteIp: context.remoteIp,
+          ...(submission.antiSpam?.website
+            ? { honeypot: submission.antiSpam.website }
+            : {}),
+          ...(submission.antiSpam?.turnstileToken
+            ? { turnstileToken: submission.antiSpam.turnstileToken }
+            : {}),
+          ...(context.remoteIp ? { remoteIp: context.remoteIp } : {}),
           action: 'project-request',
         }),
       () => this.dependencies.submissions.submitProject(submission, context.actor),

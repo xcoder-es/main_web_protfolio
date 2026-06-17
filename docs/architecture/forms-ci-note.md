@@ -1,0 +1,1 @@
+The pull request validates self-hosted contact and project forms, idempotency, local abuse controls, optional external verification, notification failure isolation, accessibility and responsive behaviour.

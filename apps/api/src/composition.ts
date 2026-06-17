@@ -19,6 +19,7 @@ import { ResendNotificationSender } from './notifications/adapters/resend-notifi
 import type { NotificationSender } from './notifications/application/ports.js';
 import { NotificationsService } from './notifications/application/service.js';
 import { SubmissionNotificationCoordinator } from './notifications/application/submission-coordinator.js';
+import { MinimizingWebhookEventRepository } from './payments/adapters/minimizing-webhook-event-repository.js';
 import { PayPalGateway } from './payments/adapters/paypal-gateway.js';
 import { UnavailablePaymentGateway } from './payments/adapters/unavailable-payment-gateway.js';
 import type { PaymentGateway } from './payments/application/ports.js';
@@ -203,7 +204,9 @@ export function createApplicationDependencies(
   const payments = new PaymentsService(paymentDependencies);
   const paypalWebhooks = new PayPalWebhookService({
     ...paymentDependencies,
-    webhookEvents: persistence.repositories.paypalWebhookEvents,
+    webhookEvents: new MinimizingWebhookEventRepository(
+      persistence.repositories.paypalWebhookEvents,
+    ),
   });
   const probes: readonly ServiceProbe[] = [
     capabilityProbe('persistence', config.features.persistence),

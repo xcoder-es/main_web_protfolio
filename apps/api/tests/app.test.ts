@@ -67,13 +67,21 @@ describe('Fastify API foundation', () => {
     });
   });
 
-  it('reports disabled optional capabilities as ready', async () => {
+  it('reports readiness without exposing capability names publicly', async () => {
     const app = await createApp();
     const response = await app.inject({ method: 'GET', url: '/ready' });
+    const payload = response.json();
 
     expect(response.statusCode).toBe(200);
-    expect(response.json().ready).toBe(true);
-    expect(response.json().checks).toHaveLength(5);
+    expect(payload).toMatchObject({
+      ready: true,
+      status: 'ready',
+      service: 'carlos-pinto-consulting-api',
+      version: '0.1.0',
+    });
+    expect(payload.generatedAt).toBeTruthy();
+    expect(payload.durationMs).toBeTypeOf('number');
+    expect(payload.checks).toBeUndefined();
   });
 
   it('fails readiness when an enabled capability has no adapter', async () => {
@@ -90,10 +98,11 @@ describe('Fastify API foundation', () => {
     const response = await app.inject({ method: 'GET', url: '/ready' });
 
     expect(response.statusCode).toBe(503);
-    expect(response.json().ready).toBe(false);
+    expect(response.json()).toMatchObject({ ready: false, status: 'not_ready' });
+    expect(response.json().checks).toBeUndefined();
   });
 
-  it('applies strict CORS and security headers', async () => {
+  it('applies strict CORS, CSP, privacy and anti-cache headers', async () => {
     const app = await createApp();
     const allowed = await app.inject({
       method: 'GET',
@@ -104,14 +113,20 @@ describe('Fastify API foundation', () => {
     expect(allowed.statusCode).toBe(200);
     expect(allowed.headers['access-control-allow-origin']).toBe('https://portfolio.example.com');
     expect(allowed.headers['x-content-type-options']).toBe('nosniff');
+    expect(allowed.headers['content-security-policy']).toContain("default-src 'none'");
+    expect(allowed.headers['referrer-policy']).toBe('no-referrer');
+    expect(allowed.headers['cache-control']).toBe('no-store, max-age=0');
+    expect(allowed.headers['x-robots-tag']).toContain('noindex');
+    expect(allowed.headers['permissions-policy']).toContain('camera=()');
 
     const denied = await app.inject({
       method: 'GET',
       url: '/api/public/status',
       headers: { origin: 'https://attacker.example' },
     });
-    expect(denied.statusCode).toBe(500);
-    expect(denied.json().code).toBe('INTERNAL_ERROR');
+    expect(denied.statusCode).toBe(403);
+    expect(denied.json().code).toBe('ORIGIN_NOT_ALLOWED');
+    expect(denied.body).not.toContain('attacker.example');
   });
 
   it('returns stable not-found and internal error responses', async () => {
@@ -128,6 +143,7 @@ describe('Fastify API foundation', () => {
     const failed = await app.inject({ method: 'GET', url: '/test-error' });
     expect(failed.statusCode).toBe(500);
     expect(failed.body).not.toContain('sensitive internal message');
+    expect(failed.body).not.toContain('stack');
     expect(failed.json().code).toBe('INTERNAL_ERROR');
   });
 
@@ -162,7 +178,7 @@ describe('Fastify API foundation', () => {
     expect(second.json().code).toBe('RATE_LIMIT_EXCEEDED');
   });
 
-  it('generates OpenAPI and keeps route groups separate', async () => {
+  it('generates OpenAPI when explicitly available outside production', async () => {
     const app = await createApp();
     const response = await app.inject({ method: 'GET', url: '/openapi.json' });
     const document = response.json();
@@ -173,5 +189,19 @@ describe('Fastify API foundation', () => {
     expect(document.paths['/api/public/status']).toBeDefined();
     expect(document.paths['/api/admin/status']).toBeDefined();
     expect(document.paths['/api/webhooks/status']).toBeDefined();
+  });
+
+  it('hides OpenAPI by default in production', async () => {
+    const app = await createApp(
+      config({
+        environment: 'production',
+        logLevel: 'silent',
+        trustProxy: true,
+      }),
+    );
+
+    const response = await app.inject({ method: 'GET', url: '/openapi.json' });
+    expect(response.statusCode).toBe(404);
+    expect(response.json().code).toBe('ROUTE_NOT_FOUND');
   });
 });

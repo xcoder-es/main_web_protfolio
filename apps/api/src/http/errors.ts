@@ -7,6 +7,7 @@ import { LeadApplicationError } from '../leads/application/errors.js';
 import { NotificationApplicationError } from '../notifications/application/notification-errors.js';
 import { PaymentApplicationError } from '../payments/application/errors.js';
 import { PaymentGatewayError } from '../payments/application/ports.js';
+import { logHandledError } from '../security/logging.js';
 import { PublicSubmissionError } from '../spam/application/errors.js';
 
 export class ApplicationError extends Error {
@@ -70,6 +71,7 @@ export function registerErrorHandlers(app: FastifyInstance): void {
         error instanceof PaymentApplicationError ||
         error instanceof PublicSubmissionError
       ) {
+        logHandledError(request, error.statusCode, error.code);
         void reply
           .code(error.statusCode)
           .send(response(request, error.code, error.message, error.fieldErrors));
@@ -77,13 +79,25 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       }
 
       if (error instanceof IdentityAccessError || error instanceof IdentityVerificationError) {
+        logHandledError(request, error.statusCode, error.code);
         void reply.code(error.statusCode).send(response(request, error.code, error.message));
         return;
       }
 
       if (error instanceof PaymentGatewayError) {
         const statusCode = error.retryable ? 503 : 502;
-        void reply.code(statusCode).send(response(request, error.code, error.message));
+        logHandledError(request, statusCode, error.code);
+        void reply
+          .code(statusCode)
+          .send(
+            response(
+              request,
+              error.code,
+              error.retryable
+                ? 'The payment service is temporarily unavailable.'
+                : 'The payment service could not complete the request.',
+            ),
+          );
         return;
       }
 
@@ -93,6 +107,7 @@ export function registerErrorHandlers(app: FastifyInstance): void {
           const key = issue.instancePath || issue.params.missingProperty?.toString() || 'request';
           fieldErrors[key] = [...(fieldErrors[key] ?? []), issue.message ?? 'Invalid value'];
         }
+        logHandledError(request, 400, 'VALIDATION_ERROR');
         void reply
           .code(400)
           .send(
@@ -107,6 +122,7 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       }
 
       if (error.code === 'FST_ERR_CTP_BODY_TOO_LARGE') {
+        logHandledError(request, 413, 'PAYLOAD_TOO_LARGE');
         void reply
           .code(413)
           .send(response(request, 'PAYLOAD_TOO_LARGE', 'The request payload is too large.'));
@@ -114,13 +130,23 @@ export function registerErrorHandlers(app: FastifyInstance): void {
       }
 
       if (error.statusCode === 429) {
+        logHandledError(request, 429, 'RATE_LIMIT_EXCEEDED');
         void reply
           .code(429)
           .send(response(request, 'RATE_LIMIT_EXCEEDED', 'Too many requests. Try again later.'));
         return;
       }
 
-      request.log.error({ err: error, correlationId: request.id }, 'Unhandled request error');
+      request.log.error(
+        {
+          event: 'application.error.unhandled',
+          correlationId: request.id,
+          method: request.method,
+          statusCode: 500,
+          err: error,
+        },
+        'Unhandled application error',
+      );
       void reply
         .code(500)
         .send(response(request, 'INTERNAL_ERROR', 'An unexpected error occurred.'));

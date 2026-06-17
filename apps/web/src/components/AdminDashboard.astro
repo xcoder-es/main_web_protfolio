@@ -1,0 +1,187 @@
+---
+const apiBase = (import.meta.env.PUBLIC_API_URL ?? 'http://localhost:3000').replace(/\/$/, '');
+const siteBase = (import.meta.env.PUBLIC_SITE_URL ?? Astro.site?.origin ?? 'http://localhost:4321').replace(/\/$/, '');
+const clerkPublishableKey = import.meta.env.PUBLIC_CLERK_PUBLISHABLE_KEY?.trim() ?? '';
+---
+
+<div
+  class="admin-root"
+  data-admin-dashboard
+  data-api-base={apiBase}
+  data-site-base={siteBase}
+  data-clerk-publishable-key={clerkPublishableKey}
+>
+  <section class="admin-boot" data-admin-boot aria-live="polite">
+    <div class="admin-boot-mark" aria-hidden="true">CP</div>
+    <p>Loading secure administration…</p>
+  </section>
+
+  <section class="admin-configuration" data-admin-configuration hidden>
+    <div class="admin-auth-card">
+      <p class="admin-kicker">Configuration required</p>
+      <h1>Administrator sign-in is not configured.</h1>
+      <p>
+        Set <code>PUBLIC_CLERK_PUBLISHABLE_KEY</code> on the static site and the matching
+        private Clerk variables on the API service.
+      </p>
+      <a href="/">Return to the public website</a>
+    </div>
+  </section>
+
+  <section class="admin-auth" data-admin-sign-in hidden>
+    <div class="admin-auth-context">
+      <a class="admin-brand" href="/" aria-label="Carlos Pinto public website">
+        <span aria-hidden="true">CP</span>
+        <strong>Carlos Pinto</strong>
+      </a>
+      <p class="admin-kicker">Private operations</p>
+      <h1>Administrator workspace</h1>
+      <p>
+        Review enquiries, respond quickly, retry delivery, create payment requests and
+        inspect operational history from any trusted device.
+      </p>
+      <dl class="admin-auth-principles">
+        <div><dt>01</dt><dd>Clerk verifies the session.</dd></div>
+        <div><dt>02</dt><dd>The API enforces the administrator allowlist.</dd></div>
+        <div><dt>03</dt><dd>No business data is embedded in this static page.</dd></div>
+      </dl>
+    </div>
+    <div class="admin-sign-in-card">
+      <div id="admin-clerk-sign-in" aria-label="Administrator sign in"></div>
+      <p data-admin-auth-error class="admin-inline-error" role="alert"></p>
+    </div>
+  </section>
+
+  <section class="admin-app" data-admin-shell hidden>
+    <header class="admin-header">
+      <a class="admin-brand" href="/" aria-label="Carlos Pinto public website">
+        <span aria-hidden="true">CP</span>
+        <strong>Operations</strong>
+      </a>
+      <div class="admin-header-actions">
+        <span class="admin-environment" data-admin-environment>Secure session</span>
+        <div id="admin-clerk-user-button"></div>
+        <button class="admin-text-button" type="button" data-admin-sign-out>Sign out</button>
+      </div>
+    </header>
+
+    <div class="admin-layout">
+      <nav class="admin-navigation" aria-label="Administrator sections">
+        <button type="button" data-admin-nav="overview" aria-current="page">
+          <span aria-hidden="true">⌂</span><span>Overview</span>
+        </button>
+        <button type="button" data-admin-nav="leads">
+          <span aria-hidden="true">◎</span><span>Leads</span><small data-nav-count="leads"></small>
+        </button>
+        <button type="button" data-admin-nav="notifications">
+          <span aria-hidden="true">↗</span><span>Delivery</span><small data-nav-count="notifications"></small>
+        </button>
+        <button type="button" data-admin-nav="payments">
+          <span aria-hidden="true">€</span><span>Payments</span><small data-nav-count="payments"></small>
+        </button>
+        <button type="button" data-admin-nav="audit">
+          <span aria-hidden="true">≡</span><span>Audit</span>
+        </button>
+      </nav>
+
+      <main class="admin-main" id="admin-content">
+        <div class="admin-global-status" data-admin-global-status role="status" aria-live="polite"></div>
+
+        <section class="admin-view" data-admin-view="overview">
+          <header class="admin-view-header">
+            <div>
+              <p class="admin-kicker">Today</p>
+              <h1>Operational overview</h1>
+            </div>
+            <button class="admin-secondary-button" type="button" data-admin-refresh>Refresh</button>
+          </header>
+
+          <div class="admin-metrics" aria-label="Operational totals">
+            <article><span>Open leads</span><strong data-metric="open-leads">—</strong><small>Needs attention</small></article>
+            <article><span>Failed delivery</span><strong data-metric="failed-notifications">—</strong><small>Can be retried</small></article>
+            <article><span>Active requests</span><strong data-metric="active-payments">—</strong><small>Shareable payments</small></article>
+            <article><span>Collected</span><strong data-metric="paid-total">—</strong><small>Across recorded currencies</small></article>
+          </div>
+
+          <div class="admin-overview-grid">
+            <section class="admin-panel">
+              <header><div><p class="admin-kicker">Queue</p><h2>Recent leads</h2></div><button type="button" data-admin-open-view="leads">View all</button></header>
+              <div data-overview-leads class="admin-compact-list"></div>
+            </section>
+            <section class="admin-panel">
+              <header><div><p class="admin-kicker">Readiness</p><h2>Service diagnostics</h2></div></header>
+              <div data-admin-diagnostics class="admin-diagnostics"></div>
+            </section>
+            <section class="admin-panel admin-panel-wide">
+              <header><div><p class="admin-kicker">Trace</p><h2>Latest activity</h2></div><button type="button" data-admin-open-view="audit">Full timeline</button></header>
+              <div data-overview-audit class="admin-timeline"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="admin-view" data-admin-view="leads" hidden>
+          <header class="admin-view-header">
+            <div><p class="admin-kicker">Pipeline</p><h1>Leads</h1></div>
+            <button class="admin-secondary-button" type="button" data-export-leads>Export CSV</button>
+          </header>
+          <form class="admin-filter-bar" data-lead-filters>
+            <label><span>Search</span><input name="search" type="search" placeholder="Name, email, company or message" /></label>
+            <label><span>Status</span><select name="status"><option value="">All statuses</option><option value="new">New</option><option value="reviewing">Reviewing</option><option value="qualified">Qualified</option><option value="contacted">Contacted</option><option value="won">Won</option><option value="lost">Lost</option><option value="archived">Archived</option><option value="spam">Spam</option></select></label>
+            <label><span>Type</span><select name="type"><option value="">All types</option><option value="contact">Contact</option><option value="project">Project</option></select></label>
+            <button class="admin-primary-button" type="submit">Apply</button>
+          </form>
+          <div class="admin-split-view">
+            <div class="admin-list" data-lead-list></div>
+            <aside class="admin-detail" data-lead-detail aria-live="polite">
+              <div class="admin-empty-state"><strong>Select a lead</strong><p>Details, notes, communication shortcuts and status actions appear here.</p></div>
+            </aside>
+          </div>
+        </section>
+
+        <section class="admin-view" data-admin-view="notifications" hidden>
+          <header class="admin-view-header"><div><p class="admin-kicker">Delivery</p><h1>Notifications</h1></div></header>
+          <form class="admin-filter-bar admin-filter-compact" data-notification-filters>
+            <label><span>Status</span><select name="status"><option value="">All statuses</option><option value="pending">Pending</option><option value="sending">Sending</option><option value="sent">Sent</option><option value="failed">Failed</option><option value="skipped">Skipped</option></select></label>
+            <button class="admin-primary-button" type="submit">Apply</button>
+          </form>
+          <div class="admin-card-list" data-notification-list></div>
+        </section>
+
+        <section class="admin-view" data-admin-view="payments" hidden>
+          <header class="admin-view-header"><div><p class="admin-kicker">Commercial</p><h1>Payment requests</h1></div><button class="admin-primary-button" type="button" data-toggle-payment-form>Create request</button></header>
+          <form class="admin-payment-form" data-payment-form hidden>
+            <div class="admin-form-heading"><h2>New payment request</h2><button type="button" data-close-payment-form aria-label="Close payment form">×</button></div>
+            <div class="admin-form-grid">
+              <label><span>Related lead <small>Optional</small></span><select name="leadId"><option value="">No linked lead</option></select></label>
+              <label><span>Title</span><input name="title" type="text" minlength="3" maxlength="160" required /></label>
+              <label class="admin-form-wide"><span>Description <small>Optional</small></span><textarea name="description" rows="3" maxlength="2000"></textarea></label>
+              <label><span>Amount</span><input name="amount" type="number" inputmode="decimal" min="0.01" step="0.01" required /></label>
+              <label><span>Currency</span><input name="currency" type="text" value="EUR" pattern="[A-Za-z]{3}" maxlength="3" required /></label>
+              <label><span>Expires <small>Optional</small></span><input name="expiresAt" type="datetime-local" /></label>
+            </div>
+            <p data-payment-form-error class="admin-inline-error" role="alert"></p>
+            <div class="admin-form-actions"><button class="admin-primary-button" type="submit">Save draft</button><button class="admin-secondary-button" type="button" data-close-payment-form>Cancel</button></div>
+          </form>
+          <div class="admin-card-list" data-payment-list></div>
+        </section>
+
+        <section class="admin-view" data-admin-view="audit" hidden>
+          <header class="admin-view-header"><div><p class="admin-kicker">Accountability</p><h1>Audit timeline</h1></div></header>
+          <form class="admin-filter-bar" data-audit-filters>
+            <label><span>Entity type</span><input name="entityType" type="text" placeholder="lead, payment_request…" /></label>
+            <label><span>Entity ID</span><input name="entityId" type="text" /></label>
+            <label><span>Action contains</span><input name="action" type="text" placeholder="status, note, payment…" /></label>
+            <button class="admin-primary-button" type="submit">Apply</button>
+          </form>
+          <div data-audit-list class="admin-timeline admin-timeline-full"></div>
+        </section>
+      </main>
+    </div>
+  </section>
+
+  <div class="admin-toast" data-admin-toast role="status" aria-live="polite" hidden></div>
+</div>
+
+<script>
+  import '../scripts/admin-dashboard';
+</script>

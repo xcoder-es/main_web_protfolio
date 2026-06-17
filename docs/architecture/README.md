@@ -22,3 +22,4 @@ Automated boundary checks begin in `scripts/check-boundaries.mjs` and become str
 - [Durable notifications](notifications.md)
 - [Administrator identity and Clerk boundary](identity.md)
 - [Public forms and verification controls](forms-and-spam-protection.md)
+- [Mobile-first administrator dashboard](admin-dashboard.md)

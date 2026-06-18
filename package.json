@@ -10,6 +10,8 @@
   },
   "scripts": {
     "build": "pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/config build && pnpm --filter @carlos-pinto/api build && pnpm --filter @carlos-pinto/web build",
+    "dev:api": "pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/config build && pnpm --filter @carlos-pinto/api build && pnpm --filter @carlos-pinto/api start",
+    "dev:web": "pnpm --filter @carlos-pinto/web dev -- --host 127.0.0.1 --port 4321",
     "lint": "eslint . && prettier --check . && node scripts/check-boundaries.mjs",
     "typecheck": "tsc --noEmit -p tsconfig.workspace.json",
     "test": "vitest run --testTimeout 15000",

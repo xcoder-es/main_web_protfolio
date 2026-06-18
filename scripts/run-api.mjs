@@ -2,11 +2,9 @@ import { spawnSync } from 'node:child_process';
 
 import { loadWorkspaceEnv } from './load-env.mjs';
 
-const command = process.platform === 'win32' ? 'astro.cmd' : 'astro';
-const result = spawnSync(command, process.argv.slice(2), {
+const result = spawnSync(process.execPath, ['dist/main.js', ...process.argv.slice(2)], {
   stdio: 'inherit',
-  shell: process.platform === 'win32',
-  env: { ...loadWorkspaceEnv(), ASTRO_TELEMETRY_DISABLED: '1' },
+  env: loadWorkspaceEnv(),
 });
 
 if (result.error) {

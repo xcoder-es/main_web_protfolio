@@ -2,7 +2,16 @@ import js from '@eslint/js';
 import tseslint from 'typescript-eslint';
 
 export default tseslint.config(
-  { ignores: ['**/dist/**', '**/node_modules/**', '**/.astro/**', '**/coverage/**', '**/*.astro'] },
+  {
+    ignores: [
+      '**/dist/**',
+      '**/node_modules/**',
+      '**/.astro/**',
+      '**/coverage/**',
+      '**/.tools/**',
+      '**/*.astro',
+    ],
+  },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -26,6 +35,7 @@ export default tseslint.config(
         },
       ],
       'no-console': ['error', { allow: ['log', 'warn', 'error'] }],
+      'no-control-regex': 'off',
     },
   },
 );

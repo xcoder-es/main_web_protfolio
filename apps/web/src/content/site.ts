@@ -78,6 +78,12 @@ export const site = {
   location: 'Madrid, Spain',
 } as const;
 
+export const siteContent = {
+  title: 'Carlos Pinto Digital Consulting',
+  description:
+    'Independent digital consulting for architecture, AI and product engineering teams that need senior execution without ceremony.',
+} as const;
+
 export const chrome = {
   en: {
     skip: 'Skip to content',

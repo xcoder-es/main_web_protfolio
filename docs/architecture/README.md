@@ -15,6 +15,7 @@ Automated boundary checks begin in `scripts/check-boundaries.mjs` and become str
 
 ## Supporting documents
 
+- [Enterprise architecture overview](enterprise-architecture.md)
 - [Shared contracts and configuration](shared-contracts-and-configuration.md)
 - [Persistence architecture](persistence.md)
 - [Fastify API foundation](api-foundation.md)

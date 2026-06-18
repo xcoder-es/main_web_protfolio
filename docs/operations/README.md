@@ -7,6 +7,8 @@ This is an administration requirement, not a product limitation. The public webs
 ## Runbooks
 
 - [Mobile administration and provider setup](mobile-admin-provider-setup.md)
+- [Local Clerk administrator setup](../development/local-admin-clerk.md)
+- [Security incident response and credential rotation](security-incident-response.md)
 
 ## Principles
 
@@ -14,3 +16,5 @@ This is an administration requirement, not a product limitation. The public webs
 - Prefer observable and reversible dashboard changes.
 - Record migration and credential-rotation dates without recording credentials.
 - Keep business state in the application database rather than provider dashboards.
+- Treat Clerk dashboard membership as authentication context only; administrator authorization remains
+  the application allowlist.

@@ -64,7 +64,12 @@ export function createLoggerOptions(
         };
       },
       err(error: unknown) {
-        return serializeError(error, environment !== 'production');
+        return serializeError(error, environment !== 'production') as {
+          [key: string]: unknown;
+          type: string;
+          message: string;
+          stack: string;
+        };
       },
     },
   };

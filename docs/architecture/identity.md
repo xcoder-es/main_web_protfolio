@@ -30,6 +30,19 @@ Set these separately in Staging and Production:
 
 Never expose `CLERK_SECRET_KEY` through an Astro `PUBLIC_` variable. Do not use wildcard authorized parties or administrator allowlists.
 
+## Local development
+
+Local administrator testing requires a Clerk development instance and real development keys. The
+project intentionally has no anonymous admin bypass. The workspace start scripts load an untracked
+root `.env`, so one file can supply both Astro public variables and API private variables.
+
+Use `PUBLIC_CLERK_PUBLISHABLE_KEY` for the static page, matching `CLERK_PUBLISHABLE_KEY` plus
+`CLERK_SECRET_KEY` or `CLERK_JWT_KEY` for the API, `CLERK_AUTHORIZED_PARTIES=http://localhost:4321`,
+and at least one `CLERK_ADMIN_USER_IDS` or `CLERK_ADMIN_EMAILS` entry.
+
+See [Local Clerk administrator setup](../development/local-admin-clerk.md) for the local runbook and
+expected failure states.
+
 ## Mobile setup
 
 The application remains responsive on mobile, tablet and desktop. These steps describe performing administration from an Android browser, not limiting the application to phones.

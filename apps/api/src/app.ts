@@ -72,6 +72,9 @@ export async function buildApp(
     global: true,
     max: config.rateLimitMax,
     timeWindow: config.rateLimitWindowMs,
+    keyGenerator(request) {
+      return `${request.ip}:${request.method}:${request.routeOptions.url ?? request.url}`;
+    },
   });
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-correlation-id', request.id);

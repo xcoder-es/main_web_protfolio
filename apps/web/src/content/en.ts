@@ -3,18 +3,18 @@ import type { PageContent, PageKey } from './site';
 export const englishPages: Readonly<Record<PageKey, PageContent>> = {
   home: {
     eyebrow: 'Independent technology leadership',
-    title: 'Architecture, AI and product engineering for consequential work.',
+    title: 'Clearer technology decisions. Stronger systems. Practical AI.',
     description:
-      'Carlos Pinto helps organisations make difficult technology decisions, modernise complex systems and deliver practical AI-enabled products.',
-    lead: 'Senior advisory without theatre. Hands-on delivery without a bloated consultancy model. Clear decisions, deliberate architecture and measurable outcomes.',
+      'Carlos Pinto helps teams make hard technology decisions, modernise complex systems and ship useful AI-enabled products.',
+    lead: 'Senior architecture, AI and product engineering support for teams that need clear judgement and hands-on delivery without adding a large consultancy layer.',
     primaryAction: { label: 'Request a project', href: '/request-a-project' },
     secondaryAction: { label: 'Explore the work', href: '/work' },
     sections: [
       {
         eyebrow: 'What I do',
-        title: 'From unclear ambition to an executable system.',
+        title: 'Turn uncertainty into an executable system.',
         body: [
-          'I work with founders, executives and engineering leaders when the problem is strategically important, technically difficult or both.',
+          'I work with founders, executives and engineering leaders when a decision is important, the system is difficult or delivery risk is rising.',
         ],
         items: [
           {
@@ -39,7 +39,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
       },
       {
         eyebrow: 'Working principles',
-        title: 'Small surface area. High leverage.',
+        title: 'Small surface area, high leverage.',
         items: [
           {
             title: 'Truth over reassurance',
@@ -57,7 +57,7 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
       },
       {
         eyebrow: 'Engagements',
-        title: 'Built for moments when ordinary delivery is not enough.',
+        title: 'For work that needs senior judgement and execution.',
         body: [
           'Typical engagements include architecture recovery, AI strategy, platform design, technical due diligence, product rescue and fractional technology leadership.',
         ],
@@ -66,10 +66,10 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
   },
   services: {
     eyebrow: 'Services',
-    title: 'Focused expertise for complex technology decisions.',
+    title: 'Focused expertise for hard technology decisions.',
     description:
       'Architecture, AI and product services designed around outcomes rather than headcount.',
-    lead: 'Each engagement is shaped around the actual constraint: strategy, architecture, delivery, capability or execution risk.',
+    lead: 'Each engagement starts by finding the real constraint: strategy, architecture, delivery capability or execution risk.',
     primaryAction: { label: 'Discuss an engagement', href: '/contact' },
     sections: [
       {
@@ -127,10 +127,10 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
   },
   work: {
     eyebrow: 'Selected work',
-    title: 'Systems designed to survive contact with reality.',
+    title: 'Systems designed for real operating conditions.',
     description:
       'Representative areas of work across AI, enterprise platforms, data and product delivery.',
-    lead: 'The examples below describe the nature of the work without exposing confidential client information.',
+    lead: 'The examples below show the kind of work delivered without exposing confidential client information.',
     primaryAction: { label: 'Read the case studies', href: '/case-studies' },
     sections: [
       {
@@ -177,10 +177,10 @@ export const englishPages: Readonly<Record<PageKey, PageContent>> = {
   },
   caseStudies: {
     eyebrow: 'Case studies',
-    title: 'A closer look at the decisions behind the systems.',
+    title: 'The decisions behind the systems.',
     description:
       'Condensed case studies focused on architecture, constraints and measurable change.',
-    lead: 'Names and sensitive details are intentionally omitted. The emphasis is on reasoning and delivery approach.',
+    lead: 'Names and sensitive details are omitted. The emphasis is on reasoning, architecture and delivery approach.',
     sections: [
       {
         eyebrow: '01',

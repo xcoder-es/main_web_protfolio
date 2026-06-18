@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "start": "node dist/main.js"
+    "start": "node ../../scripts/run-api.mjs"
   },
   "dependencies": {
     "@carlos-pinto/config": "workspace:*",

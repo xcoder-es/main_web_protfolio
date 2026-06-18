@@ -3,18 +3,18 @@ import type { PageContent, PageKey } from './site';
 export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
   home: {
     eyebrow: 'Liderazgo tecnológico independiente',
-    title: 'Arquitectura, IA e ingeniería de producto para trabajos que importan.',
+    title: 'Decisiones tecnológicas claras. Sistemas más sólidos. IA práctica.',
     description:
-      'Carlos Pinto ayuda a organizaciones a tomar decisiones tecnológicas difíciles, modernizar sistemas complejos y construir productos útiles habilitados por IA.',
-    lead: 'Asesoría senior sin teatro. Ejecución práctica sin el modelo inflado de una gran consultora. Decisiones claras, arquitectura deliberada y resultados medibles.',
+      'Carlos Pinto ayuda a equipos a tomar decisiones tecnológicas difíciles, modernizar sistemas complejos y entregar productos útiles con IA.',
+    lead: 'Apoyo senior en arquitectura, IA e ingeniería de producto para equipos que necesitan criterio claro y ejecución práctica sin añadir una gran capa de consultoría.',
     primaryAction: { label: 'Solicitar proyecto', href: '/es/solicitar-proyecto' },
     secondaryAction: { label: 'Explorar el trabajo', href: '/es/trabajo' },
     sections: [
       {
         eyebrow: 'Qué hago',
-        title: 'De una ambición difusa a un sistema ejecutable.',
+        title: 'Convertir incertidumbre en un sistema ejecutable.',
         body: [
-          'Trabajo con fundadores, ejecutivos y líderes de ingeniería cuando el problema es estratégicamente importante, técnicamente difícil o ambas cosas.',
+          'Trabajo con fundadores, ejecutivos y líderes de ingeniería cuando una decisión es importante, el sistema es difícil o el riesgo de entrega aumenta.',
         ],
         items: [
           {
@@ -39,7 +39,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
       },
       {
         eyebrow: 'Principios de trabajo',
-        title: 'Poca superficie. Mucho impacto.',
+        title: 'Poca superficie, mucho impacto.',
         items: [
           {
             title: 'Verdad antes que tranquilidad',
@@ -57,7 +57,7 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
       },
       {
         eyebrow: 'Proyectos',
-        title: 'Pensado para momentos donde la entrega ordinaria no alcanza.',
+        title: 'Para trabajos que necesitan criterio senior y ejecución.',
         body: [
           'Los proyectos habituales incluyen recuperación arquitectónica, estrategia de IA, diseño de plataformas, due diligence técnico, rescate de producto y liderazgo tecnológico fraccional.',
         ],
@@ -66,10 +66,10 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
   },
   services: {
     eyebrow: 'Servicios',
-    title: 'Experiencia enfocada para decisiones tecnológicas complejas.',
+    title: 'Experiencia enfocada para decisiones tecnológicas difíciles.',
     description:
       'Servicios de arquitectura, IA y producto diseñados alrededor de resultados, no de cantidad de consultores.',
-    lead: 'Cada proyecto se adapta a la restricción real: estrategia, arquitectura, entrega, capacidad o riesgo de ejecución.',
+    lead: 'Cada proyecto empieza identificando la restricción real: estrategia, arquitectura, capacidad de entrega o riesgo de ejecución.',
     primaryAction: { label: 'Hablar sobre un proyecto', href: '/es/contacto' },
     sections: [
       {
@@ -127,10 +127,10 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
   },
   work: {
     eyebrow: 'Trabajo seleccionado',
-    title: 'Sistemas diseñados para resistir el contacto con la realidad.',
+    title: 'Sistemas diseñados para condiciones reales de operación.',
     description:
       'Áreas representativas de trabajo en IA, plataformas empresariales, datos y entrega de producto.',
-    lead: 'Los ejemplos describen la naturaleza del trabajo sin revelar información confidencial de clientes.',
+    lead: 'Los ejemplos muestran el tipo de trabajo entregado sin revelar información confidencial de clientes.',
     primaryAction: { label: 'Ver casos de estudio', href: '/es/casos-de-estudio' },
     sections: [
       {
@@ -177,9 +177,9 @@ export const spanishPages: Readonly<Record<PageKey, PageContent>> = {
   },
   caseStudies: {
     eyebrow: 'Casos de estudio',
-    title: 'Una mirada más cercana a las decisiones detrás de los sistemas.',
+    title: 'Las decisiones detrás de los sistemas.',
     description: 'Casos condensados centrados en arquitectura, restricciones y cambio medible.',
-    lead: 'Los nombres y detalles sensibles se omiten deliberadamente. El foco está en el razonamiento y la entrega.',
+    lead: 'Los nombres y detalles sensibles se omiten. El foco está en el razonamiento, la arquitectura y la entrega.',
     sections: [
       {
         eyebrow: '01',

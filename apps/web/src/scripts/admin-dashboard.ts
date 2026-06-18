@@ -251,13 +251,7 @@ function createDashboard(
     clear(leadList);
     leadList.append(loadingState());
     try {
-      state.leads = await api.listLeads(
-        compactOptional({
-          search: formValue(values, 'search'),
-          status: formValue(values, 'status'),
-          type: formValue(values, 'type'),
-        }),
-      );
+      state.leads = await api.listLeads(leadFilter(values));
       renderLeadList(leadList, state.leads, state.selectedLeadId);
       renderNavigationCounts(rootElement, state);
       populateLeadSelect(paymentLeadSelect, state.leads);
@@ -497,14 +491,10 @@ function createDashboard(
     clear(auditList);
     auditList.append(loadingState());
     try {
-      state.audit = await api.audit(
-        compactOptional({
-          entityType: formValue(values, 'entityType'),
-          entityId: formValue(values, 'entityId'),
-          action: formValue(values, 'action'),
-          limit: 250,
-        }),
-      );
+      state.audit = await api.audit({
+        ...auditFilter(values),
+        limit: 250,
+      });
       renderAudit(auditList, state.audit);
     } catch (error) {
       await handleError(error);
@@ -541,14 +531,9 @@ function createDashboard(
         const form = requiredElement<HTMLFormElement>(rootElement, '[data-lead-filters]');
         const values = new FormData(form);
         setBusy(button, true, 'Exporting…');
+        // Keep CSV export on api.exportLeads so it uses the authenticated administrator session.
         void api
-          .exportLeads(
-            compactOptional({
-              search: formValue(values, 'search'),
-              status: formValue(values, 'status'),
-              type: formValue(values, 'type'),
-            }),
-          )
+          .exportLeads(leadFilter(values))
           .then(() => showToast('Lead export downloaded.'))
           .catch(handleError)
           .finally(() => setBusy(button, false));
@@ -1198,6 +1183,30 @@ function formValue(form: FormData, name: string): string | undefined {
   return normalized || undefined;
 }
 
+function leadFilter(form: FormData): Readonly<{ search?: string; status?: string; type?: string }> {
+  const search = formValue(form, 'search');
+  const status = formValue(form, 'status');
+  const type = formValue(form, 'type');
+  return {
+    ...(search ? { search } : {}),
+    ...(status ? { status } : {}),
+    ...(type ? { type } : {}),
+  };
+}
+
+function auditFilter(
+  form: FormData,
+): Readonly<{ entityType?: string; entityId?: string; action?: string }> {
+  const entityType = formValue(form, 'entityType');
+  const entityId = formValue(form, 'entityId');
+  const action = formValue(form, 'action');
+  return {
+    ...(entityType ? { entityType } : {}),
+    ...(entityId ? { entityId } : {}),
+    ...(action ? { action } : {}),
+  };
+}
+
 function asView(value: string | undefined): ViewName {
   return value === 'leads' || value === 'notifications' || value === 'payments' || value === 'audit'
     ? value
@@ -1216,17 +1225,6 @@ function authorizationMessage(error: unknown): string {
     return 'Administrator identity is not fully configured on the API service.';
   }
   return error instanceof Error ? error.message : 'Administrator access could not be verified.';
-}
-
-function compactOptional<T extends Record<string, unknown>>(
-  input: T,
-): { [K in keyof T]?: Exclude<T[K], undefined> } {
-  return Object.fromEntries(
-    Object.entries(input).filter((entry): entry is [string, Exclude<unknown, undefined>] => {
-      const [, value] = entry;
-      return value !== undefined;
-    }),
-  ) as { [K in keyof T]?: Exclude<T[K], undefined> };
 }
 
 function renderSignedInButUnauthorized(container: HTMLElement, clerk: ClerkBrowser): void {

@@ -1,6 +1,6 @@
 import { readdir, readFile } from 'node:fs/promises';
-import { extname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { extname, join, relative } from 'node:path';
 
 const root = fileURLToPath(new URL('../', import.meta.url));
 const webSource = fileURLToPath(new URL('../apps/web/src/', import.meta.url));

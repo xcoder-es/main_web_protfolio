@@ -37,20 +37,46 @@ pnpm --filter @carlos-pinto/api start
 pnpm --filter @carlos-pinto/web dev -- --host 127.0.0.1 --port 4321
 ```
 
-Node.js 24 LTS and pnpm 11.5.2 are pinned. CI is the source of truth when operating only from a phone.
+Run the API and web frontend from two terminals:
 
-## Architecture direction
-
-```mermaid
-flowchart LR
-  Web[Astro public site] --> API[Fastify inbound adapters]
-  API --> Application[Application use cases]
-  Application --> Domain[Domain model]
-  Application --> Ports[Outbound ports]
-  Ports --> Providers[Replaceable provider adapters]
+```bash
+cp .env.example .env
+pnpm dev:api
+pnpm dev:web
 ```
 
-Business rules point inward. Provider SDKs, transport payloads and deployment concerns must not enter domain modules.
+The local start scripts load the workspace-root `.env` file. Public pages and forms work with the
+example defaults; the private administrator dashboard requires real Clerk development credentials
+and an administrator allowlist. See
+[docs/development/local-admin-clerk.md](docs/development/local-admin-clerk.md).
+
+Node.js 24 LTS and pnpm 11.5.2 are pinned. CI is the source of truth when operating only from a phone.
+
+## Enterprise Architecture
+
+The platform separates static public delivery, private administrator operations and provider
+integration behind explicit trust boundaries. Public visitors never need identity, while
+administrator actions require a real Clerk session plus an application-owned allowlist.
+
+```mermaid
+flowchart TB
+  Public[Public visitors] --> Web[Astro static site]
+  Admin[Administrator] --> AdminUI[Astro admin workspace]
+  Web -->|Public forms and payment flows| API[Fastify API]
+  AdminUI -->|Clerk session token| API
+  API --> App[Application use cases]
+  App --> Domain[Domain model]
+  App --> Ports[Outbound ports]
+  Ports --> Persistence[(Private persistence)]
+  Ports --> Providers[Clerk, Resend, PayPal, Turnstile]
+```
+
+Business rules point inward. Provider SDKs, transport payloads and deployment concerns must not
+enter domain modules. Static-site `PUBLIC_` variables are intentionally separate from API-only
+secrets.
+
+See [docs/architecture/enterprise-architecture.md](docs/architecture/enterprise-architecture.md)
+for runtime topology, trust boundaries, deployment configuration and local development diagrams.
 
 ## Delivery workflow
 

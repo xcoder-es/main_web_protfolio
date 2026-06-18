@@ -142,7 +142,7 @@ describe('Fastify API foundation', () => {
   });
 
   it('enforces payload and request-rate limits', async () => {
-    const app = await createApp(config({ rateLimitMax: 2 }), administratorIdentityOverrides());
+    const app = await createApp(config({ rateLimitMax: 1 }), administratorIdentityOverrides());
     app.post('/test-body', async () => ({ accepted: true }));
 
     const oversized = await app.inject({

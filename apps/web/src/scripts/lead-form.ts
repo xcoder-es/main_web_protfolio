@@ -24,6 +24,8 @@ const copy = {
   },
 } as const;
 
+const publicStatusPath = '/api/public/status';
+
 type Locale = keyof typeof copy;
 type FormKind = 'contact' | 'project';
 type ApiErrorPayload = Readonly<{
@@ -59,7 +61,7 @@ function initialise(form: HTMLFormElement): void {
     wakeRequested = true;
     const controller = new AbortController();
     const timeout = window.setTimeout(() => controller.abort(), 12_000);
-    void fetch(`${apiBase}/api/public/status`, {
+    void fetch(`${apiBase}${publicStatusPath}`, {
       method: 'GET',
       headers: { accept: 'application/json' },
       signal: controller.signal,

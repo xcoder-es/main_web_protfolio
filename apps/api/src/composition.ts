@@ -209,7 +209,7 @@ export function createApplicationDependencies(
     ),
   });
   const probes: readonly ServiceProbe[] = [
-    capabilityProbe('persistence', config.features.persistence, true),
+    capabilityProbe('persistence', config.features.persistence, Boolean(overrides.persistence)),
     capabilityProbe('identity', config.features.identity, identityConfigured),
     capabilityProbe('notifications', config.features.notifications, notificationConfigured),
     capabilityProbe('payments', config.features.payments, paymentConfigured),

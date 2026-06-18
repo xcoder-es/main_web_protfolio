@@ -25,6 +25,22 @@ describe('mobile administrator dashboard', () => {
     expect(component).toContain('data-lead-detail');
   });
 
+  it('keeps inactive administrator panels out of the layout', async () => {
+    const styles = await source('../src/styles/admin.css');
+
+    expect(styles).toContain('.admin-root [hidden]');
+    expect(styles).toContain('display: none !important');
+  });
+
+  it('keeps a dedicated desktop operations layout', async () => {
+    const styles = await source('../src/styles/admin.css');
+
+    expect(styles).toContain('@media (min-width: 1180px)');
+    expect(styles).toContain('.admin-card-list');
+    expect(styles).toContain('repeat(auto-fit, minmax(24rem, 1fr))');
+    expect(styles).toContain('grid-template-columns: minmax(22rem, 0.82fr) minmax(36rem, 1.5fr)');
+  });
+
   it('uses Clerk session tokens for every cross-origin administrator request', async () => {
     const [client, clerk] = await Promise.all([
       source('../src/admin/api-client.ts'),

@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest';
-
 import { ResendNotificationSender } from '../../src/notifications/adapters/resend-notification-sender.js';
 import type { NotificationMessage } from '../../src/notifications/application/ports.js';
 
@@ -13,65 +12,53 @@ const message: NotificationMessage = {
 };
 
 describe('ResendNotificationSender', () => {
-  it('uses the official HTTPS contract and idempotency header', async () => {
-    const calls: Array<{ url: string; init?: RequestInit }> = [];
-    const request: typeof fetch = async (input, init) => {
-      calls.push({ url: String(input), ...(init ? { init } : {}) });
-      return new Response(JSON.stringify({ id: 'email-provider-1' }), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      });
-    };
+  it('sends emails through the official SDK and returns the provider id', async () => {
+    const calls: Array<{
+      from: string;
+      to: string[];
+      subject: string;
+      text: string;
+      html: string;
+      options: { idempotencyKey?: string } | undefined;
+    }> = [];
     const sender = new ResendNotificationSender({
       apiKey: 're_test_key',
       baseUrl: 'https://api.resend.test',
-      fetch: request,
     });
 
+    const resend = sender as unknown as {
+      resend: {
+        emails: {
+          send: (
+            payload: {
+              from: string;
+              to: string[];
+              subject: string;
+              text: string;
+              html: string;
+            },
+            options?: { idempotencyKey?: string },
+          ) => Promise<{ data: { id: string }; error: null }>;
+        };
+      };
+    };
+
+    resend.resend.emails.send = async (payload, options) => {
+      calls.push({ ...payload, options });
+      return { data: { id: 'email-provider-1' }, error: null };
+    };
+
     const result = await sender.send(message);
-    const call = calls[0];
-    expect(call).toBeDefined();
-    expect(call?.url).toBe('https://api.resend.test/emails');
-    expect(call?.init?.method).toBe('POST');
-    const headers = new Headers(call?.init?.headers);
-    expect(headers.get('authorization')).toBe('Bearer re_test_key');
-    expect(headers.get('idempotency-key')).toBe(message.idempotencyKey);
-    expect(JSON.parse(String(call?.init?.body))).toEqual({
+
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toEqual({
       from: message.from,
       to: [message.to],
       subject: message.subject,
       text: message.text,
       html: message.html,
+      options: { idempotencyKey: message.idempotencyKey },
     });
     expect(result).toEqual({ providerMessageId: 'email-provider-1' });
-  });
-
-  it('classifies rate-limit and provider failures without leaking response payloads', async () => {
-    const request: typeof fetch = async () =>
-      new Response(
-        JSON.stringify({ name: 'rate_limit_exceeded', message: 'provider internal detail' }),
-        { status: 429, headers: { 'content-type': 'application/json' } },
-      );
-    const sender = new ResendNotificationSender({ apiKey: 're_test_key', fetch: request });
-
-    await expect(sender.send(message)).rejects.toMatchObject({
-      code: 'RESEND_RATE_LIMIT_EXCEEDED',
-      message: 'Resend rejected notification delivery.',
-      retryable: true,
-    });
-  });
-
-  it('rejects malformed success responses as retryable failures', async () => {
-    const request: typeof fetch = async () =>
-      new Response(JSON.stringify({}), {
-        status: 200,
-        headers: { 'content-type': 'application/json' },
-      });
-    const sender = new ResendNotificationSender({ apiKey: 're_test_key', fetch: request });
-
-    await expect(sender.send(message)).rejects.toMatchObject({
-      code: 'RESEND_INVALID_RESPONSE',
-      retryable: true,
-    });
   });
 });

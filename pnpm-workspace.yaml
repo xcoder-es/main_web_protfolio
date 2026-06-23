@@ -6,6 +6,9 @@ allowBuilds:
   esbuild: true
   sharp: true
 
+minimumReleaseAgeExclude:
+  - '@supabase/server@1.2.0'
+
 packageExtensions:
   '@carlos-pinto/contracts@*':
     dependencies:

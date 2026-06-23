@@ -22,6 +22,12 @@ export type ApiRuntimeConfig = {
   persistence?: {
     databaseUrl: string;
   };
+  supabase?: {
+    url: string;
+    publishableKey: string;
+    secretKey: string;
+    jwksUrl: string;
+  };
   identity?: {
     clerkSecretKey?: string;
     clerkPublishableKey?: string;
@@ -146,6 +152,30 @@ function optionalPersistenceConfig(env: Record<string, string | undefined>) {
     throw new Error('SUPABASE_DATABASE_URL must be a PostgreSQL connection URL');
   }
   return { databaseUrl };
+}
+
+function optionalSupabaseConfig(env: Record<string, string | undefined>) {
+  const url = env.SUPABASE_URL?.trim();
+  const publishableKey = env.SUPABASE_PUBLISHABLE_KEY?.trim();
+  const secretKey = env.SUPABASE_SECRET_KEY?.trim();
+  const jwksUrl = env.SUPABASE_JWKS_URL?.trim();
+
+  if (!url && !publishableKey && !secretKey && !jwksUrl) return undefined;
+  if (!url) throw new Error('SUPABASE_URL is required when Supabase server SDK is configured');
+  if (!publishableKey) {
+    throw new Error('SUPABASE_PUBLISHABLE_KEY is required when Supabase server SDK is configured');
+  }
+  if (!secretKey) {
+    throw new Error('SUPABASE_SECRET_KEY is required when Supabase server SDK is configured');
+  }
+  if (!jwksUrl) {
+    throw new Error('SUPABASE_JWKS_URL is required when Supabase server SDK is configured');
+  }
+
+  new URL(url);
+  new URL(jwksUrl);
+
+  return { url, publishableKey, secretKey, jwksUrl };
 }
 
 function optionalNotificationConfig(env: Record<string, string | undefined>) {
@@ -337,6 +367,7 @@ export function loadApiRuntimeConfig(
 
   const identity = optionalIdentityConfig(env);
   const persistence = optionalPersistenceConfig(env);
+  const supabase = optionalSupabaseConfig(env);
   const notification = optionalNotificationConfig(env);
   const payment = optionalPaymentConfig(env);
   const spam = optionalSpamConfig(env);
@@ -350,6 +381,7 @@ export function loadApiRuntimeConfig(
     rateLimitWindowMs: positiveInteger(env.RATE_LIMIT_WINDOW_MS, 60_000, 'RATE_LIMIT_WINDOW_MS'),
     operational: operationalConfig(env, base.environment),
     ...(persistence ? { persistence } : {}),
+    ...(supabase ? { supabase } : {}),
     ...(identity ? { identity } : {}),
     ...(notification ? { notification } : {}),
     ...(payment ? { payment } : {}),

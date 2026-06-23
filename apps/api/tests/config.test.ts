@@ -72,6 +72,23 @@ describe('API runtime configuration', () => {
     ).toThrow('SUPABASE_DATABASE_URL');
   });
 
+  it('parses Supabase server SDK configuration', () => {
+    const config = loadApiRuntimeConfig({
+      NODE_ENV: 'test',
+      SUPABASE_URL: 'https://example.supabase.co',
+      SUPABASE_PUBLISHABLE_KEY: 'sb_publishable_example',
+      SUPABASE_SECRET_KEY: 'sb_secret_example',
+      SUPABASE_JWKS_URL: 'https://example.supabase.co/auth/v1/.well-known/jwks.json',
+    });
+
+    expect(config.supabase).toEqual({
+      url: 'https://example.supabase.co',
+      publishableKey: 'sb_publishable_example',
+      secretKey: 'sb_secret_example',
+      jwksUrl: 'https://example.supabase.co/auth/v1/.well-known/jwks.json',
+    });
+  });
+
   it('parses Clerk credentials, authorized parties and administrator allowlists', () => {
     const config = loadApiRuntimeConfig({
       NODE_ENV: 'test',

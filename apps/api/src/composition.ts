@@ -26,6 +26,7 @@ import type { PaymentGateway } from './payments/application/ports.js';
 import { PaymentsService } from './payments/application/service.js';
 import { PayPalWebhookService } from './payments/application/webhook-service.js';
 import { InMemoryPersistence } from './persistence/adapters/in-memory/in-memory-persistence.js';
+import { createPostgresSupabasePersistence } from './persistence/adapters/supabase/postgres-gateway.js';
 import type { PersistenceRepositories, UnitOfWork } from './persistence/application/ports.js';
 import { createRetentionPolicy } from './security/retention-policy.js';
 import { serviceMetadata } from './server.js';
@@ -53,6 +54,7 @@ function capabilityProbe(name: string, enabled: boolean, configured = false): Se
 
 export type ApplicationDependencies = {
   probes: readonly ServiceProbe[];
+  close?: () => Promise<void>;
   adminOverview: AdministratorOverviewService;
   leads: LeadsService;
   notifications: NotificationsService;
@@ -65,6 +67,8 @@ export type ApplicationDependencies = {
 export type PersistenceBundle = Readonly<{
   repositories: PersistenceRepositories;
   unitOfWork: UnitOfWork;
+  probe?: ServiceProbe;
+  close?: () => Promise<void>;
 }>;
 
 export type ApplicationOverrides = Readonly<{
@@ -84,7 +88,12 @@ export function createApplicationDependencies(
   overrides: ApplicationOverrides = {},
 ): ApplicationDependencies {
   const memory = new InMemoryPersistence();
-  const persistence = overrides.persistence ?? {
+  const configuredPersistence =
+    overrides.persistence ??
+    (config.features.persistence && config.persistence
+      ? createPostgresSupabasePersistence(config.persistence.databaseUrl)
+      : undefined);
+  const persistence = configuredPersistence ?? {
     repositories: memory.repositories,
     unitOfWork: memory,
   };
@@ -209,7 +218,8 @@ export function createApplicationDependencies(
     ),
   });
   const probes: readonly ServiceProbe[] = [
-    capabilityProbe('persistence', config.features.persistence, Boolean(overrides.persistence)),
+    configuredPersistence?.probe ??
+      capabilityProbe('persistence', config.features.persistence, Boolean(configuredPersistence)),
     capabilityProbe('identity', config.features.identity, identityConfigured),
     capabilityProbe('notifications', config.features.notifications, notificationConfigured),
     capabilityProbe('payments', config.features.payments, paymentConfigured),
@@ -233,6 +243,7 @@ export function createApplicationDependencies(
 
   return {
     probes,
+    ...(configuredPersistence?.close ? { close: configuredPersistence.close } : {}),
     adminOverview,
     leads,
     notifications,

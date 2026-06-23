@@ -42,6 +42,17 @@ const factories: readonly [string, () => Harness][] = [
   ],
 ];
 
+it('runs Supabase unit of work through the transaction runner', async () => {
+  const gateway = new FakeSupabaseGateway();
+  const runner = new FakeTransactionRunner(gateway);
+  const persistence = createSupabasePersistence(gateway, runner);
+
+  const result = await persistence.unitOfWork.execute(async () => 'committed');
+
+  expect(result).toBe('committed');
+  expect(runner.executions).toBe(1);
+});
+
 for (const [name, createHarness] of factories) {
   describe(name, () => {
     it('persists, retrieves and updates leads without leaking mutable references', async () => {

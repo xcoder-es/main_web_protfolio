@@ -24,20 +24,21 @@ Never paste production secrets into GitHub issues, pull requests, source files, 
 
 1. Sign in to the Supabase dashboard.
 2. Create a Free organization or use an existing Free organization with available project capacity.
-3. Create one project for this platform and record the project URL.
-4. Open **Project Settings > API Keys**.
-5. Create or copy a server secret key. Use the legacy service-role key only when the newer key type is unavailable for the required client.
-6. Open **SQL Editor**.
-7. Apply migration files from `database/migrations` in filename order.
-8. Confirm that RLS is enabled on every private table and that no anonymous policies expose business data.
-9. Add the project URL and server credential to the Render API service, not to the static site.
+3. Create one project for this platform.
+4. Open **Project Settings > Database** and copy the pooled or direct PostgreSQL connection string.
+5. Store that value only as `SUPABASE_DATABASE_URL` on the Render API service.
+6. Set `PERSISTENCE_ENABLED=true` on the Render API service.
+7. Open **SQL Editor**.
+8. Apply migration files from `database/migrations` in filename order.
+9. Confirm that RLS is enabled on every private table and that no anonymous policies expose business data.
 10. Create a recurring manual export routine while the project remains on Free.
 
 Checks:
 
-- The key is absent from frontend build settings.
+- No `PUBLIC_SUPABASE_*`, anon key or service-role key appears in frontend build settings.
 - The database accepts a server-side readiness query.
 - Anonymous REST requests cannot read private tables.
+- Free Tier limits are accepted: inactivity pauses can occur and automatic backups are not included.
 
 ## Clerk
 

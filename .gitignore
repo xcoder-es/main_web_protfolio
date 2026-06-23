@@ -1,5 +1,6 @@
 node_modules/
 .tools/
+.codex/
 dist/
 .astro/
 coverage/

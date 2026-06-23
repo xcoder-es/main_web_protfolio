@@ -76,6 +76,11 @@ export async function buildApp(
       return `${request.ip}:${request.method}:${request.routeOptions.url ?? request.url}`;
     },
   });
+  if (dependencies.close) {
+    app.addHook('onClose', async () => {
+      await dependencies.close?.();
+    });
+  }
   app.addHook('onRequest', async (request, reply) => {
     reply.header('x-correlation-id', request.id);
     for (const [name, value] of Object.entries(apiResponseHeaders)) {

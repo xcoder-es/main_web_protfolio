@@ -7,6 +7,7 @@ This is an administration requirement, not a product limitation. The public webs
 ## Runbooks
 
 - [Mobile administration and provider setup](mobile-admin-provider-setup.md)
+- [Clerk administrator operations](clerk-admin-operations.md)
 - [Local Clerk administrator setup](../development/local-admin-clerk.md)
 - [Security incident response and credential rotation](security-incident-response.md)
 

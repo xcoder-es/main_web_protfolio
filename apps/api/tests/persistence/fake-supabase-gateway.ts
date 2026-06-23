@@ -78,9 +78,12 @@ export class FakeSupabaseGateway implements SupabaseGateway {
 }
 
 export class FakeTransactionRunner implements TransactionRunner {
+  public executions = 0;
+
   public constructor(private readonly gateway: FakeSupabaseGateway) {}
 
   public async execute<T>(work: () => Promise<T>): Promise<T> {
+    this.executions += 1;
     const snapshot = this.gateway.snapshot();
     try {
       return await work();

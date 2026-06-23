@@ -43,6 +43,35 @@ describe('API runtime configuration', () => {
     expect(config.allowedOrigins).toHaveLength(2);
   });
 
+  it('parses API-only Supabase database configuration', () => {
+    const config = loadApiRuntimeConfig({
+      NODE_ENV: 'test',
+      PERSISTENCE_ENABLED: 'true',
+      SUPABASE_DATABASE_URL: 'postgresql://api_user@db.example.test:5432/postgres',
+    });
+
+    expect(config.features.persistence).toBe(true);
+    expect(config.persistence).toEqual({
+      databaseUrl: 'postgresql://api_user@db.example.test:5432/postgres',
+    });
+  });
+
+  it('rejects non-PostgreSQL Supabase database configuration', () => {
+    expect(() =>
+      loadApiRuntimeConfig({
+        NODE_ENV: 'test',
+        SUPABASE_DATABASE_URL: 'https://example.test/database',
+      }),
+    ).toThrow('SUPABASE_DATABASE_URL');
+
+    expect(() =>
+      loadApiRuntimeConfig({
+        NODE_ENV: 'test',
+        SUPABASE_DATABASE_URL: 'not-a-url',
+      }),
+    ).toThrow('SUPABASE_DATABASE_URL');
+  });
+
   it('parses Clerk credentials, authorized parties and administrator allowlists', () => {
     const config = loadApiRuntimeConfig({
       NODE_ENV: 'test',

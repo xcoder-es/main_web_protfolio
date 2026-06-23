@@ -68,3 +68,26 @@ The protected frontend sign-in experience is added with the administrator web ap
 - Keep at least one separately secured recovery method for the administrator identity. Do not create a shared administrator account.
 
 A recovery action must never require changing domain data or disabling authentication on the API.
+
+## Clerk credential rotation
+
+Clerk dashboard membership is authentication context only. Administrator authorization remains the
+application allowlist in `CLERK_ADMIN_USER_IDS` and `CLERK_ADMIN_EMAILS`.
+
+1. Create the replacement Clerk secret key in the Clerk dashboard.
+2. Add the replacement value to the Render API environment without adding any `PUBLIC_` secret.
+3. Redeploy and confirm `/ready` reports identity ready.
+4. Sign in to `/admin` and confirm a protected request succeeds for an allowlisted administrator.
+5. Revoke the old Clerk secret key.
+6. Record the rotation date without recording the secret value.
+
+## Clerk compromise response
+
+1. Remove the affected Clerk user ID and email from the Render allowlist immediately.
+2. Revoke active sessions for the user in the Clerk dashboard.
+3. Rotate the Clerk secret key when any server credential may have leaked.
+4. Redeploy and confirm `/ready` reports identity ready.
+5. Review administrator audit events and provider dashboards for suspicious activity.
+
+Never disable administrator authentication, add an anonymous administrator bypass or store raw Clerk
+tokens in incident notes.

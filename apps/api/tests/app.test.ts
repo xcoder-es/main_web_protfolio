@@ -96,6 +96,24 @@ describe('Fastify API foundation', () => {
     expect(response.json().checks).toBeUndefined();
   });
 
+  it('fails readiness when persistence is enabled without Supabase database configuration', async () => {
+    const runtime = config({
+      features: {
+        persistence: true,
+        identity: false,
+        notifications: false,
+        payments: false,
+        spamVerification: false,
+      },
+    });
+    const app = await createApp(runtime);
+    const response = await app.inject({ method: 'GET', url: '/ready' });
+
+    expect(response.statusCode).toBe(503);
+    expect(response.json()).toMatchObject({ ready: false, status: 'not_ready' });
+    expect(response.body).not.toContain('persistence');
+  });
+
   it('applies strict CORS, CSP, privacy and anti-cache headers', async () => {
     const app = await createApp();
     const allowed = await app.inject({

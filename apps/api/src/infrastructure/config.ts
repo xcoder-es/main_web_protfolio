@@ -19,6 +19,9 @@ export type ApiRuntimeConfig = {
     payments: boolean;
     spamVerification: boolean;
   };
+  persistence?: {
+    databaseUrl: string;
+  };
   identity?: {
     clerkSecretKey?: string;
     clerkPublishableKey?: string;
@@ -128,6 +131,21 @@ function optionalIdentityConfig(env: Record<string, string | undefined>) {
     administratorUserIds,
     administratorEmails,
   };
+}
+
+function optionalPersistenceConfig(env: Record<string, string | undefined>) {
+  const databaseUrl = env.SUPABASE_DATABASE_URL?.trim();
+  if (!databaseUrl) return undefined;
+  let parsed: URL;
+  try {
+    parsed = new URL(databaseUrl);
+  } catch {
+    throw new Error('SUPABASE_DATABASE_URL must be a PostgreSQL connection URL');
+  }
+  if (parsed.protocol !== 'postgres:' && parsed.protocol !== 'postgresql:') {
+    throw new Error('SUPABASE_DATABASE_URL must be a PostgreSQL connection URL');
+  }
+  return { databaseUrl };
 }
 
 function optionalNotificationConfig(env: Record<string, string | undefined>) {
@@ -318,6 +336,7 @@ export function loadApiRuntimeConfig(
   }
 
   const identity = optionalIdentityConfig(env);
+  const persistence = optionalPersistenceConfig(env);
   const notification = optionalNotificationConfig(env);
   const payment = optionalPaymentConfig(env);
   const spam = optionalSpamConfig(env);
@@ -330,6 +349,7 @@ export function loadApiRuntimeConfig(
     rateLimitMax: positiveInteger(env.RATE_LIMIT_MAX, 100, 'RATE_LIMIT_MAX'),
     rateLimitWindowMs: positiveInteger(env.RATE_LIMIT_WINDOW_MS, 60_000, 'RATE_LIMIT_WINDOW_MS'),
     operational: operationalConfig(env, base.environment),
+    ...(persistence ? { persistence } : {}),
     ...(identity ? { identity } : {}),
     ...(notification ? { notification } : {}),
     ...(payment ? { payment } : {}),

@@ -66,6 +66,26 @@ describe('readiness diagnostics', () => {
     expect(JSON.stringify(report)).not.toContain('credentials must not leak');
   });
 
+  it('reports unavailable notifications when enabled but not configured', async () => {
+    const report = await checkServices([
+      {
+        name: 'notifications',
+        required: true,
+        async run() {
+          return { name: 'notifications', ok: false, required: true, state: 'unavailable' };
+        },
+      },
+    ]);
+
+    expect(report.ready).toBe(false);
+    expect(report.checks[0]).toMatchObject({
+      name: 'notifications',
+      ok: false,
+      required: true,
+      state: 'unavailable',
+    });
+  });
+
   it('uses a stable fallback name for anonymous failed probes', async () => {
     const report = await checkServices([
       {

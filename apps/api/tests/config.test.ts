@@ -89,6 +89,24 @@ describe('API runtime configuration', () => {
     });
   });
 
+  it('parses notification provider configuration when fully provided', () => {
+    const config = loadApiRuntimeConfig({
+      NODE_ENV: 'test',
+      NOTIFICATIONS_ENABLED: 'true',
+      NOTIFICATION_RECIPIENT_EMAIL: 'alerts@example.com',
+      RESEND_FROM_EMAIL: 'Carlos Pinto <notifications@example.com>',
+      RESEND_API_KEY: 're_test_key',
+    });
+
+    expect(config.features.notifications).toBe(true);
+    expect(config.notification).toEqual({
+      recipientAddress: 'alerts@example.com',
+      fromAddress: 'Carlos Pinto <notifications@example.com>',
+      resendApiKey: 're_test_key',
+      resendBaseUrl: 'https://api.resend.com',
+    });
+  });
+
   it('parses Clerk credentials, authorized parties and administrator allowlists', () => {
     const config = loadApiRuntimeConfig({
       NODE_ENV: 'test',

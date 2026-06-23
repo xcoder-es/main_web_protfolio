@@ -52,6 +52,24 @@ function capabilityProbe(name: string, enabled: boolean, configured = false): Se
   };
 }
 
+function notificationProbe(enabled: boolean, configured: boolean): ServiceProbe {
+  return {
+    name: 'notifications',
+    required: enabled,
+    async run() {
+      if (!enabled) {
+        return { name: 'notifications', ok: true, required: false, state: 'disabled' as const };
+      }
+
+      if (!configured) {
+        return { name: 'notifications', ok: false, required: true, state: 'unavailable' as const };
+      }
+
+      return { name: 'notifications', ok: true, required: true, state: 'ready' as const };
+    },
+  };
+}
+
 export type ApplicationDependencies = {
   probes: readonly ServiceProbe[];
   close?: () => Promise<void>;
@@ -129,9 +147,9 @@ export function createApplicationDependencies(
 
   const notificationConfigured = Boolean(
     overrides.notificationSender ||
-    (config.notification?.resendApiKey &&
-      config.notification.fromAddress &&
-      config.notification.recipientAddress),
+      (config.notification?.resendApiKey &&
+        config.notification.fromAddress &&
+        config.notification.recipientAddress),
   );
   const notificationSender =
     overrides.notificationSender ??
@@ -221,7 +239,7 @@ export function createApplicationDependencies(
     configuredPersistence?.probe ??
       capabilityProbe('persistence', config.features.persistence, Boolean(configuredPersistence)),
     capabilityProbe('identity', config.features.identity, identityConfigured),
-    capabilityProbe('notifications', config.features.notifications, notificationConfigured),
+    notificationProbe(config.features.notifications, notificationConfigured),
     capabilityProbe('payments', config.features.payments, paymentConfigured),
     capabilityProbe('spam-verification', config.features.spamVerification, spamConfigured),
   ];

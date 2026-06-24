@@ -186,10 +186,15 @@ function optionalNotificationConfig(env: Record<string, string | undefined>) {
   new URL(resendBaseUrl);
 
   if (!recipientAddress && !fromAddress && !resendApiKey) return undefined;
+  if (!recipientAddress || !fromAddress || !resendApiKey) {
+    throw new Error(
+      'NOTIFICATIONS_ENABLED requires NOTIFICATION_RECIPIENT_EMAIL, RESEND_FROM_EMAIL, and RESEND_API_KEY',
+    );
+  }
   return {
     recipientAddress,
     fromAddress,
-    ...(resendApiKey ? { resendApiKey } : {}),
+    resendApiKey,
     resendBaseUrl,
   };
 }

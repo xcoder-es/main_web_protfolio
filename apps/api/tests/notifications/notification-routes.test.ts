@@ -3,6 +3,11 @@ import { describe, expect, it } from 'vitest';
 import { buildApp } from '../../src/app.js';
 import { createApplicationDependencies } from '../../src/composition.js';
 import type { ApiRuntimeConfig } from '../../src/infrastructure/config.js';
+import {
+  NotificationSenderError,
+  type NotificationMessage,
+  type NotificationSender,
+} from '../../src/notifications/application/ports.js';
 import { administratorHeaders, administratorIdentityOverrides } from '../support/identity.js';
 
 const config: ApiRuntimeConfig = {
@@ -38,11 +43,20 @@ const submission = {
   },
 };
 
+class FailingSender implements NotificationSender {
+  public async send(_message: NotificationMessage): Promise<never> {
+    throw new NotificationSenderError('RESEND_UNAVAILABLE', 'Resend unavailable.', true);
+  }
+}
+
 describe('notification administrator routes', () => {
   it('shows failed delivery separately while preserving the public lead response', async () => {
     const app = await buildApp(
       config,
-      createApplicationDependencies(config, administratorIdentityOverrides()),
+      createApplicationDependencies(config, {
+        ...administratorIdentityOverrides(),
+        notificationSender: new FailingSender(),
+      }),
     );
 
     const lead = await app.inject({
@@ -90,7 +104,10 @@ describe('notification administrator routes', () => {
   it('returns stable errors for unknown notification filters and identifiers', async () => {
     const app = await buildApp(
       config,
-      createApplicationDependencies(config, administratorIdentityOverrides()),
+      createApplicationDependencies(config, {
+        ...administratorIdentityOverrides(),
+        notificationSender: new FailingSender(),
+      }),
     );
 
     const invalidFilter = await app.inject({

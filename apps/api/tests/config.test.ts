@@ -107,6 +107,18 @@ describe('API runtime configuration', () => {
     });
   });
 
+  it('rejects partially configured notifications', () => {
+    expect(() =>
+      loadApiRuntimeConfig({
+        NODE_ENV: 'test',
+        NOTIFICATIONS_ENABLED: 'true',
+        RESEND_API_KEY: 're_test_key',
+      }),
+    ).toThrow(
+      'NOTIFICATIONS_ENABLED requires NOTIFICATION_RECIPIENT_EMAIL, RESEND_FROM_EMAIL, and RESEND_API_KEY',
+    );
+  });
+
   it('parses Clerk credentials, authorized parties and administrator allowlists', () => {
     const config = loadApiRuntimeConfig({
       NODE_ENV: 'test',

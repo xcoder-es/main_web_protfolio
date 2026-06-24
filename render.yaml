@@ -26,7 +26,6 @@ services:
     runtime: static
     branch: main
     plan: free
-    region: frankfurt
     buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
     staticPublishPath: apps/web/dist
     autoDeploy: true
@@ -36,7 +35,6 @@ services:
     runtime: static
     branch: staging
     plan: free
-    region: frankfurt
     buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
     staticPublishPath: apps/web/dist
     autoDeploy: true

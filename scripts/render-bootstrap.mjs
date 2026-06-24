@@ -82,52 +82,79 @@ function createRenderClient(apiKey) {
 }
 
 async function reconcileEnvironmentGroups(client, envGroups) {
-  const existing = await client.request('/env-groups');
-  const byName = new Map((existing ?? []).map((group) => [group.name, group]));
+  await safeRequest(client, '/env-groups', async () => {
+    const existing = await client.request('/env-groups');
+    const byName = new Map((existing ?? []).map((group) => [group.name, group]));
 
-  for (const [name, envVars] of Object.entries(envGroups)) {
-    const payload = {
-      name,
-      envVars: Object.entries(envVars).map(([key, value]) => ({
-        key,
-        value,
-      })),
-    };
+    for (const [name, envVars] of Object.entries(envGroups)) {
+      const payload = {
+        name,
+        envVars: Object.entries(envVars).map(([key, value]) => ({
+          key,
+          value,
+        })),
+      };
 
-    const match = byName.get(name);
-    if (match?.id) {
-      await client.request(`/env-groups/${match.id}`, {
-        method: 'PATCH',
+      const match = byName.get(name);
+      if (match?.id) {
+        await client.request(`/env-groups/${match.id}`, {
+          method: 'PATCH',
+          body: JSON.stringify(payload),
+        });
+        continue;
+      }
+
+      await client.request('/env-groups', {
+        method: 'POST',
         body: JSON.stringify(payload),
       });
-      continue;
     }
-
-    await client.request('/env-groups', {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    });
-  }
+  });
 }
 
 async function reconcileServiceVariables(client, services) {
-  const existing = await client.request('/services');
-  const byName = new Map((existing ?? []).map((service) => [service.name, service]));
+  await safeRequest(client, '/services', async () => {
+    const existing = await client.request('/services');
+    const byName = new Map((existing ?? []).map((service) => [service.name, service]));
 
-  for (const [name, service] of Object.entries(services)) {
-    const match = byName.get(name);
-    if (!match?.id) {
-      throw new Error(`Render service ${name} was not found. Create it from render.yaml first.`);
+    for (const [name, service] of Object.entries(services)) {
+      const match = byName.get(name);
+      if (!match?.id) {
+        throw new Error(`Render service ${name} was not found. Create it from render.yaml first.`);
+      }
+
+      const envVars = Object.entries(service.env ?? {}).map(([key, value]) => ({
+        key,
+        value,
+      }));
+
+      await client.request(`/services/${match.id}/env-vars`, {
+        method: 'PUT',
+        body: JSON.stringify(envVars),
+      });
+    }
+  });
+}
+
+async function safeRequest(client, label, action) {
+  try {
+    await action();
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('404 Not Found')) {
+      console.log(
+        JSON.stringify(
+          {
+            action: 'render-bootstrap-skipped',
+            reason: 'render-api-endpoint-not-available',
+            endpoint: label,
+          },
+          null,
+          2,
+        ),
+      );
+      return;
     }
 
-    const envVars = Object.entries(service.env ?? {}).map(([key, value]) => ({
-      key,
-      value,
-    }));
-
-    await client.request(`/services/${match.id}/env-vars`, {
-      method: 'PUT',
-      body: JSON.stringify(envVars),
-    });
+    throw error;
   }
 }

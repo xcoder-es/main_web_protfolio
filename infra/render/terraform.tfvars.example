@@ -1,0 +1,16 @@
+render_api_key = "render-api-key"
+render_account_id = "acct_123"
+render_project_name = "Portfolio"
+
+production_api_url = "https://api-prod.onrender.com"
+staging_api_url = "https://api-staging.onrender.com"
+production_web_url = "https://web-prod.onrender.com"
+staging_web_url = "https://web-staging.onrender.com"
+
+production_notification_recipient_email = "delivered@resend.dev"
+production_resend_from_email = "onboarding@resend.dev"
+production_resend_api_key = "re_xxx"
+staging_notification_recipient_email = "delivered@resend.dev"
+staging_resend_from_email = "onboarding@resend.dev"
+staging_resend_api_key = "re_xxx"
+public_turnstile_site_key = ""

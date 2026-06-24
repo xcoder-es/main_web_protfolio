@@ -2,7 +2,7 @@
 
 This application has a small but explicit data model. The goal is to keep every persistent object explainable from the user flow that creates it.
 
-## Data domains
+## Data Domains
 
 - leads
 - lead notes
@@ -12,7 +12,7 @@ This application has a small but explicit data model. The goal is to keep every 
 - payment requests and related payment events
 - webhook delivery records
 
-## Data flow
+## Data Flow
 
 ```mermaid
 flowchart LR
@@ -42,14 +42,14 @@ flowchart LR
   Payments --> PayPal
 ```
 
-## Storage principles
+## Storage Principles
 
 - Public submissions are persisted before any best-effort outbound side effects.
 - Notification delivery is tracked as a separate record from the lead itself.
 - Attempt records provide a timeline for retries and failures.
 - Audit events are append-only and capture actor, action, and entity references.
 
-## Logical model
+## Logical Model
 
 ```mermaid
 erDiagram
@@ -86,9 +86,22 @@ erDiagram
   }
 ```
 
-## Consistency rules
+## Consistency Rules
 
 - Lead creation is authoritative.
 - Notification state can fail independently without rolling back the lead.
 - Retry is idempotent on the notification record.
 - Webhook records are minimized to avoid storing provider payload noise.
+
+## Lifecycle
+
+```mermaid
+stateDiagram-v2
+  [*] --> LeadSubmitted
+  LeadSubmitted --> NotificationPending
+  NotificationPending --> NotificationSending
+  NotificationSending --> NotificationSent
+  NotificationSending --> NotificationFailed
+  NotificationFailed --> NotificationSending: retry
+  NotificationSent --> [*]
+```

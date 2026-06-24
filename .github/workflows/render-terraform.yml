@@ -1,0 +1,72 @@
+name: Render Terraform
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: render-terraform-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.10.5
+
+      - name: Terraform init
+        working-directory: infra/render
+        run: terraform init -input=false
+
+      - name: Terraform validate
+        working-directory: infra/render
+        run: terraform validate
+
+      - name: Terraform plan
+        working-directory: infra/render
+        env:
+          TF_VAR_render_api_key: ${{ secrets.RENDER_API_KEY }}
+          TF_VAR_render_account_id: ${{ secrets.RENDER_ACCOUNT_ID }}
+          TF_VAR_production_api_url: ${{ secrets.RENDER_PRODUCTION_API_URL }}
+          TF_VAR_staging_api_url: ${{ secrets.RENDER_STAGING_API_URL }}
+          TF_VAR_production_web_url: ${{ secrets.RENDER_PRODUCTION_WEB_URL }}
+          TF_VAR_staging_web_url: ${{ secrets.RENDER_STAGING_WEB_URL }}
+          TF_VAR_production_notification_recipient_email: ${{ secrets.RENDER_PRODUCTION_NOTIFICATION_RECIPIENT_EMAIL }}
+          TF_VAR_production_resend_from_email: ${{ secrets.RENDER_PRODUCTION_RESEND_FROM_EMAIL }}
+          TF_VAR_production_resend_api_key: ${{ secrets.RENDER_PRODUCTION_RESEND_API_KEY }}
+          TF_VAR_staging_notification_recipient_email: ${{ secrets.RENDER_STAGING_NOTIFICATION_RECIPIENT_EMAIL }}
+          TF_VAR_staging_resend_from_email: ${{ secrets.RENDER_STAGING_RESEND_FROM_EMAIL }}
+          TF_VAR_staging_resend_api_key: ${{ secrets.RENDER_STAGING_RESEND_API_KEY }}
+          TF_VAR_public_turnstile_site_key: ${{ secrets.RENDER_PUBLIC_TURNSTILE_SITE_KEY }}
+        run: terraform plan -input=false -var-file=terraform.tfvars
+
+      - name: Terraform apply
+        working-directory: infra/render
+        env:
+          TF_VAR_render_api_key: ${{ secrets.RENDER_API_KEY }}
+          TF_VAR_render_account_id: ${{ secrets.RENDER_ACCOUNT_ID }}
+          TF_VAR_production_api_url: ${{ secrets.RENDER_PRODUCTION_API_URL }}
+          TF_VAR_staging_api_url: ${{ secrets.RENDER_STAGING_API_URL }}
+          TF_VAR_production_web_url: ${{ secrets.RENDER_PRODUCTION_WEB_URL }}
+          TF_VAR_staging_web_url: ${{ secrets.RENDER_STAGING_WEB_URL }}
+          TF_VAR_production_notification_recipient_email: ${{ secrets.RENDER_PRODUCTION_NOTIFICATION_RECIPIENT_EMAIL }}
+          TF_VAR_production_resend_from_email: ${{ secrets.RENDER_PRODUCTION_RESEND_FROM_EMAIL }}
+          TF_VAR_production_resend_api_key: ${{ secrets.RENDER_PRODUCTION_RESEND_API_KEY }}
+          TF_VAR_staging_notification_recipient_email: ${{ secrets.RENDER_STAGING_NOTIFICATION_RECIPIENT_EMAIL }}
+          TF_VAR_staging_resend_from_email: ${{ secrets.RENDER_STAGING_RESEND_FROM_EMAIL }}
+          TF_VAR_staging_resend_api_key: ${{ secrets.RENDER_STAGING_RESEND_API_KEY }}
+          TF_VAR_public_turnstile_site_key: ${{ secrets.RENDER_PUBLIC_TURNSTILE_SITE_KEY }}
+        run: terraform apply -input=false -auto-approve -var-file=terraform.tfvars

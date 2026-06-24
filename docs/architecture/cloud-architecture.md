@@ -10,7 +10,7 @@ This system is intentionally split into static public delivery, stateful API run
 - Store secrets outside source control.
 - Keep promotion rules explicit and auditable.
 
-## Deployment model
+## Deployment Model
 
 ```mermaid
 flowchart TB
@@ -47,7 +47,7 @@ flowchart TB
   ProdAPI --> PayPal
 ```
 
-## Tier constraints
+## Tier Constraints
 
 - Free web services can sleep when idle.
 - Static sites stay cheap and predictable.
@@ -66,8 +66,27 @@ Staging:
 - source: `staging`
 - gated by PR branch, label, and draft status
 
-## Control planes
+## Control Planes
 
 - Render Blueprint owns service shape.
 - Terraform owns environment-specific state.
-- GitHub Actions owns branch promotion policy.
+- GitHub Actions owns staging promotion policy.
+
+## Release Flow
+
+```mermaid
+sequenceDiagram
+  participant Dev as Developer
+  participant PR as GitHub PR
+  participant Staging as staging branch
+  participant TF as Terraform workflow
+  participant Render as Render
+  participant Prod as main release
+
+  Dev->>PR: Open feature/* PR with staging label
+  PR->>Staging: GitHub Action fast-forwards branch
+  Staging->>Render: Staging deploys automatically
+  Dev->>Prod: Merge reviewed SemVer-ready change to main
+  Prod->>TF: Terraform workflow applies env state
+  TF->>Render: Reconciles vars and service wiring
+```

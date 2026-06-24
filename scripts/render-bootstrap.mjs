@@ -32,8 +32,10 @@ console.log(
   ),
 );
 
-await reconcileEnvironmentGroups(client, manifest.env_groups);
-await reconcileServiceVariables(client, manifest.services);
+const envGroupsReconciled = await reconcileEnvironmentGroups(client, manifest.env_groups);
+if (envGroupsReconciled) {
+  await reconcileServiceVariables(client, manifest.services);
+}
 
 function assertManifest(value) {
   if (!value || typeof value !== 'object') {
@@ -82,7 +84,7 @@ function createRenderClient(apiKey) {
 }
 
 async function reconcileEnvironmentGroups(client, envGroups) {
-  await safeRequest(client, '/env-groups', async () => {
+  return safeRequest(client, '/env-groups', async () => {
     const existing = await client.request('/env-groups');
     const byName = new Map((existing ?? []).map((group) => [group.name, group]));
 
@@ -113,7 +115,7 @@ async function reconcileEnvironmentGroups(client, envGroups) {
 }
 
 async function reconcileServiceVariables(client, services) {
-  await safeRequest(client, '/services', async () => {
+  return safeRequest(client, '/services', async () => {
     const existing = await client.request('/services');
     const byName = new Map((existing ?? []).map((service) => [service.name, service]));
 
@@ -139,6 +141,7 @@ async function reconcileServiceVariables(client, services) {
 async function safeRequest(client, label, action) {
   try {
     await action();
+    return true;
   } catch (error) {
     if (error instanceof Error && error.message.includes('404 Not Found')) {
       console.log(
@@ -152,7 +155,7 @@ async function safeRequest(client, label, action) {
           2,
         ),
       );
-      return;
+      return false;
     }
 
     throw error;

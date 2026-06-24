@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: api-prod
+    runtime: node
+    branch: main
+    plan: free
+    region: frankfurt
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/config build && pnpm --filter @carlos-pinto/api build
+    startCommand: pnpm --filter @carlos-pinto/api start
+    autoDeploy: true
+    healthCheckPath: /api/system/health
+
+  - type: web
+    name: api-staging
+    runtime: node
+    branch: staging
+    plan: free
+    region: frankfurt
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/config build && pnpm --filter @carlos-pinto/api build
+    startCommand: pnpm --filter @carlos-pinto/api start
+    autoDeploy: true
+    healthCheckPath: /api/system/health
+
+  - type: web
+    name: web-prod
+    runtime: static
+    branch: main
+    plan: free
+    region: frankfurt
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
+    staticPublishPath: apps/web/dist
+    autoDeploy: true
+
+  - type: web
+    name: web-staging
+    runtime: static
+    branch: staging
+    plan: free
+    region: frankfurt
+    buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
+    staticPublishPath: apps/web/dist
+    autoDeploy: true
+
+previews:
+  generation: off

@@ -1,4 +1,5 @@
 locals {
+  render_bootstrap_script = abspath("${path.module}/../../scripts/render-bootstrap.mjs")
   render_manifest = {
     account_id = var.render_account_id
     project    = var.render_project_name
@@ -60,7 +61,7 @@ resource "null_resource" "render_sync" {
   }
 
   provisioner "local-exec" {
-    command = "node ${path.root}/scripts/render-bootstrap.mjs ${local_file.render_manifest.filename}"
+    command = "node ${local.render_bootstrap_script} ${local_file.render_manifest.filename}"
     environment = {
       RENDER_API_KEY = var.render_api_key
     }

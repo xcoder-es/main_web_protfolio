@@ -51,7 +51,7 @@ jobs:
           TF_VAR_staging_resend_from_email: ${{ secrets.RENDER_STAGING_RESEND_FROM_EMAIL }}
           TF_VAR_staging_resend_api_key: ${{ secrets.RENDER_STAGING_RESEND_API_KEY }}
           TF_VAR_public_turnstile_site_key: ${{ secrets.RENDER_PUBLIC_TURNSTILE_SITE_KEY }}
-        run: terraform plan -input=false -var-file=terraform.tfvars
+        run: terraform plan -input=false
 
       - name: Terraform apply
         working-directory: infra/render
@@ -69,4 +69,4 @@ jobs:
           TF_VAR_staging_resend_from_email: ${{ secrets.RENDER_STAGING_RESEND_FROM_EMAIL }}
           TF_VAR_staging_resend_api_key: ${{ secrets.RENDER_STAGING_RESEND_API_KEY }}
           TF_VAR_public_turnstile_site_key: ${{ secrets.RENDER_PUBLIC_TURNSTILE_SITE_KEY }}
-        run: terraform apply -input=false -auto-approve -var-file=terraform.tfvars
+        run: terraform apply -input=false -auto-approve

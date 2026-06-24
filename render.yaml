@@ -9,13 +9,13 @@ services:
     startCommand: pnpm --filter @carlos-pinto/api start
     autoDeploy: true
     healthCheckPath: /api/system/health
-    envVarGroups:
-      - api-common
-      - production-common
-      - production-api
-      - production-notifications
-      - production-payments
-      - production-spam
+    envVars:
+      - fromGroup: api-common
+      - fromGroup: production-common
+      - fromGroup: production-api
+      - fromGroup: production-notifications
+      - fromGroup: production-payments
+      - fromGroup: production-spam
 
   - type: web
     name: api-staging
@@ -27,13 +27,13 @@ services:
     startCommand: pnpm --filter @carlos-pinto/api start
     autoDeploy: true
     healthCheckPath: /api/system/health
-    envVarGroups:
-      - api-common
-      - staging-common
-      - staging-api
-      - staging-notifications
-      - staging-payments
-      - staging-spam
+    envVars:
+      - fromGroup: api-common
+      - fromGroup: staging-common
+      - fromGroup: staging-api
+      - fromGroup: staging-notifications
+      - fromGroup: staging-payments
+      - fromGroup: staging-spam
 
   - type: web
     name: web-prod
@@ -42,10 +42,10 @@ services:
     buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
     staticPublishPath: apps/web/dist
     autoDeploy: true
-    envVarGroups:
-      - web-common
-      - production-common
-      - production-web
+    envVars:
+      - fromGroup: web-common
+      - fromGroup: production-common
+      - fromGroup: production-web
 
   - type: web
     name: web-staging
@@ -54,10 +54,10 @@ services:
     buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
     staticPublishPath: apps/web/dist
     autoDeploy: true
-    envVarGroups:
-      - web-common
-      - staging-common
-      - staging-web
+    envVars:
+      - fromGroup: web-common
+      - fromGroup: staging-common
+      - fromGroup: staging-web
 
 previews:
   generation: off

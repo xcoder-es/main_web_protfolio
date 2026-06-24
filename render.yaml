@@ -9,6 +9,13 @@ services:
     startCommand: pnpm --filter @carlos-pinto/api start
     autoDeploy: true
     healthCheckPath: /api/system/health
+    envVarGroups:
+      - api-common
+      - production-common
+      - production-api
+      - production-notifications
+      - production-payments
+      - production-spam
 
   - type: web
     name: api-staging
@@ -20,6 +27,13 @@ services:
     startCommand: pnpm --filter @carlos-pinto/api start
     autoDeploy: true
     healthCheckPath: /api/system/health
+    envVarGroups:
+      - api-common
+      - staging-common
+      - staging-api
+      - staging-notifications
+      - staging-payments
+      - staging-spam
 
   - type: web
     name: web-prod
@@ -28,6 +42,10 @@ services:
     buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
     staticPublishPath: apps/web/dist
     autoDeploy: true
+    envVarGroups:
+      - web-common
+      - production-common
+      - production-web
 
   - type: web
     name: web-staging
@@ -36,6 +54,131 @@ services:
     buildCommand: pnpm install --no-frozen-lockfile && pnpm --filter @carlos-pinto/contracts build && pnpm --filter @carlos-pinto/web build
     staticPublishPath: apps/web/dist
     autoDeploy: true
+    envVarGroups:
+      - web-common
+      - staging-common
+      - staging-web
 
 previews:
   generation: off
+
+envVarGroups:
+  - name: api-common
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: PORT
+        value: '3000'
+      - key: LOG_LEVEL
+        value: info
+      - key: BODY_LIMIT_BYTES
+        value: '65536'
+      - key: RATE_LIMIT_MAX
+        value: '100'
+      - key: RATE_LIMIT_WINDOW_MS
+        value: '60000'
+
+  - name: web-common
+    envVars:
+      - key: PUBLIC_TURNSTILE_SITE_KEY
+        sync: false
+
+  - name: production-common
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PUBLIC_SITE_URL
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+
+  - name: staging-common
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PUBLIC_SITE_URL
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+
+  - name: production-api
+    envVars:
+      - key: PERSISTENCE_ENABLED
+        value: 'false'
+      - key: IDENTITY_ENABLED
+        value: 'false'
+      - key: NOTIFICATIONS_ENABLED
+        value: 'true'
+      - key: PAYMENTS_ENABLED
+        value: 'false'
+      - key: SPAM_VERIFICATION_ENABLED
+        value: 'false'
+
+  - name: staging-api
+    envVars:
+      - key: PERSISTENCE_ENABLED
+        value: 'false'
+      - key: IDENTITY_ENABLED
+        value: 'false'
+      - key: NOTIFICATIONS_ENABLED
+        value: 'true'
+      - key: PAYMENTS_ENABLED
+        value: 'false'
+      - key: SPAM_VERIFICATION_ENABLED
+        value: 'false'
+
+  - name: production-web
+    envVars:
+      - key: PUBLIC_SITE_URL
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+
+  - name: staging-web
+    envVars:
+      - key: PUBLIC_SITE_URL
+        sync: false
+      - key: PUBLIC_API_URL
+        sync: false
+
+  - name: production-notifications
+    envVars:
+      - key: NOTIFICATION_RECIPIENT_EMAIL
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_BASE_URL
+        value: https://api.resend.com
+
+  - name: staging-notifications
+    envVars:
+      - key: NOTIFICATION_RECIPIENT_EMAIL
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_BASE_URL
+        value: https://api.resend.com
+
+  - name: production-payments
+    envVars:
+      - key: PAYMENTS_ENABLED
+        value: 'false'
+
+  - name: staging-payments
+    envVars:
+      - key: PAYMENTS_ENABLED
+        value: 'false'
+
+  - name: production-spam
+    envVars:
+      - key: SPAM_VERIFICATION_ENABLED
+        value: 'false'
+
+  - name: staging-spam
+    envVars:
+      - key: SPAM_VERIFICATION_ENABLED
+        value: 'false'

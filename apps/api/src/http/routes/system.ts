@@ -36,6 +36,12 @@ export async function registerSystemRoutes(
   options: SystemRouteOptions = {},
 ): Promise<void> {
   app.get(
+    '/',
+    { config: { rateLimit: false } },
+    async () => getHealthStatus(),
+  );
+
+  app.get(
     '/health',
     {
       config: { rateLimit: false },
